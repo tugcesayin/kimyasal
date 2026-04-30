@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KimyaSal — Tehlike Sorgulama</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --surface: #161820;
+      --surface2: #1e2030;
+      --border: #2a2d3e;
+      --accent: #5ce1e6;
+      --accent2: #ff6b6b;
+      --text: #e8eaf0;
+      --muted: #6b7080;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* HEADER */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--surface);
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 1.3rem;
+      color: var(--accent);
+      letter-spacing: -0.02em;
+    }
+
+    .logo span { color: var(--accent2); }
+
+    .logo-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+
+    /* MAIN LAYOUT */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+    }
+
+    /* SEARCH */
+    .search-section {
+      margin-bottom: 3rem;
+    }
+
+    .search-label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 1rem;
+      padding: 0.85rem 1.2rem;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="text"]::placeholder { color: var(--muted); }
+
+    button#araBtn {
+      background: var(--accent);
+      color: #0d0f14;
+      border: none;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0.85rem 1.8rem;
+      border-radius: 8px;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button#araBtn:hover { opacity: 0.85; }
+    button#araBtn:active { transform: scale(0.98); }
+    button#araBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* LOADING */
+    #yukleniyor {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      margin-top: 1.5rem;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ERROR */
+    #hata {
+      display: none;
+      background: rgba(255,107,107,0.1);
+      border: 1px solid rgba(255,107,107,0.3);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      color: var(--accent2);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    /* RESULT */
+    #sonuc { display: none; }
+
+    /* MOL CARD */
+    .mol-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .mol-name {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .mol-meta {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      text-align: center;
+    }
+
+    .meta-key {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: block;
+    }
+
+    .meta-val {
+      font-family: var(--mono);
+      font-size: 1.1rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* PIKTOGRAM */
+    .section-title {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .piktogram-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.4s ease 0.1s both;
+    }
+
+    .piktogram-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .piktogram-chip .sembol { font-size: 1.3rem; }
+
+    /* H KODLARI */
+    .h-group { margin-bottom: 1.5rem; }
+
+    .h-group-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .h-group-ikon { font-size: 1rem; }
+
+    .h-group-isim {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .h-group-count {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .h-list { display: flex; flex-direction: column; gap: 0.4rem; }
+
+    .h-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 1rem;
+      animation: fadeUp 0.3s ease both;
+    }
+
+    .h-badge {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+      flex-shrink: 0;
+      color: #fff;
+    }
+
+    .h-text {
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .no-data {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      padding: 1rem;
+    }
+
+    /* PUBCHEM LINK */
+    .pubchem-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.4rem 0.9rem;
+      margin-top: 1rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .pubchem-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="logo">Kimya<span>Sal</span></div>
+      <div class="logo-sub">GHS Tehlike Sorgulama Aracı</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="search-section">
+      <span class="search-label">Kimyasal Adı</span>
+      <div class="search-row">
+        <input type="text" id="kimyasalInput" placeholder="örn: sulfuric acid, ethanol, benzene..." />
+        <button id="araBtn" onclick="ara()">Sorgula</button>
+      </div>
+      <div id="yukleniyor"><div class="spinner"></div> PubChem'den veri alınıyor...</div>
+      <div id="hata"></div>
+    </div>
+
+    <div id="sonuc">
+      <div class="mol-card" id="molCard"></div>
+
+      <div class="piktogram-grid" id="piktogramlar"></div>
+
+      <div id="hKodlari"></div>
+
+      <a id="pubchemLink" href="#" target="_blank" class="pubchem-link">
+        ↗ PubChem'de Aç
+      </a>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('kimyasalInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') ara();
+    });
+
+    async function ara() {
+      const kimyasal = document.getElementById('kimyasalInput').value.trim();
+      if (!kimyasal) return;
+
+      document.getElementById('sonuc').style.display = 'none';
+      document.getElementById('hata').style.display = 'none';
+      document.getElementById('yukleniyor').style.display = 'flex';
+      document.getElementById('araBtn').disabled = true;
+
+      try {
+        const res = await fetch('/ara', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kimyasal })
+        });
+        const data = await res.json();
+
+        document.getElementById('yukleniyor').style.display = 'none';
+        document.getElementById('araBtn').disabled = false;
+
+        if (data.hata) {
+          const hataDiv = document.getElementById('hata');
+          hataDiv.textContent = '⚠ ' + data.hata;
+          hataDiv.style.display = 'block';
+          return;
+        }
+
+        // MOL CARD
+        document.getElementById('molCard').innerHTML = `
+          <div class="mol-name">${data.isim}</div>
+          <div class="mol-meta">
+            <div class="meta-item">
+              <span class="meta-key">Formül</span>
+              <span class="meta-val">${data.formul}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-key">Mol Ağırlığı</span>
+              <span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-key">CID</span>
+              <span class="meta-val">${data.cid}</span>
+            </div>
+          </div>
+        `;
+
+        // PİKTOGRAMLAR
+        const piktDiv = document.getElementById('piktogramlar');
+        if (data.piktogramlar.length > 0) {
+          piktDiv.innerHTML = `<div class="section-title" style="width:100%">GHS Piktogramları</div>` +
+            data.piktogramlar.map(p => `
+              <div class="piktogram-chip" style="border-color:${p.renk}33">
+                <span class="sembol">${p.sembol}</span>
+                <span>${p.isim}</span>
+              </div>
+            `).join('');
+        } else {
+          piktDiv.innerHTML = '';
+        }
+
+        // H KODLARI — kategoriye göre grupla
+        const gruplar = {};
+        for (const h of data.h_kodlari) {
+          if (!gruplar[h.kategori]) gruplar[h.kategori] = { renk: h.renk, ikon: h.ikon, liste: [] };
+          gruplar[h.kategori].liste.push(h);
+        }
+
+        const hDiv = document.getElementById('hKodlari');
+        if (data.h_kodlari.length === 0) {
+          hDiv.innerHTML = '<div class="no-data">Tehlike kodu bulunamadı.</div>';
+        } else {
+          hDiv.innerHTML = Object.entries(gruplar).map(([kat, g], gi) => `
+            <div class="h-group" style="animation-delay:${gi * 0.05}s">
+              <div class="h-group-header">
+                <span class="h-group-ikon">${g.ikon}</span>
+                <span class="h-group-isim" style="color:${g.renk}">${kat}</span>
+                <span class="h-group-count">${g.liste.length} kod</span>
+              </div>
+              <div class="h-list">
+                ${g.liste.map((h, i) => `
+                  <div class="h-item" style="animation-delay:${(gi * 0.05 + i * 0.03)}s">
+                    <span class="h-badge" style="background:${h.renk}">${h.kod}</span>
+                    <span class="h-text">${h.tr}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('');
+        }
+
+        // PUBCHEM LİNK
+        document.getElementById('pubchemLink').href = `https://pubchem.ncbi.nlm.nih.gov/compound/${data.cid}`;
+
+        document.getElementById('sonuc').style.display = 'block';
+
+      } catch (err) {
+        document.getElementById('yukleniyor').style.display = 'none';
+        document.getElementById('araBtn').disabled = false;
+        const hataDiv = document.getElementById('hata');
+        hataDiv.textContent = '⚠ Sunucu hatası: ' + err.message;
+        hataDiv.style.display = 'block';
+      }
+    }
+  </script>
+</body>
+</html>

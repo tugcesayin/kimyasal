@@ -1,0 +1,4 @@
+flask
+pubchempy
+requests
+gunicorn

@@ -285,21 +285,21 @@ H_KODLARI_TR = {
 }
 
 GHS_PIKTOGRAM = {
-    "Explosive": {"sembol": "💥", "renk": "#ff6b35", "isim": "Patlayıcı"},
-    "Flammable": {"sembol": "🔥", "renk": "#ff4500", "isim": "Yanıcı"},
-    "Oxidizer": {"sembol": "⭕", "renk": "#ffa500", "isim": "Oksitleyici"},
-    "Compressed Gas": {"sembol": "🫧", "renk": "#4a90d9", "isim": "Basınçlı Gaz"},
-    "Corrosive": {"sembol": "⚗️", "renk": "#8b4513", "isim": "Aşındırıcı"},
-    "Toxic": {"sembol": "☠️", "renk": "#800080", "isim": "Zehirli"},
-    "Harmful": {"sembol": "⚠️", "renk": "#ffd700", "isim": "Zararlı"},
-    "Health Hazard": {"sembol": "🫀", "renk": "#dc143c", "isim": "Sağlık Tehlikesi"},
-    "Environmental Hazard": {"sembol": "🌿", "renk": "#228b22", "isim": "Çevre Tehlikesi"},
+    "Explosive": {"sembol": "", "renk": "#ff6b35", "isim": "Patlayici"},
+    "Flammable": {"sembol": "", "renk": "#ff4500", "isim": "Yanici"},
+    "Oxidizer": {"sembol": "", "renk": "#ffa500", "isim": "Oksitleyici"},
+    "Compressed Gas": {"sembol": "", "renk": "#4a90d9", "isim": "Basinçli Gaz"},
+    "Corrosive": {"sembol": "", "renk": "#8b4513", "isim": "Asindirici"},
+    "Toxic": {"sembol": "", "renk": "#800080", "isim": "Zehirli"},
+    "Harmful": {"sembol": "", "renk": "#ffd700", "isim": "Zararli"},
+    "Health Hazard": {"sembol": "", "renk": "#dc143c", "isim": "Saglik Tehlikesi"},
+    "Environmental Hazard": {"sembol": "", "renk": "#228b22", "isim": "Cevre Tehlikesi"},
 }
 
 H_KATEGORI = {
-    "H2": {"isim": "Fiziksel Tehlike", "renk": "#ff6b35", "ikon": "⚡"},
-    "H3": {"isim": "Sağlık Tehlikesi", "renk": "#e74c3c", "ikon": "🫀"},
-    "H4": {"isim": "Çevre Tehlikesi", "renk": "#27ae60", "ikon": "🌿"},
+    "H2": {"isim": "Fiziksel Tehlike", "renk": "#ff6b35", "ikon": "!"},
+    "H3": {"isim": "Saglik Tehlikesi", "renk": "#e74c3c", "ikon": "+"},
+    "H4": {"isim": "Cevre Tehlikesi", "renk": "#27ae60", "ikon": "*"},
 }
 
 
@@ -420,10 +420,18 @@ def pdf_rapor():
     from reportlab.pdfbase.ttfonts import TTFont
     import urllib.request, os, io
 
-    import os
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    pdfmetrics.registerFont(TTFont('DejaVu', os.path.join(BASE_DIR, 'DejaVuSans.ttf')))
-    pdfmetrics.registerFont(TTFont('DejaVu-Bold', os.path.join(BASE_DIR, 'DejaVuSans-Bold.ttf')))
+    font_path = "/tmp/DejaVuSans.ttf"
+    font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
+    if not os.path.exists(font_path):
+        urllib.request.urlretrieve(
+            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf",
+            font_path)
+    if not os.path.exists(font_bold_path):
+        urllib.request.urlretrieve(
+            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf",
+            font_bold_path)
+    pdfmetrics.registerFont(TTFont('DejaVu', font_path))
+    pdfmetrics.registerFont(TTFont('DejaVu-Bold', font_bold_path))
     FONT = 'DejaVu'
     FONT_BOLD = 'DejaVu-Bold'
 

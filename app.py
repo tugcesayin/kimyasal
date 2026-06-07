@@ -407,3 +407,117 @@ def ara():
 
 if __name__ == "__main__":
     app.run(debug=False)
+
+
+@app.route("/pdf", methods=["POST"])
+def pdf_rapor():
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    import io
+    import base64
+
+    veri = request.json
+    isim = veri.get("isim", "")
+    formul = veri.get("formul", "")
+    agirlik = veri.get("agirlik", "")
+    cid = veri.get("cid", "")
+    h_kodlari = veri.get("h_kodlari", [])
+    piktogramlar = veri.get("piktogramlar", [])
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            rightMargin=2*cm, leftMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    # Başlık
+    baslik_style = ParagraphStyle('baslik', parent=styles['Title'],
+                                   fontSize=22, spaceAfter=6,
+                                   textColor=colors.HexColor('#1a1a2e'))
+    story.append(Paragraph(f"KimyaSal — Tehlike Raporu", baslik_style))
+
+    alt_baslik_style = ParagraphStyle('altbaslik', parent=styles['Normal'],
+                                       fontSize=13, spaceAfter=16,
+                                       textColor=colors.HexColor('#5ce1e6'))
+    story.append(Paragraph(isim, alt_baslik_style))
+
+    # Mol bilgisi tablosu
+    mol_data = [
+        ['Kimyasal Formül', formul],
+        ['Mol Ağırlığı', f"{agirlik} g/mol"],
+        ['PubChem CID', str(cid)],
+    ]
+    mol_table = Table(mol_data, colWidths=[5*cm, 10*cm])
+    mol_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e8f4f8')),
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.HexColor('#f0f8ff'), colors.white]),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
+        ('PADDING', (0, 0), (-1, -1), 6),
+    ]))
+    story.append(mol_table)
+    story.append(Spacer(1, 0.5*cm))
+
+    # Molekül yapı resmi
+    if cid:
+        try:
+            img_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG?record_type=2d&image_size=250x250"
+            img_resp = requests.get(img_url, timeout=10)
+            if img_resp.status_code == 200:
+                img_buf = io.BytesIO(img_resp.content)
+                mol_img = Image(img_buf, width=6*cm, height=6*cm)
+                story.append(Paragraph("<b>Molekül Yapısı</b>", styles['Heading2']))
+                story.append(mol_img)
+                story.append(Spacer(1, 0.3*cm))
+        except Exception:
+            pass
+
+    # Piktogramlar
+    if piktogramlar:
+        story.append(Paragraph("<b>GHS Piktogramları</b>", styles['Heading2']))
+        pikt_text = "  |  ".join([p['isim'] for p in piktogramlar])
+        story.append(Paragraph(pikt_text, styles['Normal']))
+        story.append(Spacer(1, 0.5*cm))
+
+    # H Kodları
+    if h_kodlari:
+        story.append(Paragraph("<b>Tehlike Bildirimleri (H Kodları)</b>", styles['Heading2']))
+        story.append(Spacer(1, 0.2*cm))
+
+        h_data = [['Kod', 'Açıklama', 'Kategori']]
+        for h in h_kodlari:
+            h_data.append([h['kod'], h['tr'], h['kategori']])
+
+        h_table = Table(h_data, colWidths=[2*cm, 10*cm, 4*cm])
+        h_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a1a2e')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#f9f9f9'), colors.white]),
+            ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#dddddd')),
+            ('PADDING', (0, 0), (-1, -1), 5),
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+        ]))
+        story.append(h_table)
+
+    story.append(Spacer(1, 1*cm))
+    footer_style = ParagraphStyle('footer', parent=styles['Normal'],
+                                   fontSize=8, textColor=colors.grey)
+    story.append(Paragraph(f"Kaynak: PubChem (pubchem.ncbi.nlm.nih.gov) | kimyasal.onrender.com", footer_style))
+
+    doc.build(story)
+    buffer.seek(0)
+
+    from flask import send_file
+    return send_file(buffer, mimetype='application/pdf',
+                     as_attachment=True,
+                     download_name=f"{isim.replace(' ', '_')}_tehlike_raporu.pdf")

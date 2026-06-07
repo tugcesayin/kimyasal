@@ -2,3 +2,4 @@ flask
 pubchempy
 requests
 gunicorn
+reportlab

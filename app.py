@@ -420,7 +420,7 @@ def pdf_rapor():
     from reportlab.pdfbase.ttfonts import TTFont
     import urllib.request, os, io
 
-    font_path = "/tmp/DejaVuSans.ttf"
+    import os
     font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
     if not os.path.exists(font_path):
         urllib.request.urlretrieve(

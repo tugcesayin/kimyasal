@@ -418,8 +418,22 @@ def pdf_rapor():
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    import io
-    import base64
+    import urllib.request, os, io
+
+    font_path = "/tmp/DejaVuSans.ttf"
+    font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
+    if not os.path.exists(font_path):
+        urllib.request.urlretrieve(
+            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf",
+            font_path)
+    if not os.path.exists(font_bold_path):
+        urllib.request.urlretrieve(
+            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf",
+            font_bold_path)
+    pdfmetrics.registerFont(TTFont('DejaVu', font_path))
+    pdfmetrics.registerFont(TTFont('DejaVu-Bold', font_bold_path))
+    FONT = 'DejaVu'
+    FONT_BOLD = 'DejaVu-Bold'
 
     veri = request.json
     isim = veri.get("isim", "")
@@ -457,7 +471,7 @@ def pdf_rapor():
     mol_table = Table(mol_data, colWidths=[5*cm, 10*cm])
     mol_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#e8f4f8')),
-        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+        ('FONTNAME', (0, 0), (-1, -1), FONT),
         ('FONTSIZE', (0, 0), (-1, -1), 10),
         ('ROWBACKGROUNDS', (0, 0), (-1, -1), [colors.HexColor('#f0f8ff'), colors.white]),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#cccccc')),
@@ -500,12 +514,12 @@ def pdf_rapor():
         h_table.setStyle(TableStyle([
             ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1a1a2e')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTNAME', (0, 0), (-1, -1), FONT),
             ('FONTSIZE', (0, 0), (-1, -1), 9),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.HexColor('#f9f9f9'), colors.white]),
             ('GRID', (0, 0), (-1, -1), 0.3, colors.HexColor('#dddddd')),
             ('PADDING', (0, 0), (-1, -1), 5),
-            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (0, 1), (0, -1), FONT),
         ]))
         story.append(h_table)
 

@@ -420,18 +420,10 @@ def pdf_rapor():
     from reportlab.pdfbase.ttfonts import TTFont
     import urllib.request, os, io
 
-    font_path = "/tmp/DejaVuSans.ttf"
-    font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
-    if not os.path.exists(font_path):
-        urllib.request.urlretrieve(
-            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf",
-            font_path)
-    if not os.path.exists(font_bold_path):
-        urllib.request.urlretrieve(
-            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf",
-            font_bold_path)
-    pdfmetrics.registerFont(TTFont('DejaVu', font_path))
-    pdfmetrics.registerFont(TTFont('DejaVu-Bold', font_bold_path))
+    import os
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    pdfmetrics.registerFont(TTFont('DejaVu', os.path.join(BASE_DIR, 'DejaVuSans.ttf')))
+    pdfmetrics.registerFont(TTFont('DejaVu-Bold', os.path.join(BASE_DIR, 'DejaVuSans-Bold.ttf')))
     FONT = 'DejaVu'
     FONT_BOLD = 'DejaVu-Bold'
 

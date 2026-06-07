@@ -420,26 +420,12 @@ def pdf_rapor():
     from reportlab.pdfbase.ttfonts import TTFont
     import io
 
-    # Render sunucusunda mevcut sistem fontunu kullan
-    import subprocess, os
-    font_path = None
-    for candidate in [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
-        "/usr/share/fonts/truetype/freefont/FreeSans.ttf",
-        "/usr/share/fonts/TTF/DejaVuSans.ttf",
-    ]:
-        if os.path.exists(candidate):
-            font_path = candidate
-            break
-
-    if font_path:
-        pdfmetrics.registerFont(TTFont('TurkFont', font_path))
-        FONT = 'TurkFont'
-        FONT_BOLD = 'TurkFont'
-    else:
-        FONT = 'Helvetica'
-        FONT_BOLD = 'Helvetica-Bold'
+    import os
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    pdfmetrics.registerFont(TTFont('DejaVu', os.path.join(BASE_DIR, 'DejaVuSans.ttf')))
+    pdfmetrics.registerFont(TTFont('DejaVu-Bold', os.path.join(BASE_DIR, 'DejaVuSans-Bold.ttf')))
+    FONT = 'DejaVu'
+    FONT_BOLD = 'DejaVu-Bold'
 
     veri = request.json
     isim = veri.get("isim", "")

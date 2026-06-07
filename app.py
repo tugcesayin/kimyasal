@@ -5,6 +5,64 @@ import re
 
 app = Flask(__name__)
 
+TURKCE_KIMYASAL = {
+    "nitrik asit": "nitric acid",
+    "sülfürik asit": "sulfuric acid",
+    "hidroklorik asit": "hydrochloric acid",
+    "asetik asit": "acetic acid",
+    "etanol": "ethanol",
+    "metanol": "methanol",
+    "aseton": "acetone",
+    "benzen": "benzene",
+    "toluen": "toluene",
+    "amonyak": "ammonia",
+    "sodyum hidroksit": "sodium hydroxide",
+    "potasyum hidroksit": "potassium hydroxide",
+    "hidrojen peroksit": "hydrogen peroxide",
+    "kloroform": "chloroform",
+    "karbon tetraklorür": "carbon tetrachloride",
+    "formaldehit": "formaldehyde",
+    "gliserin": "glycerol",
+    "etilen glikol": "ethylene glycol",
+    "fosforik asit": "phosphoric acid",
+    "sodyum klorür": "sodium chloride",
+    "kalsiyum karbonat": "calcium carbonate",
+    "sodyum bikarbonat": "sodium bicarbonate",
+    "kükürt dioksit": "sulfur dioxide",
+    "karbon dioksit": "carbon dioxide",
+    "azot": "nitrogen",
+    "oksijen": "oxygen",
+    "hidrojen": "hydrogen",
+    "klor": "chlorine",
+    "flor": "fluorine",
+    "brom": "bromine",
+    "iyot": "iodine",
+    "demir": "iron",
+    "bakır": "copper",
+    "çinko": "zinc",
+    "alüminyum": "aluminum",
+    "kurşun": "lead",
+    "civa": "mercury",
+    "arsenik": "arsenic",
+    "siyanür": "cyanide",
+    "potasyum permanganat": "potassium permanganate",
+    "sodyum hipoklorit": "sodium hypochlorite",
+    "eter": "diethyl ether",
+    "dietil eter": "diethyl ether",
+    "fenol": "phenol",
+    "anilin": "aniline",
+    "naftalin": "naphthalene",
+    "sitrik asit": "citric acid",
+    "okzalik asit": "oxalic acid",
+}
+
+def turkce_cevir(ad):
+    temiz = ad.strip().lower()
+    return TURKCE_KIMYASAL.get(temiz, ad)
+
+def formul_alt_indis(formul):
+    return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), formul)
+
 H_KODLARI_TR = {
     "H200": "Patlayıcı; kitlesel patlama tehlikesi",
     "H201": "Patlayıcı; kitlesel patlama tehlikesi",
@@ -114,13 +172,15 @@ def index():
 
 @app.route("/ara", methods=["POST"])
 def ara():
-    kimyasal = request.json.get("kimyasal", "").strip()
-    if not kimyasal:
+    kimyasal_girdi = request.json.get("kimyasal", "").strip()
+    if not kimyasal_girdi:
         return jsonify({"hata": "Kimyasal adı boş olamaz."})
+
+    kimyasal = turkce_cevir(kimyasal_girdi)
 
     compounds = pcp.get_compounds(kimyasal, "name")
     if not compounds:
-        return jsonify({"hata": f"'{kimyasal}' bulunamadı."})
+        return jsonify({"hata": f"'{kimyasal_girdi}' bulunamadı. Farklı bir yazım deneyebilirsiniz."})
 
     c = compounds[0]
 
@@ -130,6 +190,8 @@ def ara():
         return jsonify({"hata": "CID alınamadı."})
 
     cid = res.json()["IdentifierList"]["CID"][0]
+
+    yapi_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG?record_type=2d&image_size=300x300"
 
     data_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/{cid}/JSON"
     data = requests.get(data_url).json()
@@ -190,14 +252,15 @@ def ara():
             })
 
     return jsonify({
-        "isim": kimyasal.title(),
-        "formul": c.molecular_formula,
+        "isim": kimyasal_girdi.title(),
+        "formul": formul_alt_indis(c.molecular_formula),
         "agirlik": str(c.molecular_weight),
         "cid": cid,
+        "yapi_url": yapi_url,
         "h_kodlari": h_listesi,
         "piktogramlar": pikt_listesi,
     })
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

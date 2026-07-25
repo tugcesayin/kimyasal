@@ -400,7 +400,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/ngl@2.0.0-dev.37/dist/ngl.js"></script>
+  <script src="https://3dmol.org/build/3Dmol-min.js"></script>
 </head>
 <body>
   <header>
@@ -594,27 +594,22 @@
       if (!guncelCid) return;
       const container = document.getElementById('viewer3d');
       container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">Yükleniyor...</div>';
-      
-      if (nglStage) { nglStage.dispose(); nglStage = null; }
-      
-      setTimeout(() => {
-        try {
-          nglStage = new NGL.Stage('viewer3d', { backgroundColor: '#1a1a2e' });
-          const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`;
-          nglStage.loadFile(url, { ext: 'sdf' }).then(comp => {
-            comp.addRepresentation('ball+stick', {
-              colorScheme: 'element',
-              sphereScale: 0.4,
-              bondScale: 0.3,
-            });
-            comp.autoView();
-          }).catch(() => {
-            container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">3D yapı bulunamadı</div>';
-          });
-        } catch(e) {
-          container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">3D yüklenemedi</div>';
-        }
-      }, 100);
+
+      const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`;
+      fetch(url).then(r => r.text()).then(sdfData => {
+        container.innerHTML = '';
+        const viewer = $3Dmol.createViewer(container, {
+          backgroundColor: '#1a1a2e',
+          antialias: true,
+        });
+        viewer.addModel(sdfData, 'sdf');
+        viewer.setStyle({}, { stick: { radius: 0.15, colorscheme: 'Jmol' }, sphere: { scale: 0.3, colorscheme: 'Jmol' } });
+        viewer.zoomTo();
+        viewer.render();
+        viewer.zoom(1.2);
+      }).catch(() => {
+        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">3D yapı bulunamadı</div>';
+      });
     }
     let autocompleteTimeout = null;
 

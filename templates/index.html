@@ -335,6 +335,33 @@
     }
     .pdf-btn:hover { opacity: 0.85; }
 
+    /* AUTOCOMPLETE */
+    .search-wrapper { position: relative; flex: 1; }
+    .autocomplete-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      z-index: 100;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .autocomplete-item {
+      padding: 0.65rem 1.2rem;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .autocomplete-item:hover { background: var(--border); color: var(--accent); }
+    .autocomplete-item:last-child { border-bottom: none; }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -353,7 +380,10 @@
     <div class="search-section">
       <span class="search-label">Kimyasal Adı</span>
       <div class="search-row">
-        <input type="text" id="kimyasalInput" placeholder="örn: sulfuric acid, ethanol, benzene..." />
+        <div class="search-wrapper">
+          <input type="text" id="kimyasalInput" placeholder="örn: sülfürik asit, etanol, benzen..." autocomplete="off" />
+          <div class="autocomplete-list" id="autocompleteList" style="display:none"></div>
+        </div>
         <button id="araBtn" onclick="ara()">Sorgula</button>
       </div>
       <div id="yukleniyor"><div class="spinner"></div> PubChem'den veri alınıyor...</div>
@@ -494,6 +524,56 @@
     }
 
     let sonVeri = null;
+    let autocompleteTimeout = null;
+
+    document.getElementById('kimyasalInput').addEventListener('input', function() {
+      clearTimeout(autocompleteTimeout);
+      const val = this.value.trim();
+      if (val.length < 2) {
+        document.getElementById('autocompleteList').style.display = 'none';
+        return;
+      }
+      autocompleteTimeout = setTimeout(() => fetchAutocomplete(val), 300);
+    });
+
+    document.getElementById('kimyasalInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.getElementById('autocompleteList').style.display = 'none';
+      }
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.search-wrapper')) {
+        document.getElementById('autocompleteList').style.display = 'none';
+      }
+    });
+
+    async function fetchAutocomplete(query) {
+      try {
+        const url = `https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(query)}/JSON?limit=8`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const items = data?.dictionary_terms?.compound || [];
+        showAutocomplete(items);
+      } catch(e) {
+        document.getElementById('autocompleteList').style.display = 'none';
+      }
+    }
+
+    function showAutocomplete(items) {
+      const list = document.getElementById('autocompleteList');
+      if (!items.length) { list.style.display = 'none'; return; }
+      list.innerHTML = items.map(item => 
+        `<div class="autocomplete-item" onclick="secItem('${item.replace(/'/g, "\'")}')">${item}</div>`
+      ).join('');
+      list.style.display = 'block';
+    }
+
+    function secItem(isim) {
+      document.getElementById('kimyasalInput').value = isim;
+      document.getElementById('autocompleteList').style.display = 'none';
+      ara();
+    }
 
     async function pdfIndir() {
       if (!sonVeri) return;

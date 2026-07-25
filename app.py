@@ -201,7 +201,16 @@ TURKCE_KIMYASAL = {
 
 def turkce_cevir(ad):
     temiz = ad.strip().lower()
-    return TURKCE_KIMYASAL.get(temiz, ad)
+    # Önce kendi listemize bak
+    if temiz in TURKCE_KIMYASAL:
+        return TURKCE_KIMYASAL[temiz]
+    # Listede yoksa deep-translator ile çevir
+    try:
+        from deep_translator import GoogleTranslator
+        cevirilen = GoogleTranslator(source='tr', target='en').translate(ad)
+        return cevirilen if cevirilen else ad
+    except Exception:
+        return ad
 
 def formul_alt_indis(formul):
     return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), formul)
@@ -420,7 +429,7 @@ def pdf_rapor():
     from reportlab.pdfbase.ttfonts import TTFont
     import urllib.request, os, io
 
-    import os
+    font_path = "/tmp/DejaVuSans.ttf"
     font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
     if not os.path.exists(font_path):
         urllib.request.urlretrieve(

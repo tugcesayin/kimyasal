@@ -3,3 +3,4 @@ pubchempy
 requests
 gunicorn
 reportlab
+deep-translator

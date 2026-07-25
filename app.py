@@ -366,7 +366,7 @@ def ara():
 
     cid = res.json()["IdentifierList"]["CID"][0]
 
-    yapi_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG?record_type=2d&image_size=300x300"
+    yapi_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{cid}/PNG?record_type=2d&image_size=600x600"
 
     data_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/{cid}/JSON"
     data = requests.get(data_url).json()

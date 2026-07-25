@@ -493,7 +493,6 @@ def pdf_rapor():
     mol_data = [
         ['Kimyasal Formül', formul],
         ['Mol Ağırlığı', f"{agirlik} g/mol"],
-        ['PubChem CID', str(cid)],
     ]
     mol_table = Table(mol_data, colWidths=[5*cm, 10*cm])
     mol_table.setStyle(TableStyle([

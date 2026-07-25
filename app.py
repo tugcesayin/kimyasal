@@ -437,9 +437,6 @@ def ara():
     })
 
 
-if __name__ == "__main__":
-    app.run(debug=False)
-
 
 @app.route("/pdf", methods=["POST"])
 def pdf_rapor():
@@ -450,22 +447,20 @@ def pdf_rapor():
     from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    import urllib.request, os, io
+    import io
 
-    font_path = "/tmp/DejaVuSans.ttf"
-    font_bold_path = "/tmp/DejaVuSans-Bold.ttf"
-    if not os.path.exists(font_path):
-        urllib.request.urlretrieve(
-            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans.ttf",
-            font_path)
-    if not os.path.exists(font_bold_path):
-        urllib.request.urlretrieve(
-            "https://github.com/dejavu-fonts/dejavu-fonts/raw/master/ttf/DejaVuSans-Bold.ttf",
-            font_bold_path)
-    pdfmetrics.registerFont(TTFont('DejaVu', font_path))
-    pdfmetrics.registerFont(TTFont('DejaVu-Bold', font_bold_path))
-    FONT = 'DejaVu'
-    FONT_BOLD = 'DejaVu-Bold'
+    import os as _os
+    BASE_DIR = _os.path.dirname(_os.path.abspath(__file__))
+    font_path = _os.path.join(BASE_DIR, 'DejaVuSans.ttf')
+    font_bold_path = _os.path.join(BASE_DIR, 'DejaVuSans-Bold.ttf')
+    if _os.path.exists(font_path):
+        pdfmetrics.registerFont(TTFont('DejaVu', font_path))
+        pdfmetrics.registerFont(TTFont('DejaVu-Bold', font_bold_path))
+        FONT = 'DejaVu'
+        FONT_BOLD = 'DejaVu-Bold'
+    else:
+        FONT = 'Helvetica'
+        FONT_BOLD = 'Helvetica-Bold'
 
     veri = request.json
     isim = veri.get("isim", "")
@@ -567,3 +562,7 @@ def pdf_rapor():
     return send_file(buffer, mimetype='application/pdf',
                      as_attachment=True,
                      download_name=f"{isim.replace(' ', '_')}_tehlike_raporu.pdf")
+
+
+if __name__ == "__main__":
+    app.run(debug=False)

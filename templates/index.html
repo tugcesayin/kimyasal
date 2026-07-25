@@ -80,6 +80,7 @@
     .search-row {
       display: flex;
       gap: 0.75rem;
+      width: 100%;
     }
 
     input[type="text"] {
@@ -369,7 +370,7 @@
     }
 
     /* AUTOCOMPLETE */
-    .search-wrapper { position: relative; flex: 1; }
+    .search-wrapper { position: relative; flex: 1; min-width: 0; }
     .autocomplete-list {
       position: absolute;
       top: 100%;
@@ -689,7 +690,7 @@
       URL.revokeObjectURL(url);
     }
   </script>
-  <svg id="chembg" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.045;" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <svg id="chembg" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.12;" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <!-- Beaker -->
     <g stroke="#5ce1e6" stroke-width="2" fill="none">
       <path d="M80 200 L65 320 Q63 340 85 340 L135 340 Q157 340 155 320 L140 200 Z"/>

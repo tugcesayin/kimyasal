@@ -548,15 +548,26 @@
       }
     });
 
+    const TURKCE_LISTE = ["nitrik asit","sülfürik asit","hidroklorik asit","asetik asit","fosforik asit","sitrik asit","okzalik asit","formik asit","laktik asit","tartarik asit","malik asit","borik asit","hidroflorik asit","benzoik asit","salisillik asit","akrilik asit","sodyum hidroksit","potasyum hidroksit","kalsiyum hidroksit","magnezyum hidroksit","amonyum hidroksit","etanol","metanol","propanol","izopropanol","bütanol","gliserin","etilen glikol","propilen glikol","benzil alkol","fenol","aseton","formaldehit","asetaldehit","benzaldehit","glutaraldehit","benzen","toluen","ksilen","stiren","naftalin","anilin","nitrobenzen","klorobenzen","piridin","kloroform","karbon tetraklorür","diklorometan","etil asetat","metil asetat","amonyak","hidrojen","oksijen","azot","klor","karbon dioksit","kükürt dioksit","karbon monoksit","hidrojen peroksit","ozon","sodyum klorür","potasyum klorür","kalsiyum karbonat","sodyum bikarbonat","sodyum karbonat","potasyum permanganat","sodyum hipoklorit","bakır sülfat","gümüş nitrat","demir","bakır","çinko","alüminyum","kurşun","civa","arsenik","kükürt","fosfor","karbon","nikel","krom","gümüş","altın","platin","titanyum","hekzan","heptan","sikloheksan","dmso","asetonitril","glikoz","fruktoz","sakkaroz","üre","kafein","kolesterol","aspirin","parasetamol","ibuprofen","etilen","asetilen","indol","imidazol"];
+
     async function fetchAutocomplete(query) {
+      const q = query.toLowerCase();
+      
+      // Türkçe listeden eşleşenleri bul
+      const trSonuclar = TURKCE_LISTE.filter(k => k.startsWith(q)).slice(0, 4);
+      
+      // PubChem'den İngilizce öneriler al
       try {
-        const url = `https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(query)}/JSON?limit=8`;
+        const url = `https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(query)}/JSON?limit=6`;
         const res = await fetch(url);
         const data = await res.json();
-        const items = data?.dictionary_terms?.compound || [];
-        showAutocomplete(items);
+        const enSonuclar = data?.dictionary_terms?.compound || [];
+        
+        // İkisini birleştir, tekrarları kaldır
+        const tumSonuclar = [...new Set([...trSonuclar, ...enSonuclar])].slice(0, 8);
+        showAutocomplete(tumSonuclar);
       } catch(e) {
-        document.getElementById('autocompleteList').style.display = 'none';
+        showAutocomplete(trSonuclar);
       }
     }
 

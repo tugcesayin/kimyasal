@@ -212,6 +212,29 @@ def turkce_cevir(ad):
     except Exception:
         return ad
 
+def hill_sirala(formul):
+    import re
+    # Elementleri parse et
+    elementler = re.findall(r'([A-Z][a-z]?)(\d*)', formul)
+    sayac = {}
+    for el, sayi in elementler:
+        if el:
+            sayac[el] = sayac.get(el, 0) + (int(sayi) if sayi else 1)
+    
+    # Hill sırası: C önce, H sonra, geri kalanlar alfabetik
+    sonuc = []
+    if 'C' in sayac:
+        sonuc.append(('C', sayac.pop('C')))
+        if 'H' in sayac:
+            sonuc.append(('H', sayac.pop('H')))
+    elif 'H' in sayac:
+        sonuc.append(('H', sayac.pop('H')))
+    
+    for el in sorted(sayac.keys()):
+        sonuc.append((el, sayac[el]))
+    
+    return ''.join(f"{el}{sayi if sayi > 1 else ''}" for el, sayi in sonuc)
+
 def formul_alt_indis(formul):
     return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), formul)
 
@@ -405,7 +428,7 @@ def ara():
 
     return jsonify({
         "isim": kimyasal_girdi.title(),
-        "formul": formul_alt_indis(c.molecular_formula),
+        "formul": formul_alt_indis(hill_sirala(c.molecular_formula)),
         "agirlik": str(c.molecular_weight),
         "cid": cid,
         "yapi_url": yapi_url,

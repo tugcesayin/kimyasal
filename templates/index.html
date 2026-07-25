@@ -85,6 +85,8 @@
 
     input[type="text"] {
       flex: 1;
+      width: 100%;
+      min-width: 0;
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
@@ -94,6 +96,7 @@
       border-radius: 8px;
       outline: none;
       transition: border-color 0.2s;
+      box-sizing: border-box;
     }
 
     input[type="text"]:focus {
@@ -416,7 +419,7 @@
       <span class="search-label">Kimyasal Adı</span>
       <div class="search-row">
         <div class="search-wrapper">
-          <input type="text" id="kimyasalInput" placeholder="örn: sülfürik asit, etanol, benzen..." autocomplete="off" />
+          <input type="text" id="kimyasalInput" placeholder="örn: sülfürik asit, etanol, benzen..." autocomplete="off" style="width:100%" />
           <div class="autocomplete-list" id="autocompleteList" style="display:none"></div>
         </div>
         <button id="araBtn" onclick="ara()">Sorgula</button>
@@ -690,7 +693,7 @@
       URL.revokeObjectURL(url);
     }
   </script>
-  <svg id="chembg" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.12;" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <svg id="chembg" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.18;" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     <!-- Beaker -->
     <g stroke="#5ce1e6" stroke-width="2" fill="none">
       <path d="M80 200 L65 320 Q63 340 85 340 L135 340 Q157 340 155 320 L140 200 Z"/>
@@ -760,6 +763,41 @@
       <circle cx="450" cy="350" r="5" fill="#5ce1e6"/>
       <circle cx="500" cy="400" r="5" fill="#5ce1e6"/>
       <circle cx="450" cy="450" r="5" fill="#5ce1e6"/>
+    </g>
+
+    <!-- Ekstra çizimler -->
+    <!-- Beher 2 -->
+    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(700,600)">
+      <path d="M0 0 L-15 100 Q-17 115 0 115 L40 115 Q57 115 55 100 L40 0 Z"/>
+      <line x1="-5" y1="40" x2="45" y2="40"/>
+    </g>
+    <!-- Atom 2 -->
+    <g stroke="#5ce1e6" stroke-width="1" fill="none" transform="translate(200,350)">
+      <circle cx="0" cy="0" r="8" fill="#5ce1e6" fill-opacity="0.2"/>
+      <ellipse cx="0" cy="0" rx="40" ry="15" transform="rotate(0)"/>
+      <ellipse cx="0" cy="0" rx="40" ry="15" transform="rotate(60)"/>
+      <ellipse cx="0" cy="0" rx="40" ry="15" transform="rotate(120)"/>
+    </g>
+    <!-- Formüller -->
+    <text x="850" y="500" fill="#5ce1e6" font-size="16" font-family="monospace" opacity="0.55">CO₂</text>
+    <text x="300" y="600" fill="#5ce1e6" font-size="14" font-family="monospace" opacity="0.5">HCl</text>
+    <text x="1000" y="300" fill="#5ce1e6" font-size="15" font-family="monospace" opacity="0.5">H₂SO₄</text>
+    <text x="650" y="200" fill="#5ce1e6" font-size="13" font-family="monospace" opacity="0.45">C₂H₅OH</text>
+    <!-- Deney tüpü 3 -->
+    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(800,700) rotate(30)">
+      <path d="M0 0 L0 60 Q0 75 10 75 Q20 75 20 60 L20 0"/>
+      <line x1="0" y1="0" x2="20" y2="0"/>
+    </g>
+    <!-- Bağ çizgileri 2 -->
+    <g stroke="#5ce1e6" stroke-width="1" opacity="0.35" transform="translate(1100,500)">
+      <circle cx="0" cy="0" r="5" fill="#5ce1e6"/>
+      <circle cx="40" cy="-30" r="5" fill="#5ce1e6"/>
+      <circle cx="80" cy="0" r="5" fill="#5ce1e6"/>
+      <circle cx="40" cy="30" r="5" fill="#5ce1e6"/>
+      <line x1="5" y1="-2" x2="35" y2="-28"/>
+      <line x1="5" y1="2" x2="35" y2="28"/>
+      <line x1="45" y1="-28" x2="75" y2="-2"/>
+      <line x1="45" y1="28" x2="75" y2="2"/>
     </g>
   </svg>
 </body>

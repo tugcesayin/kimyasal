@@ -1,842 +1,489 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KimyaSal — Tehlike Sorgulama</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <title>KimyaSal — GHS Tehlike Sorgulama</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0d0f14;
-      --surface: #161820;
-      --surface2: #1e2030;
-      --border: #2a2d3e;
-      --accent: #5ce1e6;
-      --accent2: #ff6b6b;
-      --text: #e8eaf0;
-      --muted: #6b7080;
+      --bg: #07090f;
+      --surface: #0e1118;
+      --surface2: #141826;
+      --border: #1e2235;
+      --accent: #00d4ff;
+      --accent2: #ff4757;
+      --accent3: #a855f7;
+      --green: #00ff88;
+      --text: #e8eaf6;
+      --muted: #5a6080;
       --mono: 'Space Mono', monospace;
       --sans: 'DM Sans', sans-serif;
     }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      padding: 0;
+    /* GLOW EFFECTS */
+    .glow-cyan { box-shadow: 0 0 30px rgba(0,212,255,0.2); }
+    .glow-purple { box-shadow: 0 0 30px rgba(168,85,247,0.2); }
+
+    /* NAVBAR */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(7,9,15,0.8); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0,212,255,0.1);
+      padding: 0 2.5rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
     }
+    .nav-logo { font-family: var(--mono); font-size: 1.2rem; }
+    .nav-logo span { color: var(--accent); }
+    .nav-logo small { font-size: 0.65rem; color: var(--muted); display: block; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--accent); }
 
-    /* HEADER */
-    header {
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: var(--surface);
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 80px 2.5rem 4rem;
+      position: relative; overflow: hidden;
     }
-
-    .logo {
-      font-family: var(--mono);
-      font-size: 1.3rem;
-      color: var(--accent);
-      letter-spacing: -0.02em;
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,212,255,0.07) 0%, transparent 60%),
+                  radial-gradient(ellipse 60% 50% at 80% 70%, rgba(168,85,247,0.06) 0%, transparent 60%),
+                  radial-gradient(ellipse 40% 40% at 20% 80%, rgba(0,255,136,0.04) 0%, transparent 50%);
     }
+    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; width: 100%; }
+    @media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr; } .hero-right { display: none; } }
 
-    .logo span { color: var(--accent2); }
-
-    .logo-sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-      font-family: var(--mono);
-      margin-top: 2px;
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(168,85,247,0.1));
+      border: 1px solid rgba(0,212,255,0.3); border-radius: 24px;
+      padding: 0.4rem 1.1rem; font-size: 0.78rem; color: var(--accent);
+      margin-bottom: 1.5rem; font-family: var(--mono);
+      animation: fadeUp 0.6s ease;
     }
-
-    /* MAIN LAYOUT */
-    main {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 3rem 2rem;
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 700; line-height: 1.15;
+      margin-bottom: 1.25rem; animation: fadeUp 0.6s ease 0.1s both;
     }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent3));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero p { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; animation: fadeUp 0.6s ease 0.2s both; }
 
     /* SEARCH */
-    .search-section {
-      margin-bottom: 3rem;
+    .search-wrapper { position: relative; animation: fadeUp 0.6s ease 0.3s both; }
+    .search-box {
+      background: rgba(14,17,24,0.9);
+      border: 1px solid rgba(0,212,255,0.25);
+      border-radius: 14px; padding: 0.6rem 0.6rem 0.6rem 1.4rem;
+      display: flex; align-items: center; gap: 0.75rem;
+      transition: border-color 0.3s, box-shadow 0.3s;
     }
-
-    .search-label {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--accent);
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 0.75rem;
+    .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+    .search-box input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text); font-family: var(--mono); font-size: 0.95rem; padding: 0.5rem 0; min-width: 0;
     }
-
-    .search-row {
-      display: flex;
-      gap: 0.75rem;
-      width: 100%;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      width: 100%;
-      min-width: 0;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 1rem;
-      padding: 0.85rem 1.2rem;
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-
-    input[type="text"]:focus {
-      border-color: var(--accent);
-    }
-
-    input[type="text"]::placeholder { color: var(--muted); }
-
-    button#araBtn {
-      background: var(--accent);
-      color: #0d0f14;
-      border: none;
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 0.85rem 1.8rem;
-      border-radius: 8px;
-      cursor: pointer;
-      letter-spacing: 0.05em;
+    .search-box input::placeholder { color: var(--muted); }
+    .search-btn {
+      background: linear-gradient(135deg, var(--accent), #0099bb);
+      color: #07090f; border: none; border-radius: 10px;
+      font-family: var(--mono); font-weight: 700; font-size: 0.85rem;
+      padding: 0.8rem 1.6rem; cursor: pointer; white-space: nowrap;
       transition: opacity 0.2s, transform 0.1s;
     }
+    .search-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .search-btn:active { transform: translateY(0); }
+    .search-btn:disabled { opacity: 0.4; transform: none; }
 
-    button#araBtn:hover { opacity: 0.85; }
-    button#araBtn:active { transform: scale(0.98); }
-    button#araBtn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* LOADING */
-    #yukleniyor {
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      margin-top: 1.5rem;
+    /* AUTOCOMPLETE */
+    .autocomplete-list {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: var(--surface2); border: 1px solid rgba(0,212,255,0.3);
+      border-radius: 10px; z-index: 200; max-height: 240px; overflow-y: auto;
     }
+    .autocomplete-item { padding: 0.7rem 1.4rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--text); border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .autocomplete-item:hover { background: rgba(0,212,255,0.08); color: var(--accent); }
+    .autocomplete-item:last-child { border-bottom: none; }
 
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
+    /* QUICK SEARCH */
+    .quick-searches { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; animation: fadeUp 0.6s ease 0.4s both; }
+    .quick-label { font-size: 0.78rem; color: var(--muted); font-family: var(--mono); align-self: center; }
+    .quick-btn {
+      background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.2);
+      color: var(--accent); font-family: var(--mono); font-size: 0.75rem;
+      padding: 0.3rem 0.8rem; border-radius: 20px; cursor: pointer; transition: all 0.2s;
     }
+    .quick-btn:hover { background: rgba(0,212,255,0.15); border-color: var(--accent); }
 
+    /* HERO RIGHT - 3D MOL VISUAL */
+    .hero-right { display: flex; flex-direction: column; gap: 1rem; }
+    .hero-mol-card {
+      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(168,85,247,0.05));
+      border: 1px solid rgba(0,212,255,0.15); border-radius: 20px;
+      padding: 1.5rem; text-align: center; position: relative; overflow: hidden;
+    }
+    .hero-mol-card::before {
+      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(ellipse at center, rgba(0,212,255,0.05) 0%, transparent 60%);
+      animation: rotate 20s linear infinite;
+    }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .hero-mol-title { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .hero-mol-name { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+    .hero-mol-formula { font-family: var(--mono); color: var(--accent); font-size: 1rem; margin-bottom: 0.5rem; }
+    .hero-mol-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+    .hero-mol-btn { margin-top: 1rem; background: transparent; border: 1px solid rgba(0,212,255,0.3); color: var(--accent); font-family: var(--mono); font-size: 0.78rem; padding: 0.5rem 1.2rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .hero-mol-btn:hover { background: rgba(0,212,255,0.1); }
+
+    /* STATS */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    .stat-mini {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1rem; text-align: center;
+    }
+    .stat-mini-val { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .stat-mini-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+
+    /* MAIN */
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem 2.5rem 4rem; position: relative; z-index: 1; }
+
+    /* LOADING & ERROR */
+    #yukleniyor { display: none; align-items: center; gap: 0.75rem; color: var(--muted); font-family: var(--mono); font-size: 0.85rem; justify-content: center; padding: 3rem; }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    #hata { display: none; background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.3); border-radius: 10px; padding: 1rem 1.5rem; color: var(--accent2); font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1.5rem; }
 
-    /* ERROR */
-    #hata {
-      display: none;
-      background: rgba(255,107,107,0.1);
-      border: 1px solid rgba(255,107,107,0.3);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      color: var(--accent2);
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      margin-top: 1rem;
-    }
-
-    /* RESULT */
+    /* SONUÇ */
     #sonuc { display: none; }
 
-    /* MOL CARD */
     .mol-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.5rem 2rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1rem;
+      background: linear-gradient(135deg, var(--surface), var(--surface2));
+      border: 1px solid rgba(0,212,255,0.2); border-radius: 16px;
+      padding: 2rem 2.5rem; margin-bottom: 2rem;
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;
       animation: fadeUp 0.4s ease;
+      box-shadow: 0 4px 40px rgba(0,212,255,0.08);
     }
+    .mol-name { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--text), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .mol-meta { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .meta-item { text-align: center; }
+    .meta-key { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.3rem; }
+    .meta-val { font-family: var(--mono); font-size: 1.2rem; color: var(--accent); font-weight: 700; }
 
-    .mol-name {
-      font-size: 1.6rem;
-      font-weight: 600;
-      color: var(--text);
-    }
+    /* VIEWER */
+    .section-title { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
+    .viewer-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .viewer-tab { font-family: var(--mono); font-size: 0.72rem; padding: 0.4rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+    .viewer-tab.active { background: var(--accent); color: #07090f; border-color: var(--accent); font-weight: 700; }
+    #viewer3d { width: 100%; height: 380px; border-radius: 14px; background: linear-gradient(135deg, #0a0e1a, #0e1525); border: 1px solid rgba(0,212,255,0.15); overflow: hidden; }
 
-    .mol-meta {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
-
-    .meta-item {
-      text-align: center;
-    }
-
-    .meta-key {
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      display: block;
-    }
-
-    .meta-val {
-      font-family: var(--mono);
-      font-size: 1.1rem;
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    /* PIKTOGRAM */
-    .section-title {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 0.75rem;
-    }
-
-    .piktogram-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 2rem;
-      animation: fadeUp 0.4s ease 0.1s both;
-    }
-
-    .piktogram-chip {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
-    .piktogram-chip .sembol { font-size: 1.3rem; }
+    /* PİKTOGRAM */
+    .piktogram-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; animation: fadeUp 0.4s ease 0.1s both; }
+    .piktogram-chip { display: flex; align-items: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 500; transition: border-color 0.2s; }
+    .piktogram-chip:hover { border-color: rgba(0,212,255,0.4); }
 
     /* H KODLARI */
     .h-group { margin-bottom: 1.5rem; }
-
-    .h-group-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.6rem;
-      padding-bottom: 0.4rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .h-group-ikon { font-size: 1rem; }
-
-    .h-group-isim {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    .h-group-count {
-      margin-left: auto;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
+    .h-group-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    .h-group-isim { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; }
+    .h-group-count { margin-left: auto; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
     .h-list { display: flex; flex-direction: column; gap: 0.4rem; }
+    .h-item { display: flex; align-items: flex-start; gap: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1.1rem; animation: fadeUp 0.3s ease both; transition: border-color 0.2s; }
+    .h-item:hover { border-color: rgba(0,212,255,0.2); }
+    .h-badge { font-family: var(--mono); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; flex-shrink: 0; color: #fff; }
+    .h-text { font-size: 0.88rem; color: var(--text); line-height: 1.5; }
 
-    .h-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.65rem 1rem;
-      animation: fadeUp 0.3s ease both;
-    }
-
-    .h-badge {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.2rem 0.55rem;
-      border-radius: 5px;
-      flex-shrink: 0;
-      color: #fff;
-    }
-
-    .h-text {
-      font-size: 0.88rem;
-      color: var(--text);
-      line-height: 1.45;
-    }
-
-    .no-data {
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      padding: 1rem;
-    }
-
-    /* PUBCHEM LINK */
-    .pubchem-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      color: var(--muted);
-      text-decoration: none;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 0.4rem 0.9rem;
-      margin-top: 1rem;
-      transition: color 0.2s, border-color 0.2s;
-    }
-
-    .pubchem-link:hover { color: var(--accent); border-color: var(--accent); }
-
-    .pdf-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      color: #fff;
-      background: #e74c3c;
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      margin-top: 1rem;
-      margin-left: 0.5rem;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
+    /* BUTONLAR */
+    .action-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
+    .pubchem-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 1.2rem; transition: all 0.2s; }
+    .pubchem-link:hover { color: var(--accent); border-color: rgba(0,212,255,0.4); }
+    .pdf-btn { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: #fff; background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; border-radius: 8px; padding: 0.6rem 1.2rem; cursor: pointer; transition: opacity 0.2s; }
     .pdf-btn:hover { opacity: 0.85; }
 
-    /* 3D VIEWER */
-    #viewer3d {
-      width: 100%;
-      height: 350px;
-      border-radius: 12px;
-      background: #1a1a2e;
-      border: 1px solid var(--border);
-      margin-top: 0.75rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .viewer-tabs {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-    }
-    .viewer-tab {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      padding: 0.35rem 0.9rem;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .viewer-tab.active {
-      background: var(--accent);
-      color: #0d0f14;
-      border-color: var(--accent);
-    }
+    /* FOOTER */
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.78rem; font-family: var(--mono); border-top: 1px solid var(--border); }
 
-    /* AUTOCOMPLETE */
-    .search-wrapper { position: relative; flex: 1; min-width: 0; }
-    .autocomplete-list {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: var(--surface2);
-      border: 1px solid var(--accent);
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      z-index: 100;
-      max-height: 220px;
-      overflow-y: auto;
-    }
-    .autocomplete-item {
-      padding: 0.65rem 1.2rem;
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      cursor: pointer;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      transition: background 0.15s;
-    }
-    .autocomplete-item:hover { background: var(--border); color: var(--accent); }
-    .autocomplete-item:last-child { border-bottom: none; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    /* CHEMISTRY BG */
+    .chem-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.06; }
   </style>
-  <script src="https://3dmol.org/build/3Dmol-min.js"></script>
 </head>
 <body>
-  <header style="position:relative;z-index:1;">
-    <div>
-      <div class="logo">Kimya<span>Sal</span></div>
-      <div class="logo-sub">GHS Tehlike Sorgulama Aracı</div>
-    </div>
-  </header>
 
-  <main style="position:relative;z-index:1;">
-    <div class="search-section">
-      <span class="search-label">Kimyasal Adı</span>
-      <div class="search-row">
-        <div class="search-wrapper">
-          <input type="text" id="kimyasalInput" placeholder="örn: sülfürik asit, etanol, benzen..." autocomplete="off" style="width:100%" />
-          <div class="autocomplete-list" id="autocompleteList" style="display:none"></div>
-        </div>
-        <button id="araBtn" onclick="ara()">Sorgula</button>
-      </div>
-      <div id="yukleniyor"><div class="spinner"></div> PubChem'den veri alınıyor...</div>
-      <div id="hata"></div>
+  <!-- KİMYASAL ARKA PLAN -->
+  <svg class="chem-bg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(60,80)">
+      <line x1="25" y1="0" x2="25" y2="55"/><line x1="35" y1="0" x2="35" y2="55"/>
+      <path d="M25 55 L5 110 Q0 125 15 130 L45 130 Q60 125 55 110 L35 55"/>
+      <line x1="18" y1="0" x2="42" y2="0"/>
+    </g>
+    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(1200,60)">
+      <line x1="25" y1="0" x2="25" y2="60"/><line x1="35" y1="0" x2="35" y2="60"/>
+      <path d="M25 60 L0 120 Q-5 138 18 140 L42 140 Q65 138 60 120 L35 60"/>
+      <line x1="18" y1="0" x2="42" y2="0"/>
+    </g>
+    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(55,280)">
+      <path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/>
+      <line x1="5" y1="0" x2="75" y2="0"/><line x1="10" y1="45" x2="70" y2="45"/>
+      <line x1="65" y1="0" x2="82" y2="0"/>
+    </g>
+    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(1240,300)">
+      <path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/>
+      <line x1="5" y1="0" x2="75" y2="0"/><line x1="10" y1="45" x2="70" y2="45"/>
+    </g>
+    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(1300,480) rotate(25)">
+      <path d="M0 0 L0 90 Q0 108 12 108 Q24 108 24 90 L24 0"/>
+      <line x1="0" y1="0" x2="24" y2="0"/>
+    </g>
+    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(620,720)">
+      <polygon points="30,0 60,17 60,52 30,69 0,52 0,17"/>
+      <polygon points="30,15 47,24 47,44 30,54 13,44 13,24"/>
+    </g>
+    <g stroke="#00d4ff" stroke-width="1.5" fill="none" transform="translate(900,140)">
+      <circle cx="0" cy="0" r="9" fill="#00d4ff" fill-opacity="0.3"/>
+      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(30)"/>
+      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(90)"/>
+      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(150)"/>
+    </g>
+    <text x="440" y="130" fill="#00d4ff" font-size="18" font-family="monospace">H₂O</text>
+    <text x="100" y="510" fill="#00d4ff" font-size="16" font-family="monospace">NaCl</text>
+    <text x="1100" y="310" fill="#00d4ff" font-size="15" font-family="monospace">H₂SO₄</text>
+    <text x="860" y="510" fill="#00d4ff" font-size="16" font-family="monospace">CO₂</text>
+    <text x="670" y="200" fill="#a855f7" font-size="17" font-family="monospace">C₂H₅OH</text>
+  </svg>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo">
+      Kimya<span>Sal</span>
+      <small>Kimya Asistanın</small>
     </div>
+    <div class="nav-links">
+      <a href="#">Ana Sayfa</a>
+      <a href="#">Araçlar</a>
+      <a href="#">Hakkımızda</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid">
+      <div class="hero-left">
+        <div class="hero-badge">⚗️ Türkiye'nin Kimyasal Güvenlik Platformu</div>
+        <h1>Kimya <span class="highlight">Asistanın</span></h1>
+        <p>Milyonlarca kimyasalın GHS tehlike bilgilerine, molekül yapısına ve güvenlik verilerine <strong style="color:var(--accent)">saniyeler içinde</strong> ulaş.</p>
+
+        <div class="search-wrapper">
+          <div class="search-box" id="searchBox">
+            <input type="text" id="kimyasalInput" placeholder="Kimyasal adı gir... (örn: sülfürik asit, benzene)" autocomplete="off"/>
+            <div class="autocomplete-list" id="autocompleteList" style="display:none"></div>
+            <button class="search-btn" id="araBtn" onclick="ara()">→ Sorgula</button>
+          </div>
+        </div>
+
+        <div class="quick-searches">
+          <span class="quick-label">Örnek:</span>
+          <button class="quick-btn" onclick="hizliAra('sulfuric acid')">H₂SO₄</button>
+          <button class="quick-btn" onclick="hizliAra('ethanol')">Etanol</button>
+          <button class="quick-btn" onclick="hizliAra('benzene')">Benzen</button>
+          <button class="quick-btn" onclick="hizliAra('sodium hydroxide')">NaOH</button>
+          <button class="quick-btn" onclick="hizliAra('acetone')">Aseton</button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-mol-card">
+          <div class="hero-mol-title">🌟 Günün Kimyasalı</div>
+          <div class="hero-mol-name" id="gunKimyasal">...</div>
+          <div class="hero-mol-formula" id="gunFormul"></div>
+          <div class="hero-mol-desc" id="gunAciklama"></div>
+          <button class="hero-mol-btn" onclick="gunuAra()">→ Tehlike Bilgilerini İncele</button>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-mini">
+            <div class="stat-mini-val">118M+</div>
+            <div class="stat-mini-lbl">Kimyasal</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-val">GHS</div>
+            <div class="stat-mini-lbl">Standart</div>
+          </div>
+          <div class="stat-mini">
+            <div class="stat-mini-val">3D</div>
+            <div class="stat-mini-lbl">Görüntüleyici</div>
+          </div>
+        </div>
+
+        <button class="rastgele-btn" onclick="rastgeleAra()" style="width:100%;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(168,85,247,0.1));border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-family:var(--mono);font-size:0.85rem;font-weight:700;padding:0.85rem;border-radius:12px;cursor:pointer;transition:all 0.2s;">
+          🎲 Rastgele Kimyasal Keşfet
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <main>
+    <div id="yukleniyor"><div class="spinner"></div> PubChem'den veri alınıyor...</div>
+    <div id="hata"></div>
 
     <div id="sonuc">
       <div class="mol-card" id="molCard"></div>
 
-      <div id="yapiDiv" style="display:none;margin-bottom:1.5rem;animation:fadeUp 0.4s ease">
+      <div id="yapiDiv" style="display:none;margin-bottom:2rem;animation:fadeUp 0.4s ease">
         <div class="section-title">Molekül Yapısı</div>
         <div class="viewer-tabs">
-          <button class="viewer-tab active" onclick="goster2D()">2D</button>
-          <button class="viewer-tab" onclick="goster3D()" id="tab3d">3D</button>
+          <button class="viewer-tab active" onclick="goster2D()">2D Yapı</button>
+          <button class="viewer-tab" onclick="goster3D()">3D Görüntüleyici</button>
         </div>
-        <div id="yapi2d" style="background:white;border-radius:12px;padding:1.5rem;display:block">
-          <img id="yapiImg" src="" alt="Molekül yapısı" style="display:block;border-radius:8px;width:100%;max-width:500px;margin:0 auto"/>
+        <div id="yapi2d" style="background:white;border-radius:14px;padding:1.5rem;display:block">
+          <img id="yapiImg" src="" alt="Molekül yapısı" style="display:block;width:100%;max-width:500px;margin:0 auto;border-radius:8px"/>
         </div>
         <div id="yapi3d" style="display:none">
           <div id="viewer3d"></div>
-          <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-top:0.5rem">Sürükle: döndür | Kaydır: yakınlaştır | Sağ tık: kaydır</div>
+          <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-top:0.5rem;text-align:center">Sürükle: döndür &nbsp;|&nbsp; Kaydır: yakınlaştır &nbsp;|&nbsp; Sağ tık: kaydır</div>
         </div>
       </div>
 
       <div class="piktogram-grid" id="piktogramlar"></div>
-
       <div id="hKodlari"></div>
 
-      <a id="pubchemLink" href="#" target="_blank" class="pubchem-link">
-        ↗ PubChem'de Aç
-      </a>
-      <button class="pdf-btn" onclick="pdfIndir()">⬇ PDF Rapor İndir</button>
+      <div class="action-btns">
+        <a id="pubchemLink" href="#" target="_blank" class="pubchem-link">↗ PubChem'de Aç</a>
+        <button class="pdf-btn" onclick="pdfIndir()">⬇ PDF Rapor İndir</button>
+      </div>
     </div>
   </main>
 
+  <footer>KimyaSal © 2026 &nbsp;—&nbsp; Veriler PubChem'den sağlanmaktadır &nbsp;|&nbsp; kimyasal.onrender.com</footer>
+
   <script>
-    document.getElementById('kimyasalInput').addEventListener('keydown', e => {
-      if (e.key === 'Enter') ara();
+    const GUNUN_KIMYASALLARI = [
+      { ad: "Su", formul: "H₂O", aciklama: "Tüm canlılar için temel madde.", arama: "water" },
+      { ad: "Etanol", formul: "C₂H₅OH", aciklama: "Güçlü dezenfektan ve çözücü.", arama: "ethanol" },
+      { ad: "Glukoz", formul: "C₆H₁₂O₆", aciklama: "Vücudun temel enerji kaynağı.", arama: "glucose" },
+      { ad: "Amonyak", formul: "NH₃", aciklama: "Zehirli gaz, gübre üretiminde kullanılır.", arama: "ammonia" },
+      { ad: "Benzen", formul: "C₆H₆", aciklama: "Kanserojen aromatik bileşik.", arama: "benzene" },
+      { ad: "Kafein", formul: "C₈H₁₀N₄O₂", aciklama: "En çok tüketilen psikoaktif madde.", arama: "caffeine" },
+      { ad: "Aspirin", formul: "C₉H₈O₄", aciklama: "100+ yıldır kullanılan ağrı kesici.", arama: "aspirin" },
+    ];
+    const RASTGELE = ["sulfuric acid","hydrochloric acid","nitric acid","sodium hydroxide","hydrogen peroxide","acetone","ethanol","methanol","benzene","toluene","ammonia","chloroform","formaldehyde","phenol","acetic acid","caffeine","aspirin","glucose","urea","sodium chloride"];
+
+    const gun = GUNUN_KIMYASALLARI[new Date().getDay() % GUNUN_KIMYASALLARI.length];
+    document.getElementById('gunKimyasal').textContent = gun.ad;
+    document.getElementById('gunFormul').textContent = gun.formul;
+    document.getElementById('gunAciklama').textContent = gun.aciklama;
+
+    function gunuAra() { document.getElementById('kimyasalInput').value = gun.arama; ara(); window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' }); }
+    function rastgeleAra() { const r = RASTGELE[Math.floor(Math.random()*RASTGELE.length)]; document.getElementById('kimyasalInput').value = r; ara(); window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' }); }
+    function hizliAra(isim) { document.getElementById('kimyasalInput').value = isim; ara(); window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' }); }
+
+    const TURKCE_LISTE = ["nitrik asit","sülfürik asit","hidroklorik asit","asetik asit","fosforik asit","sitrik asit","formik asit","laktik asit","borik asit","benzoik asit","sodyum hidroksit","potasyum hidroksit","kalsiyum hidroksit","etanol","metanol","propanol","izopropanol","bütanol","gliserin","etilen glikol","fenol","aseton","formaldehit","asetaldehit","benzen","toluen","naftalin","anilin","kloroform","karbon tetraklorür","diklorometan","etil asetat","amonyak","hidrojen","oksijen","azot","klor","karbon dioksit","kükürt dioksit","karbon monoksit","hidrojen peroksit","sodyum klorür","potasyum klorür","kalsiyum karbonat","sodyum bikarbonat","potasyum permanganat","sodyum hipoklorit","bakır sülfat","gümüş nitrat","kükürt","fosfor","hekzan","sikloheksan","glikoz","fruktoz","sakkaroz","üre","kafein","kolesterol","aspirin","parasetamol","ibuprofen"];
+
+    let acTimeout = null;
+    document.getElementById('kimyasalInput').addEventListener('input', function() {
+      clearTimeout(acTimeout);
+      const val = this.value.trim();
+      if (val.length < 2) { document.getElementById('autocompleteList').style.display = 'none'; return; }
+      acTimeout = setTimeout(() => fetchAC(val), 300);
     });
+    document.getElementById('kimyasalInput').addEventListener('keydown', e => { if (e.key === 'Enter') ara(); if (e.key === 'Escape') document.getElementById('autocompleteList').style.display = 'none'; });
+    document.addEventListener('click', e => { if (!e.target.closest('#searchBox')) document.getElementById('autocompleteList').style.display = 'none'; });
+
+    async function fetchAC(q) {
+      const tr = TURKCE_LISTE.filter(k => k.startsWith(q.toLowerCase())).slice(0, 4);
+      try {
+        const res = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(q)}/JSON?limit=6`);
+        const data = await res.json();
+        const en = data?.dictionary_terms?.compound || [];
+        showAC([...new Set([...tr, ...en])].slice(0, 8));
+      } catch { showAC(tr); }
+    }
+    function showAC(items) {
+      const list = document.getElementById('autocompleteList');
+      if (!items.length) { list.style.display = 'none'; return; }
+      list.innerHTML = items.map(i => `<div class="autocomplete-item" onclick="secItem('${i.replace(/'/g,"\\'")}') ">${i}</div>`).join('');
+      list.style.display = 'block';
+    }
+    function secItem(isim) { document.getElementById('kimyasalInput').value = isim; document.getElementById('autocompleteList').style.display = 'none'; ara(); }
+
+    let sonVeri = null, guncelCid = null;
 
     async function ara() {
       const kimyasal = document.getElementById('kimyasalInput').value.trim();
       if (!kimyasal) return;
-
+      document.getElementById('autocompleteList').style.display = 'none';
       document.getElementById('sonuc').style.display = 'none';
       document.getElementById('hata').style.display = 'none';
       document.getElementById('yukleniyor').style.display = 'flex';
       document.getElementById('araBtn').disabled = true;
 
       try {
-        const res = await fetch('/ara', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ kimyasal })
-        });
+        const res = await fetch('/ara', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kimyasal }) });
         const data = await res.json();
-
         document.getElementById('yukleniyor').style.display = 'none';
         document.getElementById('araBtn').disabled = false;
 
-        if (data.hata) {
-          const hataDiv = document.getElementById('hata');
-          hataDiv.textContent = '⚠ ' + data.hata;
-          hataDiv.style.display = 'block';
-          return;
-        }
+        if (data.hata) { const h = document.getElementById('hata'); h.textContent = '⚠ ' + data.hata; h.style.display = 'block'; return; }
 
-        // MOL CARD
         document.getElementById('molCard').innerHTML = `
           <div class="mol-name">${data.isim}</div>
           <div class="mol-meta">
-            <div class="meta-item">
-              <span class="meta-key">Formül</span>
-              <span class="meta-val">${data.formul}</span>
-            </div>
-            <div class="meta-item">
-              <span class="meta-key">Mol Ağırlığı</span>
-              <span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span>
-            </div>
+            <div class="meta-item"><span class="meta-key">Formül</span><span class="meta-val">${data.formul}</span></div>
+            <div class="meta-item"><span class="meta-key">Mol Ağırlığı</span><span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span></div>
+          </div>`;
 
-          </div>
-        `;
+        if (data.yapi_url) { document.getElementById('yapiImg').src = data.yapi_url; document.getElementById('yapiDiv').style.display = 'block'; goster2D(); }
+        else { document.getElementById('yapiDiv').style.display = 'none'; }
 
-        // YAPI RESMİ
-        if (data.yapi_url) {
-          document.getElementById('yapiImg').src = data.yapi_url;
-          document.getElementById('yapiDiv').style.display = 'block';
-        } else {
-          document.getElementById('yapiDiv').style.display = 'none';
-        }
+        guncelCid = data.cid; sonVeri = data;
 
-        // PİKTOGRAMLAR
         const piktDiv = document.getElementById('piktogramlar');
-        if (data.piktogramlar.length > 0) {
-          piktDiv.innerHTML = `<div class="section-title" style="width:100%">GHS Piktogramları</div>` +
-            data.piktogramlar.map(p => `
-              <div class="piktogram-chip" style="border-color:${p.renk}33">
-                <span>${p.isim}</span>
-              </div>
-            `).join('');
-        } else {
-          piktDiv.innerHTML = '';
-        }
+        piktDiv.innerHTML = data.piktogramlar.length > 0
+          ? `<div class="section-title" style="width:100%">GHS Piktogramları</div>` + data.piktogramlar.map(p => `<div class="piktogram-chip" style="border-color:${p.renk}55"><span>${p.isim}</span></div>`).join('')
+          : '';
 
-        // H KODLARI — kategoriye göre grupla
         const gruplar = {};
-        for (const h of data.h_kodlari) {
-          if (!gruplar[h.kategori]) gruplar[h.kategori] = { renk: h.renk, ikon: h.ikon, liste: [] };
-          gruplar[h.kategori].liste.push(h);
-        }
+        for (const h of data.h_kodlari) { if (!gruplar[h.kategori]) gruplar[h.kategori] = { renk: h.renk, ikon: h.ikon, liste: [] }; gruplar[h.kategori].liste.push(h); }
+        document.getElementById('hKodlari').innerHTML = data.h_kodlari.length === 0
+          ? '<div style="color:var(--muted);font-family:var(--mono);font-size:0.85rem;padding:1rem">Tehlike kodu bulunamadı.</div>'
+          : Object.entries(gruplar).map(([kat, g]) => `<div class="h-group"><div class="h-group-header"><span class="h-group-isim" style="color:${g.renk}">${g.ikon} ${kat}</span><span class="h-group-count">${g.liste.length} kod</span></div><div class="h-list">${g.liste.map(h => `<div class="h-item"><span class="h-badge" style="background:${h.renk}">${h.kod}</span><span class="h-text">${h.tr}</span></div>`).join('')}</div></div>`).join('');
 
-        const hDiv = document.getElementById('hKodlari');
-        if (data.h_kodlari.length === 0) {
-          hDiv.innerHTML = '<div class="no-data">Tehlike kodu bulunamadı.</div>';
-        } else {
-          hDiv.innerHTML = Object.entries(gruplar).map(([kat, g], gi) => `
-            <div class="h-group" style="animation-delay:${gi * 0.05}s">
-              <div class="h-group-header">
-                <span class="h-group-ikon">${g.ikon}</span>
-                <span class="h-group-isim" style="color:${g.renk}">${kat}</span>
-                <span class="h-group-count">${g.liste.length} kod</span>
-              </div>
-              <div class="h-list">
-                ${g.liste.map((h, i) => `
-                  <div class="h-item" style="animation-delay:${(gi * 0.05 + i * 0.03)}s">
-                    <span class="h-badge" style="background:${h.renk}">${h.kod}</span>
-                    <span class="h-text">${h.tr}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `).join('');
-        }
-
-        // PUBCHEM LİNK
         document.getElementById('pubchemLink').href = `https://pubchem.ncbi.nlm.nih.gov/compound/${data.cid}`;
-
-        sonVeri = data;
-        guncelCid = data.cid;
         document.getElementById('sonuc').style.display = 'block';
-
-      } catch (err) {
-        document.getElementById('yukleniyor').style.display = 'none';
-        document.getElementById('araBtn').disabled = false;
-        const hataDiv = document.getElementById('hata');
-        hataDiv.textContent = '⚠ Sunucu hatası: ' + err.message;
-        hataDiv.style.display = 'block';
-      }
+      } catch(err) { document.getElementById('yukleniyor').style.display = 'none'; document.getElementById('araBtn').disabled = false; const h = document.getElementById('hata'); h.textContent = '⚠ ' + err.message; h.style.display = 'block'; }
     }
 
-    let sonVeri = null;
-    let nglStage = null;
-    let guncelCid = null;
-
-    function goster2D() {
-      document.getElementById('yapi2d').style.display = 'inline-block';
-      document.getElementById('yapi3d').style.display = 'none';
-      document.querySelectorAll('.viewer-tab')[0].classList.add('active');
-      document.querySelectorAll('.viewer-tab')[1].classList.remove('active');
-    }
-
-    function goster3D() {
-      document.getElementById('yapi2d').style.display = 'none';
-      document.getElementById('yapi3d').style.display = 'block';
-      document.querySelectorAll('.viewer-tab')[0].classList.remove('active');
-      document.querySelectorAll('.viewer-tab')[1].classList.add('active');
-      yukle3D();
-    }
-
+    function goster2D() { document.getElementById('yapi2d').style.display='block'; document.getElementById('yapi3d').style.display='none'; document.querySelectorAll('.viewer-tab')[0].classList.add('active'); document.querySelectorAll('.viewer-tab')[1].classList.remove('active'); }
+    function goster3D() { document.getElementById('yapi2d').style.display='none'; document.getElementById('yapi3d').style.display='block'; document.querySelectorAll('.viewer-tab')[0].classList.remove('active'); document.querySelectorAll('.viewer-tab')[1].classList.add('active'); yukle3D(); }
     function yukle3D() {
       if (!guncelCid) return;
-      const container = document.getElementById('viewer3d');
-      container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">Yükleniyor...</div>';
-
-      const url = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`;
-      fetch(url).then(r => r.text()).then(sdfData => {
-        container.innerHTML = '';
-        const viewer = $3Dmol.createViewer(container, {
-          backgroundColor: '#1a1a2e',
-          antialias: true,
-        });
-        viewer.addModel(sdfData, 'sdf');
-        viewer.setStyle({}, { stick: { radius: 0.15, colorscheme: 'Jmol' }, sphere: { scale: 0.3, colorscheme: 'Jmol' } });
-        viewer.zoomTo();
-        viewer.render();
-        viewer.zoom(1.2);
-      }).catch(() => {
-        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">3D yapı bulunamadı</div>';
-      });
-    }
-    let autocompleteTimeout = null;
-
-    document.getElementById('kimyasalInput').addEventListener('input', function() {
-      clearTimeout(autocompleteTimeout);
-      const val = this.value.trim();
-      if (val.length < 2) {
-        document.getElementById('autocompleteList').style.display = 'none';
-        return;
-      }
-      autocompleteTimeout = setTimeout(() => fetchAutocomplete(val), 300);
-    });
-
-    document.getElementById('kimyasalInput').addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        document.getElementById('autocompleteList').style.display = 'none';
-      }
-    });
-
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.search-wrapper')) {
-        document.getElementById('autocompleteList').style.display = 'none';
-      }
-    });
-
-    const TURKCE_LISTE = ["nitrik asit","sülfürik asit","hidroklorik asit","asetik asit","fosforik asit","sitrik asit","okzalik asit","formik asit","laktik asit","tartarik asit","malik asit","borik asit","hidroflorik asit","benzoik asit","salisillik asit","akrilik asit","sodyum hidroksit","potasyum hidroksit","kalsiyum hidroksit","magnezyum hidroksit","amonyum hidroksit","etanol","metanol","propanol","izopropanol","bütanol","gliserin","etilen glikol","propilen glikol","benzil alkol","fenol","aseton","formaldehit","asetaldehit","benzaldehit","glutaraldehit","benzen","toluen","ksilen","stiren","naftalin","anilin","nitrobenzen","klorobenzen","piridin","kloroform","karbon tetraklorür","diklorometan","etil asetat","metil asetat","amonyak","hidrojen","oksijen","azot","klor","karbon dioksit","kükürt dioksit","karbon monoksit","hidrojen peroksit","ozon","sodyum klorür","potasyum klorür","kalsiyum karbonat","sodyum bikarbonat","sodyum karbonat","potasyum permanganat","sodyum hipoklorit","bakır sülfat","gümüş nitrat","demir","bakır","çinko","alüminyum","kurşun","civa","arsenik","kükürt","fosfor","karbon","nikel","krom","gümüş","altın","platin","titanyum","hekzan","heptan","sikloheksan","dmso","asetonitril","glikoz","fruktoz","sakkaroz","üre","kafein","kolesterol","aspirin","parasetamol","ibuprofen","etilen","asetilen","indol","imidazol"];
-
-    async function fetchAutocomplete(query) {
-      const q = query.toLowerCase();
-      
-      // Türkçe listeden eşleşenleri bul
-      const trSonuclar = TURKCE_LISTE.filter(k => k.startsWith(q)).slice(0, 4);
-      
-      // PubChem'den İngilizce öneriler al
-      try {
-        const url = `https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(query)}/JSON?limit=6`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const enSonuclar = data?.dictionary_terms?.compound || [];
-        
-        // İkisini birleştir, tekrarları kaldır
-        const tumSonuclar = [...new Set([...trSonuclar, ...enSonuclar])].slice(0, 8);
-        showAutocomplete(tumSonuclar);
-      } catch(e) {
-        showAutocomplete(trSonuclar);
-      }
-    }
-
-    function showAutocomplete(items) {
-      const list = document.getElementById('autocompleteList');
-      if (!items.length) { list.style.display = 'none'; return; }
-      list.innerHTML = items.map(item => 
-        `<div class="autocomplete-item" onclick="secItem('${item.replace(/'/g, "\'")}')">${item}</div>`
-      ).join('');
-      list.style.display = 'block';
-    }
-
-    function secItem(isim) {
-      document.getElementById('kimyasalInput').value = isim;
-      document.getElementById('autocompleteList').style.display = 'none';
-      ara();
+      const c = document.getElementById('viewer3d');
+      c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">Yükleniyor...</div>';
+      fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`).then(r=>r.text()).then(sdf=>{
+        c.innerHTML='';
+        const v = $3Dmol.createViewer(c, { backgroundColor:'#0a0e1a', antialias:true });
+        v.addModel(sdf,'sdf'); v.setStyle({},{ stick:{radius:0.15,colorscheme:'Jmol'}, sphere:{scale:0.3,colorscheme:'Jmol'} });
+        v.zoomTo(); v.render(); v.zoom(1.2);
+      }).catch(()=>{ c.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">3D yapı bulunamadı</div>'; });
     }
 
     async function pdfIndir() {
       if (!sonVeri) return;
-      const res = await fetch('/pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sonVeri)
-      });
+      const res = await fetch('/pdf', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sonVeri) });
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${sonVeri.isim}_tehlike_raporu.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a'); a.href=url; a.download=`${sonVeri.isim}_tehlike_raporu.pdf`; a.click(); URL.revokeObjectURL(url);
     }
   </script>
-  <svg id="chembg" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.18;" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-
-    <!-- Erlen mayeri sol üst -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(60,80)">
-      <line x1="25" y1="0" x2="25" y2="55"/>
-      <line x1="35" y1="0" x2="35" y2="55"/>
-      <path d="M25 55 L5 110 Q0 125 15 130 L45 130 Q60 125 55 110 L35 55"/>
-      <line x1="18" y1="0" x2="42" y2="0"/>
-      <path d="M10 100 Q30 90 50 100" stroke-width="1"/>
-    </g>
-
-    <!-- Beher sol orta -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(55,280)">
-      <path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/>
-      <line x1="5" y1="0" x2="75" y2="0"/>
-      <line x1="10" y1="45" x2="70" y2="45"/>
-      <line x1="65" y1="0" x2="82" y2="0"/>
-      <line x1="65" y1="8" x2="82" y2="8"/>
-      <path d="M15 80 Q40 68 65 80" stroke-width="1"/>
-    </g>
-
-    <!-- Mezür sol -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(170,450)">
-      <path d="M10 0 L10 120 Q10 135 20 135 L40 135 Q50 135 50 120 L50 0"/>
-      <line x1="5" y1="0" x2="55" y2="0"/>
-      <line x1="10" y1="30" x2="22" y2="30"/>
-      <line x1="10" y1="55" x2="18" y2="55"/>
-      <line x1="10" y1="80" x2="22" y2="80"/>
-      <line x1="10" y1="105" x2="18" y2="105"/>
-    </g>
-
-    <!-- Erlen sağ üst -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(1200,60)">
-      <line x1="25" y1="0" x2="25" y2="60"/>
-      <line x1="35" y1="0" x2="35" y2="60"/>
-      <path d="M25 60 L0 120 Q-5 138 18 140 L42 140 Q65 138 60 120 L35 60"/>
-      <line x1="18" y1="0" x2="42" y2="0"/>
-      <path d="M5 110 Q30 98 55 110" stroke-width="1"/>
-    </g>
-
-    <!-- Beher sağ orta -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(1240,300)">
-      <path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/>
-      <line x1="5" y1="0" x2="75" y2="0"/>
-      <line x1="10" y1="45" x2="70" y2="45"/>
-      <line x1="65" y1="0" x2="82" y2="0"/>
-      <line x1="65" y1="8" x2="82" y2="8"/>
-      <path d="M15 78 Q40 65 65 78" stroke-width="1"/>
-    </g>
-
-    <!-- Mezür sağ -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(1160,450)">
-      <path d="M10 0 L10 110 Q10 125 20 125 L40 125 Q50 125 50 110 L50 0"/>
-      <line x1="5" y1="0" x2="55" y2="0"/>
-      <line x1="10" y1="28" x2="22" y2="28"/>
-      <line x1="10" y1="52" x2="18" y2="52"/>
-      <line x1="10" y1="76" x2="22" y2="76"/>
-      <line x1="10" y1="100" x2="18" y2="100"/>
-    </g>
-
-    <!-- Deney tüpü sağ -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(1300,500) rotate(25)">
-      <path d="M0 0 L0 90 Q0 108 12 108 Q24 108 24 90 L24 0"/>
-      <line x1="0" y1="0" x2="24" y2="0"/>
-      <path d="M4 75 Q12 68 20 75" stroke-width="1"/>
-    </g>
-
-    <!-- Deney tüpü sol alt -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(120,650) rotate(-15)">
-      <path d="M0 0 L0 80 Q0 95 11 95 Q22 95 22 80 L22 0"/>
-      <line x1="0" y1="0" x2="22" y2="0"/>
-    </g>
-
-    <!-- Benzen halkası alt orta -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(620,720)">
-      <polygon points="30,0 60,17 60,52 30,69 0,52 0,17"/>
-      <polygon points="30,15 47,24 47,44 30,54 13,44 13,24"/>
-    </g>
-
-    <!-- Atom sol orta -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(180,360)">
-      <circle cx="0" cy="0" r="9" fill="#5ce1e6" fill-opacity="0.25"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(0)"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(60)"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(120)"/>
-    </g>
-
-    <!-- Atom sağ üst -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(900,140)">
-      <circle cx="0" cy="0" r="9" fill="#5ce1e6" fill-opacity="0.25"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(30)"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(90)"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(150)"/>
-    </g>
-
-    <!-- Molekül bağları 1 -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(420,380)">
-      <circle cx="0" cy="0" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <circle cx="50" cy="-28" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <circle cx="100" cy="0" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <circle cx="50" cy="28" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <line x1="6" y1="-3" x2="44" y2="-25"/>
-      <line x1="6" y1="3" x2="44" y2="25"/>
-      <line x1="56" y1="-25" x2="94" y2="-3"/>
-      <line x1="56" y1="25" x2="94" y2="3"/>
-    </g>
-
-    <!-- Molekül bağları 2 -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(1080,490)">
-      <circle cx="0" cy="0" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <circle cx="45" cy="-25" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <circle cx="90" cy="0" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <circle cx="45" cy="25" r="6" fill="#5ce1e6" fill-opacity="0.3"/>
-      <line x1="6" y1="-3" x2="39" y2="-22"/>
-      <line x1="6" y1="3" x2="39" y2="22"/>
-      <line x1="51" y1="-22" x2="84" y2="-3"/>
-      <line x1="51" y1="22" x2="84" y2="3"/>
-    </g>
-
-    <!-- DNA sağ -->
-    <g stroke="#5ce1e6" stroke-width="1.5" fill="none" transform="translate(1350,350)">
-      <path d="M0 0 Q18 18 0 36 Q-18 54 0 72 Q18 90 0 108 Q-18 126 0 144"/>
-      <path d="M20 0 Q2 18 20 36 Q38 54 20 72 Q2 90 20 108 Q38 126 20 144"/>
-      <line x1="4" y1="18" x2="16" y2="18"/>
-      <line x1="2" y1="54" x2="18" y2="54"/>
-      <line x1="2" y1="90" x2="18" y2="90"/>
-      <line x1="4" y1="126" x2="16" y2="126"/>
-    </g>
-
-    <!-- Beher alt orta -->
-    <g stroke="#5ce1e6" stroke-width="2" fill="none" transform="translate(680,620)">
-      <path d="M5 0 L5 80 Q5 98 25 98 L55 98 Q75 98 75 80 L75 0"/>
-      <line x1="5" y1="0" x2="75" y2="0"/>
-      <line x1="10" y1="38" x2="70" y2="38"/>
-      <line x1="65" y1="0" x2="82" y2="0"/>
-      <line x1="65" y1="8" x2="82" y2="8"/>
-    </g>
-
-    <!-- Formüller -->
-    <text x="670" y="200" fill="#5ce1e6" font-size="17" font-family="monospace">C₂H₅OH</text>
-    <text x="440" y="130" fill="#5ce1e6" font-size="18" font-family="monospace">H₂O</text>
-    <text x="100" y="510" fill="#5ce1e6" font-size="16" font-family="monospace">NaCl</text>
-    <text x="1100" y="310" fill="#5ce1e6" font-size="15" font-family="monospace">H₂SO₄</text>
-    <text x="860" y="510" fill="#5ce1e6" font-size="16" font-family="monospace">CO₂</text>
-    <text x="290" y="620" fill="#5ce1e6" font-size="14" font-family="monospace">HCl</text>
-    <text x="1130" y="760" fill="#5ce1e6" font-size="15" font-family="monospace">CH₄</text>
-    <text x="530" y="430" fill="#5ce1e6" font-size="13" font-family="monospace">NH₃</text>
-
-  </svg>
 </body>
+</html>

@@ -9,14 +9,15 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg: #07090f;
-      --surface: #0e1118;
+      --bg: #080b14;
+      --surface: #0f1320;
       --surface2: #141826;
-      --border: #1e2235;
-      --accent: #00d4ff;
+      --border: #1e2438;
+      --accent: #00c8ff;
       --accent2: #ff4757;
       --accent3: #a855f7;
-      --green: #00ff88;
+      --green: #00e096;
+      --yellow: #ffd32a;
       --text: #e8eaf6;
       --muted: #5a6080;
       --mono: 'Space Mono', monospace;
@@ -24,135 +25,131 @@
     }
     body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; overflow-x: hidden; }
 
-    /* GLOW EFFECTS */
-    .glow-cyan { box-shadow: 0 0 30px rgba(0,212,255,0.2); }
-    .glow-purple { box-shadow: 0 0 30px rgba(168,85,247,0.2); }
-
     /* NAVBAR */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(7,9,15,0.8); backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(0,212,255,0.1);
-      padding: 0 2.5rem; height: 64px;
+      background: rgba(8,11,20,0.9); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 60px;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .nav-logo { font-family: var(--mono); font-size: 1.2rem; }
-    .nav-logo span { color: var(--accent); }
-    .nav-logo small { font-size: 0.65rem; color: var(--muted); display: block; }
-    .nav-links { display: flex; gap: 2rem; align-items: center; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--accent); }
+    .nav-logo { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), var(--accent3)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .nav-logo-text { font-family: var(--mono); font-size: 1rem; }
+    .nav-logo-text span { color: var(--accent); }
+    .nav-logo-sub { font-size: 0.65rem; color: var(--muted); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; transition: color 0.2s; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
 
     /* HERO */
     .hero {
-      min-height: 100vh; display: flex; align-items: center;
-      padding: 80px 2.5rem 4rem;
-      position: relative; overflow: hidden;
+      padding: 80px 2rem 3rem;
+      display: grid; grid-template-columns: 1fr 420px;
+      gap: 3rem; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+      min-height: 100vh;
+      position: relative;
     }
-    .hero-bg {
-      position: absolute; inset: 0; z-index: 0;
-      background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(0,212,255,0.07) 0%, transparent 60%),
-                  radial-gradient(ellipse 60% 50% at 80% 70%, rgba(168,85,247,0.06) 0%, transparent 60%),
-                  radial-gradient(ellipse 40% 40% at 20% 80%, rgba(0,255,136,0.04) 0%, transparent 50%);
-    }
-    .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; width: 100%; }
-    @media (max-width: 768px) { .hero-grid { grid-template-columns: 1fr; } .hero-right { display: none; } }
+    @media (max-width: 900px) { .hero { grid-template-columns: 1fr; } .hero-right { display: none; } }
 
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
-      background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(168,85,247,0.1));
-      border: 1px solid rgba(0,212,255,0.3); border-radius: 24px;
-      padding: 0.4rem 1.1rem; font-size: 0.78rem; color: var(--accent);
-      margin-bottom: 1.5rem; font-family: var(--mono);
-      animation: fadeUp 0.6s ease;
+      background: rgba(0,200,255,0.1); border: 1px solid rgba(0,200,255,0.25);
+      border-radius: 24px; padding: 0.35rem 1rem;
+      font-size: 0.75rem; color: var(--accent); font-family: var(--mono);
+      margin-bottom: 1.5rem; animation: fadeUp 0.5s ease;
     }
     .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 4rem); font-weight: 700; line-height: 1.15;
-      margin-bottom: 1.25rem; animation: fadeUp 0.6s ease 0.1s both;
+      font-size: clamp(2rem, 4vw, 3.2rem); font-weight: 700; line-height: 1.2;
+      margin-bottom: 1rem; animation: fadeUp 0.5s ease 0.1s both;
     }
-    .hero h1 .highlight {
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .hero p { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; animation: fadeUp 0.6s ease 0.2s both; }
+    .hero h1 .hl { background: linear-gradient(90deg, var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { font-size: 1rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; animation: fadeUp 0.5s ease 0.2s both; }
+    .hero-sub strong { color: var(--accent); }
 
     /* SEARCH */
-    .search-wrapper { position: relative; animation: fadeUp 0.6s ease 0.3s both; }
-    .search-box {
-      background: rgba(14,17,24,0.9);
-      border: 1px solid rgba(0,212,255,0.25);
-      border-radius: 14px; padding: 0.6rem 0.6rem 0.6rem 1.4rem;
-      display: flex; align-items: center; gap: 0.75rem;
+    .search-wrap { position: relative; animation: fadeUp 0.5s ease 0.3s both; margin-bottom: 1rem; }
+    .search-inner {
+      display: flex; gap: 0; background: var(--surface);
+      border: 1px solid rgba(0,200,255,0.2); border-radius: 12px; overflow: visible;
       transition: border-color 0.3s, box-shadow 0.3s;
     }
-    .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
-    .search-box input {
+    .search-inner:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,200,255,0.12); }
+    .search-icon { padding: 0 1rem; color: var(--muted); display: flex; align-items: center; font-size: 1.1rem; }
+    .search-inner input {
       flex: 1; background: transparent; border: none; outline: none;
-      color: var(--text); font-family: var(--mono); font-size: 0.95rem; padding: 0.5rem 0; min-width: 0;
+      color: var(--text); font-family: var(--mono); font-size: 0.9rem; padding: 1rem 0; min-width: 0;
     }
-    .search-box input::placeholder { color: var(--muted); }
-    .search-btn {
-      background: linear-gradient(135deg, var(--accent), #0099bb);
-      color: #07090f; border: none; border-radius: 10px;
+    .search-inner input::placeholder { color: var(--muted); }
+    .search-inner button {
+      background: linear-gradient(135deg, var(--accent), #0099cc);
+      color: #080b14; border: none; border-radius: 0 10px 10px 0;
       font-family: var(--mono); font-weight: 700; font-size: 0.85rem;
-      padding: 0.8rem 1.6rem; cursor: pointer; white-space: nowrap;
-      transition: opacity 0.2s, transform 0.1s;
+      padding: 0 1.5rem; cursor: pointer; white-space: nowrap; transition: opacity 0.2s;
     }
-    .search-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-    .search-btn:active { transform: translateY(0); }
-    .search-btn:disabled { opacity: 0.4; transform: none; }
+    .search-inner button:hover { opacity: 0.88; }
+    .search-inner button:disabled { opacity: 0.4; }
 
     /* AUTOCOMPLETE */
     .autocomplete-list {
-      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-      background: var(--surface2); border: 1px solid rgba(0,212,255,0.3);
-      border-radius: 10px; z-index: 200; max-height: 240px; overflow-y: auto;
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+      background: var(--surface2); border: 1px solid rgba(0,200,255,0.25);
+      border-radius: 10px; z-index: 200; max-height: 230px; overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
     }
-    .autocomplete-item { padding: 0.7rem 1.4rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--text); border-bottom: 1px solid var(--border); transition: background 0.15s; }
-    .autocomplete-item:hover { background: rgba(0,212,255,0.08); color: var(--accent); }
+    .autocomplete-item { padding: 0.7rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; color: var(--text); border-bottom: 1px solid var(--border); transition: background 0.15s; }
+    .autocomplete-item:hover { background: rgba(0,200,255,0.08); color: var(--accent); }
     .autocomplete-item:last-child { border-bottom: none; }
 
-    /* QUICK SEARCH */
-    .quick-searches { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; animation: fadeUp 0.6s ease 0.4s both; }
-    .quick-label { font-size: 0.78rem; color: var(--muted); font-family: var(--mono); align-self: center; }
-    .quick-btn {
-      background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.2);
-      color: var(--accent); font-family: var(--mono); font-size: 0.75rem;
-      padding: 0.3rem 0.8rem; border-radius: 20px; cursor: pointer; transition: all 0.2s;
-    }
-    .quick-btn:hover { background: rgba(0,212,255,0.15); border-color: var(--accent); }
+    /* QUICK */
+    .quick-row { display: flex; flex-wrap: wrap; gap: 0.5rem; animation: fadeUp 0.5s ease 0.4s both; }
+    .quick-label { font-size: 0.75rem; color: var(--muted); font-family: var(--mono); align-self: center; margin-right: 0.25rem; }
+    .quick-btn { background: rgba(0,200,255,0.07); border: 1px solid rgba(0,200,255,0.18); color: var(--accent); font-family: var(--mono); font-size: 0.72rem; padding: 0.28rem 0.75rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+    .quick-btn:hover { background: rgba(0,200,255,0.15); border-color: var(--accent); }
 
-    /* HERO RIGHT - 3D MOL VISUAL */
-    .hero-right { display: flex; flex-direction: column; gap: 1rem; }
-    .hero-mol-card {
-      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(168,85,247,0.05));
-      border: 1px solid rgba(0,212,255,0.15); border-radius: 20px;
-      padding: 1.5rem; text-align: center; position: relative; overflow: hidden;
-    }
-    .hero-mol-card::before {
-      content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-      background: radial-gradient(ellipse at center, rgba(0,212,255,0.05) 0%, transparent 60%);
-      animation: rotate 20s linear infinite;
-    }
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    .hero-mol-title { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.5rem; }
-    .hero-mol-name { font-size: 1.4rem; font-weight: 700; color: var(--text); }
-    .hero-mol-formula { font-family: var(--mono); color: var(--accent); font-size: 1rem; margin-bottom: 0.5rem; }
-    .hero-mol-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
-    .hero-mol-btn { margin-top: 1rem; background: transparent; border: 1px solid rgba(0,212,255,0.3); color: var(--accent); font-family: var(--mono); font-size: 0.78rem; padding: 0.5rem 1.2rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-    .hero-mol-btn:hover { background: rgba(0,212,255,0.1); }
+    /* HERO RIGHT */
+    .hero-right { display: flex; flex-direction: column; gap: 1rem; position: relative; z-index: 1; }
 
-    /* STATS */
-    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
-    .stat-mini {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1rem; text-align: center;
+    .gun-card {
+      background: linear-gradient(135deg, rgba(0,200,255,0.06), rgba(168,85,247,0.06));
+      border: 1px solid rgba(0,200,255,0.15); border-radius: 16px; padding: 1.5rem;
+      position: relative; overflow: hidden;
     }
-    .stat-mini-val { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-    .stat-mini-lbl { font-size: 0.72rem; color: var(--muted); margin-top: 0.2rem; }
+    .gun-card::after { content: ''; position: absolute; top: -40px; right: -40px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(0,200,255,0.15), transparent); border-radius: 50%; }
+    .gun-card-label { font-family: var(--mono); font-size: 0.65rem; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.75rem; }
+    .gun-card-name { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.25rem; }
+    .gun-card-formula { font-family: var(--mono); color: var(--accent); font-size: 1rem; margin-bottom: 0.5rem; }
+    .gun-card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 1rem; }
+    .gun-card-btn { background: transparent; border: 1px solid rgba(0,200,255,0.3); color: var(--accent); font-family: var(--mono); font-size: 0.75rem; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .gun-card-btn:hover { background: rgba(0,200,255,0.1); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+    .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; transition: border-color 0.2s; }
+    .stat-box:hover { border-color: rgba(0,200,255,0.3); }
+    .stat-val { font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--accent); }
+    .stat-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
+
+    .rand-btn {
+      background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(0,200,255,0.1));
+      border: 1px solid rgba(168,85,247,0.3); color: var(--accent3);
+      font-family: var(--mono); font-size: 0.82rem; font-weight: 700;
+      padding: 0.9rem; border-radius: 12px; cursor: pointer; transition: all 0.2s; width: 100%;
+    }
+    .rand-btn:hover { background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(0,200,255,0.15)); }
+
+    /* STATS BAR */
+    .stats-bar {
+      max-width: 1200px; margin: 0 auto 3rem; padding: 0 2rem;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+    }
+    .stats-bar-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; }
+    .stats-bar-icon { font-size: 1.6rem; }
+    .stats-bar-val { font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+    .stats-bar-lbl { font-size: 0.78rem; color: var(--muted); }
 
     /* MAIN */
-    main { max-width: 1200px; margin: 0 auto; padding: 2rem 2.5rem 4rem; position: relative; z-index: 1; }
+    main { max-width: 1200px; margin: 0 auto; padding: 0 2rem 4rem; }
 
     /* LOADING & ERROR */
     #yukleniyor { display: none; align-items: center; gap: 0.75rem; color: var(--muted); font-family: var(--mono); font-size: 0.85rem; justify-content: center; padding: 3rem; }
@@ -162,177 +159,173 @@
 
     /* SONUÇ */
     #sonuc { display: none; }
-
     .mol-card {
       background: linear-gradient(135deg, var(--surface), var(--surface2));
-      border: 1px solid rgba(0,212,255,0.2); border-radius: 16px;
+      border: 1px solid rgba(0,200,255,0.2); border-radius: 16px;
       padding: 2rem 2.5rem; margin-bottom: 2rem;
       display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;
-      animation: fadeUp 0.4s ease;
-      box-shadow: 0 4px 40px rgba(0,212,255,0.08);
+      animation: fadeUp 0.4s ease; box-shadow: 0 4px 40px rgba(0,200,255,0.07);
     }
-    .mol-name { font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--text), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .mol-name { font-size: 2rem; font-weight: 700; background: linear-gradient(90deg, var(--text), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .mol-meta { display: flex; gap: 2rem; flex-wrap: wrap; }
     .meta-item { text-align: center; }
     .meta-key { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; display: block; margin-bottom: 0.3rem; }
     .meta-val { font-family: var(--mono); font-size: 1.2rem; color: var(--accent); font-weight: 700; }
 
-    /* VIEWER */
     .section-title { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.75rem; }
     .viewer-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .viewer-tab { font-family: var(--mono); font-size: 0.72rem; padding: 0.4rem 1rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.2s; }
-    .viewer-tab.active { background: var(--accent); color: #07090f; border-color: var(--accent); font-weight: 700; }
-    #viewer3d { width: 100%; height: 380px; border-radius: 14px; background: linear-gradient(135deg, #0a0e1a, #0e1525); border: 1px solid rgba(0,212,255,0.15); overflow: hidden; }
+    .viewer-tab.active { background: var(--accent); color: #080b14; border-color: var(--accent); font-weight: 700; }
+    #viewer3d { width: 100%; height: 380px; border-radius: 14px; background: linear-gradient(135deg, #0a0e1a, #0e1525); border: 1px solid rgba(0,200,255,0.15); overflow: hidden; }
 
-    /* PİKTOGRAM */
-    .piktogram-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; animation: fadeUp 0.4s ease 0.1s both; }
-    .piktogram-chip { display: flex; align-items: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 500; transition: border-color 0.2s; }
-    .piktogram-chip:hover { border-color: rgba(0,212,255,0.4); }
+    .piktogram-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; }
+    .piktogram-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 1.1rem; font-size: 0.85rem; font-weight: 500; }
 
-    /* H KODLARI */
     .h-group { margin-bottom: 1.5rem; }
     .h-group-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
-    .h-group-isim { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; }
+    .h-group-isim { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; }
     .h-group-count { margin-left: auto; font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
     .h-list { display: flex; flex-direction: column; gap: 0.4rem; }
-    .h-item { display: flex; align-items: flex-start; gap: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1.1rem; animation: fadeUp 0.3s ease both; transition: border-color 0.2s; }
-    .h-item:hover { border-color: rgba(0,212,255,0.2); }
+    .h-item { display: flex; align-items: flex-start; gap: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.7rem 1.1rem; transition: border-color 0.2s; }
+    .h-item:hover { border-color: rgba(0,200,255,0.2); }
     .h-badge { font-family: var(--mono); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 6px; flex-shrink: 0; color: #fff; }
     .h-text { font-size: 0.88rem; color: var(--text); line-height: 1.5; }
 
-    /* BUTONLAR */
     .action-btns { display: flex; gap: 0.75rem; margin-top: 1.5rem; flex-wrap: wrap; }
     .pubchem-link { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); text-decoration: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 1.2rem; transition: all 0.2s; }
-    .pubchem-link:hover { color: var(--accent); border-color: rgba(0,212,255,0.4); }
+    .pubchem-link:hover { color: var(--accent); border-color: rgba(0,200,255,0.4); }
     .pdf-btn { display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: #fff; background: linear-gradient(135deg, #e74c3c, #c0392b); border: none; border-radius: 8px; padding: 0.6rem 1.2rem; cursor: pointer; transition: opacity 0.2s; }
     .pdf-btn:hover { opacity: 0.85; }
 
-    /* FOOTER */
-    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.78rem; font-family: var(--mono); border-top: 1px solid var(--border); }
+    footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.75rem; font-family: var(--mono); border-top: 1px solid var(--border); }
 
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* CHEMISTRY BG */
-    .chem-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.06; }
+    /* AI SOHBET */
+    .ai-section { margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2rem; }
+    .ai-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    .ai-avatar { width: 44px; height: 44px; background: linear-gradient(135deg, var(--accent3), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+    .ai-header-text h3 { font-size: 1.1rem; font-weight: 700; }
+    .ai-header-text p { font-size: 0.82rem; color: var(--muted); }
+    .ai-messages { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; min-height: 200px; max-height: 400px; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+    .ai-msg { display: flex; gap: 0.75rem; animation: fadeUp 0.3s ease; }
+    .ai-msg.user { flex-direction: row-reverse; }
+    .ai-msg-avatar { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+    .ai-msg.bot .ai-msg-avatar { background: linear-gradient(135deg, var(--accent3), var(--accent)); }
+    .ai-msg.user .ai-msg-avatar { background: var(--surface2); border: 1px solid var(--border); }
+    .ai-msg-text { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.88rem; line-height: 1.6; max-width: 80%; }
+    .ai-msg.user .ai-msg-text { background: rgba(0,200,255,0.08); border-color: rgba(0,200,255,0.2); }
+    .ai-msg.bot .ai-msg-text { background: rgba(168,85,247,0.06); border-color: rgba(168,85,247,0.2); }
+    .ai-input-row { display: flex; gap: 0.75rem; }
+    .ai-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: var(--sans); font-size: 0.9rem; padding: 0.8rem 1.1rem; outline: none; transition: border-color 0.2s; }
+    .ai-input:focus { border-color: var(--accent3); }
+    .ai-input::placeholder { color: var(--muted); }
+    .ai-send-btn { background: linear-gradient(135deg, var(--accent3), #7c3aed); color: #fff; border: none; border-radius: 10px; font-family: var(--mono); font-size: 0.8rem; font-weight: 700; padding: 0.8rem 1.3rem; cursor: pointer; transition: opacity 0.2s; white-space: nowrap; }
+    .ai-send-btn:hover { opacity: 0.88; }
+    .ai-send-btn:disabled { opacity: 0.4; }
+    .ai-quick-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .ai-quick { background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2); color: var(--accent3); font-size: 0.78rem; font-family: var(--mono); padding: 0.3rem 0.8rem; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+    .ai-quick:hover { background: rgba(168,85,247,0.18); }
+    .ai-typing { color: var(--muted); font-size: 0.82rem; font-family: var(--mono); }
+    .ai-typing span { animation: blink 1s infinite; }
+    .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+    /* BG */
+    .chem-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.05; }
+    .hero-glow { position: absolute; top: 0; right: 0; width: 600px; height: 600px; background: radial-gradient(ellipse at top right, rgba(0,200,255,0.08), transparent 60%); pointer-events: none; z-index: 0; }
   </style>
 </head>
 <body>
 
-  <!-- KİMYASAL ARKA PLAN -->
+  <!-- BG -->
   <svg class="chem-bg" viewBox="0 0 1400 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(60,80)">
-      <line x1="25" y1="0" x2="25" y2="55"/><line x1="35" y1="0" x2="35" y2="55"/>
-      <path d="M25 55 L5 110 Q0 125 15 130 L45 130 Q60 125 55 110 L35 55"/>
-      <line x1="18" y1="0" x2="42" y2="0"/>
-    </g>
-    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(1200,60)">
-      <line x1="25" y1="0" x2="25" y2="60"/><line x1="35" y1="0" x2="35" y2="60"/>
-      <path d="M25 60 L0 120 Q-5 138 18 140 L42 140 Q65 138 60 120 L35 60"/>
-      <line x1="18" y1="0" x2="42" y2="0"/>
-    </g>
-    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(55,280)">
-      <path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/>
-      <line x1="5" y1="0" x2="75" y2="0"/><line x1="10" y1="45" x2="70" y2="45"/>
-      <line x1="65" y1="0" x2="82" y2="0"/>
-    </g>
-    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(1240,300)">
-      <path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/>
-      <line x1="5" y1="0" x2="75" y2="0"/><line x1="10" y1="45" x2="70" y2="45"/>
-    </g>
-    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(1300,480) rotate(25)">
-      <path d="M0 0 L0 90 Q0 108 12 108 Q24 108 24 90 L24 0"/>
-      <line x1="0" y1="0" x2="24" y2="0"/>
-    </g>
-    <g stroke="#00d4ff" stroke-width="2" fill="none" transform="translate(620,720)">
-      <polygon points="30,0 60,17 60,52 30,69 0,52 0,17"/>
-      <polygon points="30,15 47,24 47,44 30,54 13,44 13,24"/>
-    </g>
-    <g stroke="#00d4ff" stroke-width="1.5" fill="none" transform="translate(900,140)">
-      <circle cx="0" cy="0" r="9" fill="#00d4ff" fill-opacity="0.3"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(30)"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(90)"/>
-      <ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(150)"/>
-    </g>
-    <text x="440" y="130" fill="#00d4ff" font-size="18" font-family="monospace">H₂O</text>
-    <text x="100" y="510" fill="#00d4ff" font-size="16" font-family="monospace">NaCl</text>
-    <text x="1100" y="310" fill="#00d4ff" font-size="15" font-family="monospace">H₂SO₄</text>
-    <text x="860" y="510" fill="#00d4ff" font-size="16" font-family="monospace">CO₂</text>
+    <g stroke="#00c8ff" stroke-width="2" fill="none" transform="translate(60,80)"><line x1="25" y1="0" x2="25" y2="55"/><line x1="35" y1="0" x2="35" y2="55"/><path d="M25 55 L5 110 Q0 125 15 130 L45 130 Q60 125 55 110 L35 55"/><line x1="18" y1="0" x2="42" y2="0"/></g>
+    <g stroke="#00c8ff" stroke-width="2" fill="none" transform="translate(1200,60)"><line x1="25" y1="0" x2="25" y2="60"/><line x1="35" y1="0" x2="35" y2="60"/><path d="M25 60 L0 120 Q-5 138 18 140 L42 140 Q65 138 60 120 L35 60"/><line x1="18" y1="0" x2="42" y2="0"/></g>
+    <g stroke="#00c8ff" stroke-width="2" fill="none" transform="translate(55,300)"><path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/><line x1="5" y1="0" x2="75" y2="0"/><line x1="10" y1="45" x2="70" y2="45"/><line x1="65" y1="0" x2="82" y2="0"/></g>
+    <g stroke="#00c8ff" stroke-width="2" fill="none" transform="translate(1240,300)"><path d="M5 0 L5 90 Q5 110 25 110 L55 110 Q75 110 75 90 L75 0"/><line x1="5" y1="0" x2="75" y2="0"/><line x1="10" y1="45" x2="70" y2="45"/></g>
+    <g stroke="#00c8ff" stroke-width="2" fill="none" transform="translate(620,720)"><polygon points="30,0 60,17 60,52 30,69 0,52 0,17"/><polygon points="30,15 47,24 47,44 30,54 13,44 13,24"/></g>
+    <g stroke="#00c8ff" stroke-width="1.5" fill="none" transform="translate(900,140)"><circle cx="0" cy="0" r="9" fill="#00c8ff" fill-opacity="0.3"/><ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(30)"/><ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(90)"/><ellipse cx="0" cy="0" rx="45" ry="16" transform="rotate(150)"/></g>
+    <text x="440" y="130" fill="#00c8ff" font-size="18" font-family="monospace">H₂O</text>
+    <text x="100" y="520" fill="#00c8ff" font-size="16" font-family="monospace">NaCl</text>
+    <text x="1100" y="310" fill="#00c8ff" font-size="15" font-family="monospace">H₂SO₄</text>
     <text x="670" y="200" fill="#a855f7" font-size="17" font-family="monospace">C₂H₅OH</text>
   </svg>
 
   <!-- NAVBAR -->
   <nav>
     <div class="nav-logo">
-      Kimya<span>Sal</span>
-      <small>Kimya Asistanın</small>
+      <div class="nav-logo-icon">⚗</div>
+      <div>
+        <div class="nav-logo-text">Kimya<span>Sal</span></div>
+        <div class="nav-logo-sub">Kimya Asistanın</div>
+      </div>
     </div>
     <div class="nav-links">
-      <a href="#">Ana Sayfa</a>
+      <a href="#" class="active">Ana Sayfa</a>
       <a href="#">Araçlar</a>
       <a href="#">Hakkımızda</a>
     </div>
   </nav>
 
   <!-- HERO -->
-  <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid">
-      <div class="hero-left">
-        <div class="hero-badge">⚗️ Türkiye'nin Kimyasal Güvenlik Platformu</div>
-        <h1>Kimya <span class="highlight">Asistanın</span></h1>
-        <p>Milyonlarca kimyasalın GHS tehlike bilgilerine, molekül yapısına ve güvenlik verilerine <strong style="color:var(--accent)">saniyeler içinde</strong> ulaş.</p>
+  <div class="hero" style="position:relative;z-index:1;">
+    <div class="hero-glow"></div>
 
-        <div class="search-wrapper">
-          <div class="search-box" id="searchBox">
-            <input type="text" id="kimyasalInput" placeholder="Kimyasal adı gir... (örn: sülfürik asit, benzene)" autocomplete="off"/>
-            <div class="autocomplete-list" id="autocompleteList" style="display:none"></div>
-            <button class="search-btn" id="araBtn" onclick="ara()">→ Sorgula</button>
-          </div>
-        </div>
+    <div class="hero-left" style="position:relative;z-index:1;">
+      <div class="hero-badge">✨ Türkiye'nin En Kapsamlı Kimyasal Güvenlik Platformu</div>
+      <h1>Kimya <span class="hl">Asistanın</span></h1>
+      <p class="hero-sub">Milyonlarca kimyasalın güvenlik bilgilerine,<br><strong>saniyeler içinde</strong> ulaş.</p>
 
-        <div class="quick-searches">
-          <span class="quick-label">Örnek:</span>
-          <button class="quick-btn" onclick="hizliAra('sulfuric acid')">H₂SO₄</button>
-          <button class="quick-btn" onclick="hizliAra('ethanol')">Etanol</button>
-          <button class="quick-btn" onclick="hizliAra('benzene')">Benzen</button>
-          <button class="quick-btn" onclick="hizliAra('sodium hydroxide')">NaOH</button>
-          <button class="quick-btn" onclick="hizliAra('acetone')">Aseton</button>
+      <div class="search-wrap">
+        <div class="search-inner" id="searchBox">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="kimyasalInput" placeholder="Kimyasal adı, formül veya IUPAC adı girin..." autocomplete="off"/>
+          <div class="autocomplete-list" id="autocompleteList" style="display:none"></div>
+          <button id="araBtn" onclick="ara()">Sorgula →</button>
         </div>
       </div>
 
-      <div class="hero-right">
-        <div class="hero-mol-card">
-          <div class="hero-mol-title">🌟 Günün Kimyasalı</div>
-          <div class="hero-mol-name" id="gunKimyasal">...</div>
-          <div class="hero-mol-formula" id="gunFormul"></div>
-          <div class="hero-mol-desc" id="gunAciklama"></div>
-          <button class="hero-mol-btn" onclick="gunuAra()">→ Tehlike Bilgilerini İncele</button>
-        </div>
-
-        <div class="stats-row">
-          <div class="stat-mini">
-            <div class="stat-mini-val">118M+</div>
-            <div class="stat-mini-lbl">Kimyasal</div>
-          </div>
-          <div class="stat-mini">
-            <div class="stat-mini-val">GHS</div>
-            <div class="stat-mini-lbl">Standart</div>
-          </div>
-          <div class="stat-mini">
-            <div class="stat-mini-val">3D</div>
-            <div class="stat-mini-lbl">Görüntüleyici</div>
-          </div>
-        </div>
-
-        <button class="rastgele-btn" onclick="rastgeleAra()" style="width:100%;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(168,85,247,0.1));border:1px solid rgba(0,212,255,0.3);color:var(--accent);font-family:var(--mono);font-size:0.85rem;font-weight:700;padding:0.85rem;border-radius:12px;cursor:pointer;transition:all 0.2s;">
-          🎲 Rastgele Kimyasal Keşfet
-        </button>
+      <div class="quick-row">
+        <span class="quick-label">Örnek aramalar:</span>
+        <button class="quick-btn" onclick="hizliAra('sulfuric acid')">H₂SO₄</button>
+        <button class="quick-btn" onclick="hizliAra('ethanol')">Etanol</button>
+        <button class="quick-btn" onclick="hizliAra('benzene')">Benzen</button>
+        <button class="quick-btn" onclick="hizliAra('sodium hydroxide')">NaOH</button>
+        <button class="quick-btn" onclick="hizliAra('acetone')">Aseton</button>
       </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="gun-card">
+        <div class="gun-card-label">🌟 Günün Kimyasalı</div>
+        <div class="gun-card-name" id="gunKimyasal">...</div>
+        <div class="gun-card-formula" id="gunFormul"></div>
+        <div class="gun-card-desc" id="gunAciklama"></div>
+        <button class="gun-card-btn" onclick="gunuAra()">Tehlike Bilgilerini İncele →</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-val">118M+</div><div class="stat-lbl">Kimyasal</div></div>
+        <div class="stat-box"><div class="stat-val">GHS</div><div class="stat-lbl">Standart</div></div>
+        <div class="stat-box"><div class="stat-val">3D</div><div class="stat-lbl">Görüntü</div></div>
+      </div>
+
+      <button class="rand-btn" onclick="rastgeleAra()">🎲 Rastgele Kimyasal Keşfet</button>
     </div>
   </div>
 
+  <!-- STATS BAR -->
+  <div class="stats-bar" style="position:relative;z-index:1;">
+    <div class="stats-bar-item"><div class="stats-bar-icon">⚗️</div><div><div class="stats-bar-val">118M+</div><div class="stats-bar-lbl">Kimyasal Madde</div></div></div>
+    <div class="stats-bar-item"><div class="stats-bar-icon">🛡️</div><div><div class="stats-bar-val">900K+</div><div class="stats-bar-lbl">GHS Kaydı</div></div></div>
+    <div class="stats-bar-item"><div class="stats-bar-icon">🔬</div><div><div class="stats-bar-val">3D</div><div class="stats-bar-lbl">Molekül Görüntüleyici</div></div></div>
+    <div class="stats-bar-item"><div class="stats-bar-icon">📄</div><div><div class="stats-bar-val">PDF</div><div class="stats-bar-lbl">Rapor İndirme</div></div></div>
+  </div>
+
   <!-- MAIN -->
-  <main>
+  <main style="position:relative;z-index:1;">
     <div id="yukleniyor"><div class="spinner"></div> PubChem'den veri alınıyor...</div>
     <div id="hata"></div>
 
@@ -350,7 +343,7 @@
         </div>
         <div id="yapi3d" style="display:none">
           <div id="viewer3d"></div>
-          <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-top:0.5rem;text-align:center">Sürükle: döndür &nbsp;|&nbsp; Kaydır: yakınlaştır &nbsp;|&nbsp; Sağ tık: kaydır</div>
+          <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-top:0.5rem;text-align:center">Sürükle: döndür &nbsp;|&nbsp; Kaydır: yakınlaştır</div>
         </div>
       </div>
 
@@ -364,125 +357,288 @@
     </div>
   </main>
 
-  <footer>KimyaSal © 2026 &nbsp;—&nbsp; Veriler PubChem'den sağlanmaktadır &nbsp;|&nbsp; kimyasal.onrender.com</footer>
+  <!-- AI SOHBET -->
+  <div style="max-width:1200px;margin:0 auto;padding:0 2rem 4rem;position:relative;z-index:1;">
+    <div class="ai-section">
+      <div class="ai-header">
+        <div class="ai-avatar">🤖</div>
+        <div class="ai-header-text">
+          <h3>KimyaBot — AI Asistanın</h3>
+          <p>Kimya hakkında her soruyu sorabilirsin — güvenlik, depolama, reaksiyonlar ve daha fazlası</p>
+        </div>
+      </div>
+
+      <div class="ai-quick-btns">
+        <button class="ai-quick" onclick="aiHizli('Bu maddeyi nasıl saklamalıyım?')">Bu maddeyi nasıl saklamalıyım?</button>
+        <button class="ai-quick" onclick="aiHizli('Döküldüğünde ne yapmalıyım?')">Döküldüğünde ne yapmalıyım?</button>
+        <button class="ai-quick" onclick="aiHizli('Bu madde hangi maddelerle tepkimeye girer?')">Hangi maddelerle tepkimeye girer?</button>
+        <button class="ai-quick" onclick="aiHizli('İlk yardım prosedürü nedir?')">İlk yardım prosedürü nedir?</button>
+      </div>
+
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-msg bot">
+          <div class="ai-msg-avatar">🤖</div>
+          <div class="ai-msg-text">Merhaba! Ben KimyaBot, kimya asistanın. Kimyasal güvenlik, depolama, reaksiyonlar ve daha fazlası hakkında soru sorabilirsin. Nasıl yardımcı olabilirim?</div>
+        </div>
+      </div>
+
+      <div class="ai-input-row">
+        <input class="ai-input" id="aiInput" placeholder="Kimya hakkında bir soru sor..." onkeydown="if(event.key==='Enter') aiGonder()"/>
+        <button class="ai-send-btn" id="aiBtn" onclick="aiGonder()">Gönder →</button>
+      </div>
+    </div>
+  </div>
+
+  <footer style="position:relative;z-index:1;">KimyaSal © 2026 &nbsp;—&nbsp; Veriler PubChem'den sağlanmaktadır</footer>
 
   <script>
-    const GUNUN_KIMYASALLARI = [
-      { ad: "Su", formul: "H₂O", aciklama: "Tüm canlılar için temel madde.", arama: "water" },
-      { ad: "Etanol", formul: "C₂H₅OH", aciklama: "Güçlü dezenfektan ve çözücü.", arama: "ethanol" },
-      { ad: "Glukoz", formul: "C₆H₁₂O₆", aciklama: "Vücudun temel enerji kaynağı.", arama: "glucose" },
-      { ad: "Amonyak", formul: "NH₃", aciklama: "Zehirli gaz, gübre üretiminde kullanılır.", arama: "ammonia" },
-      { ad: "Benzen", formul: "C₆H₆", aciklama: "Kanserojen aromatik bileşik.", arama: "benzene" },
-      { ad: "Kafein", formul: "C₈H₁₀N₄O₂", aciklama: "En çok tüketilen psikoaktif madde.", arama: "caffeine" },
-      { ad: "Aspirin", formul: "C₉H₈O₄", aciklama: "100+ yıldır kullanılan ağrı kesici.", arama: "aspirin" },
+    const GUNUN = [
+      { ad:"Su", formul:"H₂O", aciklama:"Tüm canlılar için temel madde.", arama:"water" },
+      { ad:"Etanol", formul:"C₂H₅OH", aciklama:"Güçlü dezenfektan ve çözücü.", arama:"ethanol" },
+      { ad:"Glukoz", formul:"C₆H₁₂O₆", aciklama:"Vücudun temel enerji kaynağı.", arama:"glucose" },
+      { ad:"Amonyak", formul:"NH₃", aciklama:"Zehirli gaz, gübre üretiminde kullanılır.", arama:"ammonia" },
+      { ad:"Benzen", formul:"C₆H₆", aciklama:"Kanserojen aromatik bileşik.", arama:"benzene" },
+      { ad:"Kafein", formul:"C₈H₁₀N₄O₂", aciklama:"En çok tüketilen psikoaktif madde.", arama:"caffeine" },
+      { ad:"Aspirin", formul:"C₉H₈O₄", aciklama:"100+ yıldır kullanılan ağrı kesici.", arama:"aspirin" },
     ];
     const RASTGELE = ["sulfuric acid","hydrochloric acid","nitric acid","sodium hydroxide","hydrogen peroxide","acetone","ethanol","methanol","benzene","toluene","ammonia","chloroform","formaldehyde","phenol","acetic acid","caffeine","aspirin","glucose","urea","sodium chloride"];
+    const TURKCE = ["nitrik asit","sülfürik asit","hidroklorik asit","asetik asit","fosforik asit","sitrik asit","formik asit","laktik asit","borik asit","benzoik asit","sodyum hidroksit","potasyum hidroksit","kalsiyum hidroksit","etanol","metanol","propanol","izopropanol","bütanol","gliserin","etilen glikol","fenol","aseton","formaldehit","asetaldehit","benzen","toluen","naftalin","anilin","kloroform","karbon tetraklorür","diklorometan","etil asetat","amonyak","hidrojen","oksijen","azot","klor","karbon dioksit","kükürt dioksit","karbon monoksit","hidrojen peroksit","sodyum klorür","potasyum klorür","kalsiyum karbonat","sodyum bikarbonat","potasyum permanganat","sodyum hipoklorit","bakır sülfat","gümüş nitrat","kükürt","fosfor","hekzan","sikloheksan","glikoz","fruktoz","sakkaroz","üre","kafein","kolesterol","aspirin","parasetamol","ibuprofen"];
 
-    const gun = GUNUN_KIMYASALLARI[new Date().getDay() % GUNUN_KIMYASALLARI.length];
+    const gun = GUNUN[new Date().getDay() % GUNUN.length];
     document.getElementById('gunKimyasal').textContent = gun.ad;
     document.getElementById('gunFormul').textContent = gun.formul;
     document.getElementById('gunAciklama').textContent = gun.aciklama;
 
-    function gunuAra() { document.getElementById('kimyasalInput').value = gun.arama; ara(); window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' }); }
-    function rastgeleAra() { const r = RASTGELE[Math.floor(Math.random()*RASTGELE.length)]; document.getElementById('kimyasalInput').value = r; ara(); window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' }); }
-    function hizliAra(isim) { document.getElementById('kimyasalInput').value = isim; ara(); window.scrollTo({ top: document.querySelector('main').offsetTop - 80, behavior: 'smooth' }); }
-
-    const TURKCE_LISTE = ["nitrik asit","sülfürik asit","hidroklorik asit","asetik asit","fosforik asit","sitrik asit","formik asit","laktik asit","borik asit","benzoik asit","sodyum hidroksit","potasyum hidroksit","kalsiyum hidroksit","etanol","metanol","propanol","izopropanol","bütanol","gliserin","etilen glikol","fenol","aseton","formaldehit","asetaldehit","benzen","toluen","naftalin","anilin","kloroform","karbon tetraklorür","diklorometan","etil asetat","amonyak","hidrojen","oksijen","azot","klor","karbon dioksit","kükürt dioksit","karbon monoksit","hidrojen peroksit","sodyum klorür","potasyum klorür","kalsiyum karbonat","sodyum bikarbonat","potasyum permanganat","sodyum hipoklorit","bakır sülfat","gümüş nitrat","kükürt","fosfor","hekzan","sikloheksan","glikoz","fruktoz","sakkaroz","üre","kafein","kolesterol","aspirin","parasetamol","ibuprofen"];
+    function gunuAra() { document.getElementById('kimyasalInput').value = gun.arama; ara(); scrollToMain(); }
+    function rastgeleAra() { document.getElementById('kimyasalInput').value = RASTGELE[Math.floor(Math.random()*RASTGELE.length)]; ara(); scrollToMain(); }
+    function hizliAra(v) { document.getElementById('kimyasalInput').value = v; ara(); scrollToMain(); }
+    function scrollToMain() { setTimeout(() => document.querySelector('main').scrollIntoView({ behavior:'smooth', block:'start' }), 200); }
 
     let acTimeout = null;
     document.getElementById('kimyasalInput').addEventListener('input', function() {
       clearTimeout(acTimeout);
-      const val = this.value.trim();
-      if (val.length < 2) { document.getElementById('autocompleteList').style.display = 'none'; return; }
-      acTimeout = setTimeout(() => fetchAC(val), 300);
+      const v = this.value.trim();
+      if (v.length < 2) { document.getElementById('autocompleteList').style.display='none'; return; }
+      acTimeout = setTimeout(() => fetchAC(v), 300);
     });
-    document.getElementById('kimyasalInput').addEventListener('keydown', e => { if (e.key === 'Enter') ara(); if (e.key === 'Escape') document.getElementById('autocompleteList').style.display = 'none'; });
-    document.addEventListener('click', e => { if (!e.target.closest('#searchBox')) document.getElementById('autocompleteList').style.display = 'none'; });
+    document.getElementById('kimyasalInput').addEventListener('keydown', e => { if (e.key==='Enter') ara(); if (e.key==='Escape') document.getElementById('autocompleteList').style.display='none'; });
+    document.addEventListener('click', e => { if (!e.target.closest('#searchBox')) document.getElementById('autocompleteList').style.display='none'; });
 
     async function fetchAC(q) {
-      const tr = TURKCE_LISTE.filter(k => k.startsWith(q.toLowerCase())).slice(0, 4);
+      const tr = TURKCE.filter(k => k.startsWith(q.toLowerCase())).slice(0,4);
       try {
-        const res = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(q)}/JSON?limit=6`);
-        const data = await res.json();
-        const en = data?.dictionary_terms?.compound || [];
-        showAC([...new Set([...tr, ...en])].slice(0, 8));
+        const r = await fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/autocomplete/compound/${encodeURIComponent(q)}/JSON?limit=6`);
+        const d = await r.json();
+        showAC([...new Set([...tr, ...(d?.dictionary_terms?.compound||[])])].slice(0,8));
       } catch { showAC(tr); }
     }
     function showAC(items) {
-      const list = document.getElementById('autocompleteList');
-      if (!items.length) { list.style.display = 'none'; return; }
-      list.innerHTML = items.map(i => `<div class="autocomplete-item" onclick="secItem('${i.replace(/'/g,"\\'")}') ">${i}</div>`).join('');
-      list.style.display = 'block';
+      const l = document.getElementById('autocompleteList');
+      if (!items.length) { l.style.display='none'; return; }
+      l.innerHTML = items.map(i => `<div class="autocomplete-item" onclick="secItem('${i.replace(/'/g,"\\'")}')">${i}</div>`).join('');
+      l.style.display = 'block';
     }
-    function secItem(isim) { document.getElementById('kimyasalInput').value = isim; document.getElementById('autocompleteList').style.display = 'none'; ara(); }
+    function secItem(v) { document.getElementById('kimyasalInput').value=v; document.getElementById('autocompleteList').style.display='none'; ara(); }
 
-    let sonVeri = null, guncelCid = null;
+    let sonVeri=null, guncelCid=null;
 
     async function ara() {
       const kimyasal = document.getElementById('kimyasalInput').value.trim();
       if (!kimyasal) return;
-      document.getElementById('autocompleteList').style.display = 'none';
-      document.getElementById('sonuc').style.display = 'none';
-      document.getElementById('hata').style.display = 'none';
-      document.getElementById('yukleniyor').style.display = 'flex';
-      document.getElementById('araBtn').disabled = true;
-
+      document.getElementById('autocompleteList').style.display='none';
+      document.getElementById('sonuc').style.display='none';
+      document.getElementById('hata').style.display='none';
+      document.getElementById('yukleniyor').style.display='flex';
+      document.getElementById('araBtn').disabled=true;
       try {
-        const res = await fetch('/ara', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kimyasal }) });
+        const res = await fetch('/ara', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kimyasal}) });
         const data = await res.json();
-        document.getElementById('yukleniyor').style.display = 'none';
-        document.getElementById('araBtn').disabled = false;
+        document.getElementById('yukleniyor').style.display='none';
+        document.getElementById('araBtn').disabled=false;
+        if (data.hata) { const h=document.getElementById('hata'); h.textContent='⚠ '+data.hata; h.style.display='block'; return; }
 
-        if (data.hata) { const h = document.getElementById('hata'); h.textContent = '⚠ ' + data.hata; h.style.display = 'block'; return; }
+        document.getElementById('molCard').innerHTML = `<div class="mol-name">${data.isim}</div><div class="mol-meta"><div class="meta-item"><span class="meta-key">Formül</span><span class="meta-val">${data.formul}</span></div><div class="meta-item"><span class="meta-key">Mol Ağırlığı</span><span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span></div></div>`;
 
-        document.getElementById('molCard').innerHTML = `
-          <div class="mol-name">${data.isim}</div>
-          <div class="mol-meta">
-            <div class="meta-item"><span class="meta-key">Formül</span><span class="meta-val">${data.formul}</span></div>
-            <div class="meta-item"><span class="meta-key">Mol Ağırlığı</span><span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span></div>
-          </div>`;
+        if (data.yapi_url) { document.getElementById('yapiImg').src=data.yapi_url; document.getElementById('yapiDiv').style.display='block'; goster2D(); }
+        else { document.getElementById('yapiDiv').style.display='none'; }
 
-        if (data.yapi_url) { document.getElementById('yapiImg').src = data.yapi_url; document.getElementById('yapiDiv').style.display = 'block'; goster2D(); }
-        else { document.getElementById('yapiDiv').style.display = 'none'; }
+        guncelCid=data.cid; sonVeri=data;
 
-        guncelCid = data.cid; sonVeri = data;
-
-        const piktDiv = document.getElementById('piktogramlar');
-        piktDiv.innerHTML = data.piktogramlar.length > 0
-          ? `<div class="section-title" style="width:100%">GHS Piktogramları</div>` + data.piktogramlar.map(p => `<div class="piktogram-chip" style="border-color:${p.renk}55"><span>${p.isim}</span></div>`).join('')
+        document.getElementById('piktogramlar').innerHTML = data.piktogramlar.length
+          ? `<div class="section-title" style="width:100%">GHS Piktogramları</div>`+data.piktogramlar.map(p=>`<div class="piktogram-chip" style="border-color:${p.renk}55">${p.isim}</div>`).join('')
           : '';
 
-        const gruplar = {};
-        for (const h of data.h_kodlari) { if (!gruplar[h.kategori]) gruplar[h.kategori] = { renk: h.renk, ikon: h.ikon, liste: [] }; gruplar[h.kategori].liste.push(h); }
-        document.getElementById('hKodlari').innerHTML = data.h_kodlari.length === 0
+        const gruplar={};
+        for (const h of data.h_kodlari) { if (!gruplar[h.kategori]) gruplar[h.kategori]={renk:h.renk,ikon:h.ikon,liste:[]}; gruplar[h.kategori].liste.push(h); }
+        document.getElementById('hKodlari').innerHTML = data.h_kodlari.length===0
           ? '<div style="color:var(--muted);font-family:var(--mono);font-size:0.85rem;padding:1rem">Tehlike kodu bulunamadı.</div>'
-          : Object.entries(gruplar).map(([kat, g]) => `<div class="h-group"><div class="h-group-header"><span class="h-group-isim" style="color:${g.renk}">${g.ikon} ${kat}</span><span class="h-group-count">${g.liste.length} kod</span></div><div class="h-list">${g.liste.map(h => `<div class="h-item"><span class="h-badge" style="background:${h.renk}">${h.kod}</span><span class="h-text">${h.tr}</span></div>`).join('')}</div></div>`).join('');
+          : Object.entries(gruplar).map(([kat,g])=>`<div class="h-group"><div class="h-group-header"><span class="h-group-isim" style="color:${g.renk}">${g.ikon} ${kat}</span><span class="h-group-count">${g.liste.length} kod</span></div><div class="h-list">${g.liste.map(h=>`<div class="h-item"><span class="h-badge" style="background:${h.renk}">${h.kod}</span><span class="h-text">${h.tr}</span></div>`).join('')}</div></div>`).join('');
 
-        document.getElementById('pubchemLink').href = `https://pubchem.ncbi.nlm.nih.gov/compound/${data.cid}`;
-        document.getElementById('sonuc').style.display = 'block';
-      } catch(err) { document.getElementById('yukleniyor').style.display = 'none'; document.getElementById('araBtn').disabled = false; const h = document.getElementById('hata'); h.textContent = '⚠ ' + err.message; h.style.display = 'block'; }
+        document.getElementById('pubchemLink').href=`https://pubchem.ncbi.nlm.nih.gov/compound/${data.cid}`;
+        document.getElementById('sonuc').style.display='block';
+      } catch(err) { document.getElementById('yukleniyor').style.display='none'; document.getElementById('araBtn').disabled=false; const h=document.getElementById('hata'); h.textContent='⚠ '+err.message; h.style.display='block'; }
     }
 
     function goster2D() { document.getElementById('yapi2d').style.display='block'; document.getElementById('yapi3d').style.display='none'; document.querySelectorAll('.viewer-tab')[0].classList.add('active'); document.querySelectorAll('.viewer-tab')[1].classList.remove('active'); }
     function goster3D() { document.getElementById('yapi2d').style.display='none'; document.getElementById('yapi3d').style.display='block'; document.querySelectorAll('.viewer-tab')[0].classList.remove('active'); document.querySelectorAll('.viewer-tab')[1].classList.add('active'); yukle3D(); }
     function yukle3D() {
       if (!guncelCid) return;
-      const c = document.getElementById('viewer3d');
-      c.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">Yükleniyor...</div>';
+      const c=document.getElementById('viewer3d');
+      c.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">Yükleniyor...</div>';
       fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`).then(r=>r.text()).then(sdf=>{
         c.innerHTML='';
-        const v = $3Dmol.createViewer(c, { backgroundColor:'#0a0e1a', antialias:true });
-        v.addModel(sdf,'sdf'); v.setStyle({},{ stick:{radius:0.15,colorscheme:'Jmol'}, sphere:{scale:0.3,colorscheme:'Jmol'} });
+        const v=$3Dmol.createViewer(c,{backgroundColor:'#0a0e1a',antialias:true});
+        v.addModel(sdf,'sdf'); v.setStyle({},{stick:{radius:0.15,colorscheme:'Jmol'},sphere:{scale:0.3,colorscheme:'Jmol'}});
         v.zoomTo(); v.render(); v.zoom(1.2);
       }).catch(()=>{ c.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-family:var(--mono);font-size:0.8rem">3D yapı bulunamadı</div>'; });
     }
 
+    // AKILLI KURAL TABANLI SİSTEM
+    function aiHizli(soru) {
+      document.getElementById('aiInput').value = soru;
+      aiGonder();
+    }
+
+    function aiGonder() {
+      const input = document.getElementById('aiInput');
+      const soru = input.value.trim().toLowerCase();
+      if (!soru) return;
+
+      const msgs = document.getElementById('aiMessages');
+      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${input.value.trim()}</div></div>`;
+      input.value = '';
+
+      // Yazıyor animasyonu
+      const typingId = 'typing-' + Date.now();
+      msgs.innerHTML += `<div class="ai-msg bot" id="${typingId}"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text ai-typing"><span>●</span><span>●</span><span>●</span></div></div>`;
+      msgs.scrollTop = msgs.scrollHeight;
+
+      setTimeout(() => {
+        document.getElementById(typingId).remove();
+        const cevap = cevapUret(soru);
+        msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${cevap}</div></div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+      }, 800);
+    }
+
+    function cevapUret(soru) {
+      const hKodlari = sonVeri ? sonVeri.h_kodlari.map(h => h.kod) : [];
+      const kimyasalAdi = sonVeri ? sonVeri.isim : null;
+
+      // Kimyasal aranmadıysa
+      if (!sonVeri) {
+        return "Önce bir kimyasal aratmanı öneririm! Yukarıdaki arama kutusundan bir kimyasal sorgula, ardından o kimyasal hakkında soru sorabilirsin. 🔍";
+      }
+
+      // DEPOLAMA soruları
+      if (soru.includes('sakla') || soru.includes('depola') || soru.includes('muhafaza') || soru.includes('koru')) {
+        let cevap = `<strong>${kimyasalAdi} için Depolama Talimatları:</strong><br><br>`;
+        const noktalar = [];
+
+        if (hKodlari.some(h => ['H220','H221','H222','H223','H224','H225','H226'].includes(h)))
+          noktalar.push("🔥 <strong>Yanıcı madde</strong> — ateş ve kıvılcımdan uzak tutun, serin ve havalandırmalı yerde saklayın");
+        if (hKodlari.some(h => ['H270','H271','H272'].includes(h)))
+          noktalar.push("⭕ <strong>Oksitleyici</strong> — yanıcı maddelerden ayrı, serin yerde saklayın");
+        if (hKodlari.some(h => ['H314','H290'].includes(h)))
+          noktalar.push("⚗️ <strong>Aşındırıcı</strong> — metal kaplardan kaçının, asit dayanıklı kaplarda saklayın");
+        if (hKodlari.some(h => ['H300','H301','H302','H310','H311','H312','H330','H331','H332'].includes(h)))
+          noktalar.push("☠️ <strong>Zehirli</strong> — kilitli, çocukların erişemeyeceği yerde saklayın");
+        if (hKodlari.some(h => ['H400','H410','H411'].includes(h)))
+          noktalar.push("🌿 <strong>Çevre tehlikesi</strong> — drenajdan ve su kaynaklarından uzak tutun");
+        if (hKodlari.some(h => ['H280','H281'].includes(h)))
+          noktalar.push("🫧 <strong>Basınçlı gaz</strong> — 50°C üzeri sıcaklıktan koruyun, düşürmeyin");
+
+        if (noktalar.length === 0)
+          noktalar.push("✅ Serin, kuru ve havalandırmalı ortamda, orijinal kabında saklayın");
+
+        noktalar.push("📦 Kabı sıkıca kapalı tutun", "🏷️ Etiketlerin okunaklı olduğundan emin olun");
+        return cevap + noktalar.join('<br>');
+      }
+
+      // DÖKÜNTÜ soruları
+      if (soru.includes('döküld') || soru.includes('dökül') || soru.includes('sızdı') || soru.includes('döküntü') || soru.includes('sızıntı')) {
+        let cevap = `<strong>${kimyasalAdi} Döküntüsünde Yapılacaklar:</strong><br><br>`;
+        const adimlar = ["1️⃣ Bölgeden tüm kişileri uzaklaştırın", "2️⃣ Gerekli KKD'yi (eldiven, gözlük, önlük) giyin"];
+
+        if (hKodlari.some(h => ['H224','H225','H226'].includes(h)))
+          adimlar.push("3️⃣ 🔥 Tüm ateş kaynaklarını söndürün, elektriği kapatın");
+        if (hKodlari.some(h => ['H330','H331','H332'].includes(h)))
+          adimlar.push("3️⃣ 😷 Solunum koruyucu takın, ortamı havalandırın");
+        if (hKodlari.some(h => ['H314'].includes(h)))
+          adimlar.push("3️⃣ ⚗️ Deriye ve gözlere temastan kaçının, nötralize edici madde kullanın");
+
+        adimlar.push("4️⃣ Kuru kum veya vermikülit ile sınırlayın", "5️⃣ Atık mevzuatına uygun şekilde imha edin", "6️⃣ Olayı kayıt altına alın ve gerekiyorsa yetkilileri bilgilendirin");
+        return cevap + adimlar.join('<br>');
+      }
+
+      // İLK YARDIM soruları
+      if (soru.includes('ilk yardım') || soru.includes('temas') || soru.includes('yuttu') || soru.includes('solud') || soru.includes('göze') || soru.includes('deriye')) {
+        let cevap = `<strong>${kimyasalAdi} — İlk Yardım:</strong><br><br>`;
+        const bilgi = [];
+
+        if (hKodlari.some(h => ['H314','H315','H316','H317'].includes(h)))
+          bilgi.push("🖐️ <strong>Deri teması:</strong> Bol su ile 15-20 dakika yıkayın, kirli giysileri çıkarın");
+        if (hKodlari.some(h => ['H318','H319','H320'].includes(h)))
+          bilgi.push("👁️ <strong>Göz teması:</strong> Açık gözle bol su ile 15 dakika yıkayın, hemen doktora gidin");
+        if (hKodlari.some(h => ['H300','H301','H302'].includes(h)))
+          bilgi.push("💊 <strong>Yutulması:</strong> Kusturmayın! Ağzı su ile çalkalayın, hemen 112'yi arayın");
+        if (hKodlari.some(h => ['H330','H331','H332','H334','H335','H336'].includes(h)))
+          bilgi.push("😮 <strong>Solunması:</strong> Kişiyi temiz havaya çıkarın, nefes almakta güçlük varsa 112'yi arayın");
+
+        if (bilgi.length === 0)
+          bilgi.push("⚠️ Temas durumunda bol su ile yıkayın ve doktora danışın");
+
+        bilgi.push("<br>🚨 <strong>Acil durumlarda: 112</strong> veya <strong>Zehir Danışma: 114</strong>");
+        return cevap + bilgi.join('<br>');
+      }
+
+      // TEHLİKE soruları
+      if (soru.includes('tehlike') || soru.includes('zararlı') || soru.includes('zehir') || soru.includes('ne kadar') || soru.includes('risk')) {
+        if (hKodlari.length === 0) return `${kimyasalAdi} için tehlike kodu bulunamadı. Görece güvenli bir madde olabilir, yine de dikkatli kullanın.`;
+        
+        const kritik = hKodlari.filter(h => ['H300','H310','H330','H340','H350','H360','H370'].includes(h));
+        let seviye = kritik.length > 0 ? "🔴 <strong>YÜKSEK TEHLİKE</strong>" : hKodlari.length > 3 ? "🟡 <strong>ORTA TEHLİKE</strong>" : "🟢 <strong>DÜŞÜK TEHLİKE</strong>";
+        
+        return `<strong>${kimyasalAdi} Tehlike Değerlendirmesi:</strong><br><br>${seviye}<br><br>Toplam <strong>${hKodlari.length} tehlike kodu</strong> bulundu: ${hKodlari.join(', ')}<br><br>Detaylar için aşağıdaki H kodları listesine bakabilirsin. ⬆️`;
+      }
+
+      // TEPKİME soruları
+      if (soru.includes('tepkime') || soru.includes('reaksiyon') || soru.includes('karışır') || soru.includes('uyumlu')) {
+        let cevap = `<strong>${kimyasalAdi} Uyumsuzluklar:</strong><br><br>`;
+        const uyumsuz = [];
+
+        if (hKodlari.some(h => ['H272','H270','H271'].includes(h)))
+          uyumsuz.push("⚠️ Yanıcı maddelerle — yangın/patlama riski");
+        if (hKodlari.some(h => ['H290'].includes(h)))
+          uyumsuz.push("⚠️ Metallerle — aşınma ve gaz oluşumu");
+        if (hKodlari.some(h => ['H314'].includes(h)))
+          uyumsuz.push("⚠️ Bazlarla veya asitlerle — şiddetli reaksiyon");
+        if (hKodlari.some(h => ['H260','H261'].includes(h)))
+          uyumsuz.push("⚠️ Su ile — yanıcı gaz oluşur!");
+
+        if (uyumsuz.length === 0)
+          return `${kimyasalAdi} için bilinen ciddi uyumsuzluk bulunmadı. Yine de kimyasalları karıştırmadan önce SDS'e bakmanı öneririm.`;
+
+        return cevap + uyumsuz.join('<br>') + '<br><br>📋 Kesin bilgi için SDS (Güvenlik Bilgi Formu) incelemenizi öneririm.';
+      }
+
+      // GENEL sorular
+      const genel = [
+        "Bu kimyasal hakkında şunları sorabilirsin:",
+        "• <em>Nasıl saklamalıyım?</em>",
+        "• <em>Döküldüğünde ne yapmalıyım?</em>",
+        "• <em>İlk yardım prosedürü nedir?</em>",
+        "• <em>Ne kadar tehlikeli?</em>",
+        "• <em>Hangi maddelerle tepkimeye girer?</em>"
+      ];
+      return genel.join('<br>');
+    }
+
     async function pdfIndir() {
       if (!sonVeri) return;
-      const res = await fetch('/pdf', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(sonVeri) });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download=`${sonVeri.isim}_tehlike_raporu.pdf`; a.click(); URL.revokeObjectURL(url);
+      const res=await fetch('/pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sonVeri)});
+      const blob=await res.blob(); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download=`${sonVeri.isim}_tehlike_raporu.pdf`; a.click(); URL.revokeObjectURL(url);
     }
   </script>
 </body>

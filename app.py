@@ -563,5 +563,48 @@ def pdf_rapor():
                      download_name=f"{isim.replace(' ', '_')}_tehlike_raporu.pdf")
 
 
+
+@app.route("/ai", methods=["POST"])
+def ai_sohbet():
+    import os
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        return jsonify({"hata": "API key bulunamadi."})
+
+    veri = request.json
+    mesajlar = veri.get("mesajlar", [])
+
+    sistem = (
+        "Sen KimyaSal platformunun kimya asistanisin. Adin KimyaBot. "
+        "Kimya, kimyasal guvenlik, GHS tehlike bilgileri, laboratuvar guvenligi, "
+        "molekuler yapilar ve kimyasal reaksiyonlar hakkinda uzman bilgiye sahipsin. "
+        "Turkce konus. Kisa ve net cevaplar ver. Tehlikeli kullanimlara yonlendirme. "
+        "Guvenlik konularinda her zaman dikkatli ol ve uyari ver."
+    )
+
+    gecmis = []
+    for m in mesajlar[:-1]:
+        rol = "user" if m["rol"] == "user" else "model"
+        gecmis.append({"role": rol, "parts": [{"text": m["icerik"]}]})
+
+    son_mesaj = mesajlar[-1]["icerik"] if mesajlar else ""
+
+    try:
+        res = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}",
+            headers={"Content-Type": "application/json"},
+            json={
+                "system_instruction": {"parts": [{"text": sistem}]},
+                "contents": gecmis + [{"role": "user", "parts": [{"text": son_mesaj}]}],
+                "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.7}
+            }
+        )
+        data = res.json()
+        cevap = data["candidates"][0]["content"]["parts"][0]["text"]
+        return jsonify({"cevap": cevap})
+    except Exception as e:
+        return jsonify({"hata": str(e)})
+
+
 if __name__ == "__main__":
     app.run(debug=False)

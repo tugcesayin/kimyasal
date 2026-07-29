@@ -440,7 +440,7 @@
     }
     function secItem(v) { document.getElementById('kimyasalInput').value=v; document.getElementById('autocompleteList').style.display='none'; ara(); }
 
-    let sonVeri=null, guncelCid=null;
+    let sonVeri=null, guncelCid=null, aiMesajlar=[];
 
     async function ara() {
       const kimyasal = document.getElementById('kimyasalInput').value.trim();
@@ -499,26 +499,46 @@
       aiGonder();
     }
 
-    function aiGonder() {
+    async function aiGonder() {
       const input = document.getElementById('aiInput');
-      const soru = input.value.trim().toLowerCase();
+      const soru = input.value.trim();
       if (!soru) return;
 
-      const msgs = document.getElementById('aiMessages');
-      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${input.value.trim()}</div></div>`;
       input.value = '';
+      document.getElementById('aiBtn').disabled = true;
 
-      // Yazıyor animasyonu
+      const msgs = document.getElementById('aiMessages');
+      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${soru}</div></div>`;
+
+      aiMesajlar.push({ rol: 'user', icerik: soru });
+
       const typingId = 'typing-' + Date.now();
       msgs.innerHTML += `<div class="ai-msg bot" id="${typingId}"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text ai-typing"><span>●</span><span>●</span><span>●</span></div></div>`;
       msgs.scrollTop = msgs.scrollHeight;
 
-      setTimeout(() => {
+      try {
+        const res = await fetch('/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mesajlar: aiMesajlar })
+        });
+        const data = await res.json();
         document.getElementById(typingId).remove();
-        const cevap = cevapUret(soru);
-        msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${cevap}</div></div>`;
-        msgs.scrollTop = msgs.scrollHeight;
-      }, 800);
+
+        if (data.hata) {
+          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--accent2)">Hata: ${data.hata}</div></div>`;
+        } else {
+          aiMesajlar.push({ rol: 'assistant', icerik: data.cevap });
+          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${data.cevap.replace(/\n/g, '<br>')}</div></div>`;
+        }
+      } catch(e) {
+        document.getElementById(typingId)?.remove();
+        msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--accent2)">Bağlantı hatası.</div></div>`;
+      }
+
+      msgs.scrollTop = msgs.scrollHeight;
+      document.getElementById('aiBtn').disabled = false;
+      input.focus();
     }
 
     function cevapUret(soru) {

@@ -600,6 +600,11 @@ def ai_sohbet():
             }
         )
         data = res.json()
+        # Hata kontrolü
+        if "error" in data:
+            return jsonify({"hata": data["error"].get("message", "Bilinmeyen hata")})
+        if "candidates" not in data:
+            return jsonify({"hata": str(data)})
         cevap = data["candidates"][0]["content"]["parts"][0]["text"]
         return jsonify({"cevap": cevap})
     except Exception as e:

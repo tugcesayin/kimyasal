@@ -280,6 +280,122 @@
     .hero-glow { position: absolute; top: 0; right: 0; width: 600px; height: 600px; background: radial-gradient(ellipse at top right, rgba(0,200,255,0.08), transparent 60%); pointer-events: none; z-index: 0; }
     .placeholder-content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; color: var(--muted); font-family: var(--mono); text-align: center; gap: 1rem; }
     .placeholder-content span { font-size: 3rem; color: var(--border); }
+
+    /* HESAPLAYICI PENCERESİ */
+    .calc-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .calc-overlay.open { display: flex; }
+    .calc-modal {
+      width: min(560px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 70px rgba(0,0,0,0.35);
+      animation: fadeUp 0.25s ease;
+    }
+    .calc-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .calc-header h3 { font-size: 1.25rem; }
+    .calc-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .calc-close:hover { border-color: var(--accent2); color: var(--accent2); }
+    .calc-info {
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+    .calc-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .calc-field label {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    .calc-field input,
+    .calc-field select {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 0.75rem;
+      outline: none;
+      font-family: var(--mono);
+    }
+    .calc-field input:focus,
+    .calc-field select:focus { border-color: var(--accent); }
+    .calc-actions {
+      display: flex;
+      gap: 0.7rem;
+      margin-top: 1.1rem;
+    }
+    .calc-btn {
+      flex: 1;
+      border: none;
+      border-radius: 9px;
+      padding: 0.8rem 1rem;
+      cursor: pointer;
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+    .calc-btn.primary { background: linear-gradient(135deg, var(--accent), #0099cc); color: #080b14; }
+    .calc-btn.secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .calc-result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(0,200,255,0.07);
+      border: 1px solid rgba(0,200,255,0.2);
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      min-height: 52px;
+    }
+    .calc-result strong { color: var(--accent); }
+    .calc-error {
+      color: var(--accent2);
+      background: rgba(255,71,87,0.08);
+      border-color: rgba(255,71,87,0.25);
+    }
+    @media (max-width: 600px) {
+      .calc-grid { grid-template-columns: 1fr; }
+      .calc-modal { padding: 1.1rem; }
+    }
+
   </style>
 </head>
 <body>
@@ -450,27 +566,27 @@
         <div class="bento-box full-width">
           <h3 class="box-title">⚙️ Laboratuvar Araçları</h3>
           <div class="lab-tools-row">
-            <button class="tool-btn">
+            <button class="tool-btn" onclick="hesaplayiciAc('mol')">
               <span class="tool-icon">⚖️</span>
               <span class="tool-name">Mol Hesaplama</span>
-              <span class="tool-desc">Mol kütlesi, madde miktarı</span>
+              <span class="tool-desc">Mol, kütle ve mol kütlesi</span>
             </button>
-            <button class="tool-btn">
+            <button class="tool-btn" onclick="hesaplayiciAc('molarite')">
               <span class="tool-icon">🧪</span>
               <span class="tool-name">Molarite Hesaplama</span>
-              <span class="tool-desc">Çözelti derişimi bulma</span>
+              <span class="tool-desc">Mol / hacim ile derişim</span>
             </button>
-            <button class="tool-btn">
+            <button class="tool-btn" onclick="hesaplayiciAc('ph')">
               <span class="tool-icon">📈</span>
               <span class="tool-name">pH Hesaplama</span>
-              <span class="tool-desc">Asit-baz dengesi analizi</span>
+              <span class="tool-desc">[H⁺], [OH⁻], pH ve pOH</span>
             </button>
-            <button class="tool-btn">
+            <button class="tool-btn" onclick="hesaplayiciAc('dilusyon')">
               <span class="tool-icon">💧</span>
               <span class="tool-name">Dilüsyon Hesaplama</span>
-              <span class="tool-desc">Seyreltme işlemleri (C1V1)</span>
+              <span class="tool-desc">C₁V₁ = C₂V₂</span>
             </button>
-            <button class="tool-btn">
+            <button class="tool-btn" onclick="alert('Birim dönüştürücü bir sonraki adımda eklenebilir.')">
               <span class="tool-icon">📊</span>
               <span class="tool-name">Birim Dönüştürücü</span>
               <span class="tool-desc">ppm, ppb, mg/L çevirici</span>
@@ -560,6 +676,25 @@
     </section>
 
   </main>
+
+    <!-- HESAPLAYICI MODALI -->
+    <div class="calc-overlay" id="calcOverlay" onclick="hesaplayiciDisinaTikla(event)">
+      <div class="calc-modal" onclick="event.stopPropagation()">
+        <div class="calc-header">
+          <h3 id="calcTitle">🧪 Hesaplayıcı</h3>
+          <button class="calc-close" onclick="hesaplayiciKapat()">✕</button>
+        </div>
+
+        <div id="calcContent"></div>
+
+        <div class="calc-actions">
+          <button class="calc-btn secondary" onclick="hesaplayiciTemizle()">Temizle</button>
+          <button class="calc-btn primary" onclick="hesapla()">Hesapla →</button>
+        </div>
+
+        <div class="calc-result" id="calcResult">Sonuç burada görünecek.</div>
+      </div>
+    </div>
 
   <footer>KimyaSal ©️ 2026 &nbsp;—&nbsp; Veriler PubChem'den sağlanmaktadır</footer>
 
@@ -757,6 +892,315 @@
       document.getElementById('aiBtn').disabled = false;
       input.focus();
     }
+
+
+    // ============================
+    // LABORATUVAR HESAPLAYICILARI
+    // ============================
+    let aktifHesaplayici = null;
+
+    function hesaplayiciAc(tip) {
+      aktifHesaplayici = tip;
+      const overlay = document.getElementById('calcOverlay');
+      const content = document.getElementById('calcContent');
+      const title = document.getElementById('calcTitle');
+      const result = document.getElementById('calcResult');
+
+      result.className = 'calc-result';
+      result.innerHTML = 'Sonuç burada görünecek.';
+
+      if (tip === 'mol') {
+        title.textContent = '⚖️ Mol Hesaplama';
+        content.innerHTML = `
+          <p class="calc-info">İki değeri gir; üçüncü değeri hesaplayalım. Temel bağıntı: <b>n = m / M</b>.</p>
+          <div class="calc-grid">
+            <div class="calc-field">
+              <label>KÜTLE (g)</label>
+              <input id="molKitle" type="number" step="any" placeholder="Örn. 18">
+            </div>
+            <div class="calc-field">
+              <label>MOL KÜTLESİ (g/mol)</label>
+              <input id="molKutlesi" type="number" step="any" placeholder="Örn. 18.015">
+            </div>
+            <div class="calc-field">
+              <label>MİKTAR (mol)</label>
+              <input id="molMiktar" type="number" step="any" placeholder="Örn. 1">
+            </div>
+          </div>`;
+      }
+
+      if (tip === 'molarite') {
+        title.textContent = '🧪 Molarite Hesaplama';
+        content.innerHTML = `
+          <p class="calc-info">Molarite bağıntısı: <b>M = n / V</b>. Hacmi litre cinsinden gir.</p>
+          <div class="calc-grid">
+            <div class="calc-field">
+              <label>MOL (mol)</label>
+              <input id="molarMol" type="number" step="any" placeholder="Örn. 0.5">
+            </div>
+            <div class="calc-field">
+              <label>HACİM (L)</label>
+              <input id="molarHacim" type="number" step="any" placeholder="Örn. 2">
+            </div>
+            <div class="calc-field">
+              <label>MOLARİTE (mol/L)</label>
+              <input id="molariteDeger" type="number" step="any" placeholder="Örn. 0.25">
+            </div>
+          </div>`;
+      }
+
+      if (tip === 'ph') {
+        title.textContent = '📈 pH Hesaplama';
+        content.innerHTML = `
+          <p class="calc-info">Basit derişim hesabı: <b>pH = −log[H⁺]</b> ve <b>pOH = −log[OH⁻]</b>. 25 °C için pH + pOH = 14 kabul edilir.</p>
+          <div class="calc-grid">
+            <div class="calc-field">
+              <label>[H⁺] (mol/L)</label>
+              <input id="phH" type="number" step="any" placeholder="Örn. 0.001">
+            </div>
+            <div class="calc-field">
+              <label>[OH⁻] (mol/L)</label>
+              <input id="phOH" type="number" step="any" placeholder="Örn. 0.000001">
+            </div>
+            <div class="calc-field">
+              <label>pH</label>
+              <input id="phDeger" type="number" step="any" placeholder="Örn. 3">
+            </div>
+            <div class="calc-field">
+              <label>pOH</label>
+              <input id="pohDeger" type="number" step="any" placeholder="Örn. 11">
+            </div>
+          </div>`;
+      }
+
+      if (tip === 'dilusyon') {
+        title.textContent = '💧 Dilüsyon Hesaplama';
+        content.innerHTML = `
+          <p class="calc-info">Dilüsyon bağıntısı: <b>C₁V₁ = C₂V₂</b>. Üç değeri gir, eksik olanı hesapla.</p>
+          <div class="calc-grid">
+            <div class="calc-field">
+              <label>BAŞLANGIÇ DERİŞİMİ C₁</label>
+              <input id="dC1" type="number" step="any" placeholder="Örn. 2">
+            </div>
+            <div class="calc-field">
+              <label>BAŞLANGIÇ HACMİ V₁ (L)</label>
+              <input id="dV1" type="number" step="any" placeholder="Örn. 0.1">
+            </div>
+            <div class="calc-field">
+              <label>SON DERİŞİM C₂</label>
+              <input id="dC2" type="number" step="any" placeholder="Örn. 0.5">
+            </div>
+            <div class="calc-field">
+              <label>SON HACİM V₂ (L)</label>
+              <input id="dV2" type="number" step="any" placeholder="Örn. 0.4">
+            </div>
+          </div>
+          <p class="calc-info" style="margin-top:0.8rem;margin-bottom:0">
+            Derişim birimini kendin belirle; C₁ ve C₂ aynı birimde olmalı. Hacimler de aynı birimde olmalı.
+          </p>`;
+      }
+
+      overlay.classList.add('open');
+    }
+
+    function hesaplayiciKapat() {
+      document.getElementById('calcOverlay').classList.remove('open');
+      aktifHesaplayici = null;
+    }
+
+    function hesaplayiciDisinaTikla(event) {
+      if (event.target.id === 'calcOverlay') hesaplayiciKapat();
+    }
+
+    function hesaplayiciTemizle() {
+      document.querySelectorAll('#calcContent input').forEach(i => i.value = '');
+      const r = document.getElementById('calcResult');
+      r.className = 'calc-result';
+      r.innerHTML = 'Sonuç burada görünecek.';
+    }
+
+    function num(id) {
+      const el = document.getElementById(id);
+      if (!el || el.value === '') return null;
+      const value = Number(el.value);
+      return Number.isFinite(value) ? value : null;
+    }
+
+    function sonucGoster(html, hata=false) {
+      const r = document.getElementById('calcResult');
+      r.className = hata ? 'calc-result calc-error' : 'calc-result';
+      r.innerHTML = html;
+    }
+
+    function formatSayi(x) {
+      return Number(x).toLocaleString('tr-TR', {
+        maximumFractionDigits: 8
+      });
+    }
+
+    function hesapla() {
+      if (aktifHesaplayici === 'mol') {
+        const m = num('molKitle');
+        const M = num('molKutlesi');
+        const n = num('molMiktar');
+        const eksik = [m, M, n].filter(v => v === null).length;
+
+        if (eksik !== 1) {
+          sonucGoster('⚠️ Lütfen <b>iki</b> değeri gir ve bir değeri boş bırak.', true);
+          return;
+        }
+
+        if (m !== null && m <= 0 || M !== null && M <= 0 || n !== null && n <= 0) {
+          sonucGoster('⚠️ Değerler sıfırdan büyük olmalı.', true);
+          return;
+        }
+
+        if (n === null) {
+          const sonuc = m / M;
+          document.getElementById('molMiktar').value = sonuc;
+          sonucGoster(`Sonuç: <strong>${formatSayi(sonuc)} mol</strong><br>Formül: n = m / M`);
+        } else if (m === null) {
+          const sonuc = n * M;
+          document.getElementById('molKitle').value = sonuc;
+          sonucGoster(`Sonuç: <strong>${formatSayi(sonuc)} g</strong><br>Formül: m = n × M`);
+        } else {
+          const sonuc = m / n;
+          document.getElementById('molKutlesi').value = sonuc;
+          sonucGoster(`Sonuç: <strong>${formatSayi(sonuc)} g/mol</strong><br>Formül: M = m / n`);
+        }
+        return;
+      }
+
+      if (aktifHesaplayici === 'molarite') {
+        const n = num('molarMol');
+        const V = num('molarHacim');
+        const M = num('molariteDeger');
+        const eksik = [n, V, M].filter(v => v === null).length;
+
+        if (eksik !== 1) {
+          sonucGoster('⚠️ Lütfen iki değeri gir ve bir değeri boş bırak.', true);
+          return;
+        }
+
+        if (n !== null && n <= 0 || V !== null && V <= 0 || M !== null && M <= 0) {
+          sonucGoster('⚠️ Değerler sıfırdan büyük olmalı.', true);
+          return;
+        }
+
+        if (M === null) {
+          const sonuc = n / V;
+          document.getElementById('molariteDeger').value = sonuc;
+          sonucGoster(`Sonuç: <strong>${formatSayi(sonuc)} mol/L</strong><br>Formül: M = n / V`);
+        } else if (n === null) {
+          const sonuc = M * V;
+          document.getElementById('molarMol').value = sonuc;
+          sonucGoster(`Sonuç: <strong>${formatSayi(sonuc)} mol</strong><br>Formül: n = M × V`);
+        } else {
+          const sonuc = n / M;
+          document.getElementById('molarHacim').value = sonuc;
+          sonucGoster(`Sonuç: <strong>${formatSayi(sonuc)} L</strong><br>Formül: V = n / M`);
+        }
+        return;
+      }
+
+      if (aktifHesaplayici === 'ph') {
+        const H = num('phH');
+        const OH = num('phOH');
+        const pH = num('phDeger');
+        const pOH = num('pohDeger');
+
+        if ([H, OH, pH, pOH].filter(v => v !== null).length !== 1) {
+          sonucGoster('⚠️ Bu basit hesaplayıcıda <b>tek bir başlangıç değeri</b> gir. Diğerleri otomatik hesaplanır.', true);
+          return;
+        }
+
+        if (H !== null) {
+          if (H <= 0) {
+            sonucGoster('⚠️ [H⁺] sıfırdan büyük olmalı.', true);
+            return;
+          }
+          const sonucPH = -Math.log10(H);
+          const sonucPOH = 14 - sonucPH;
+          const sonucOH = Math.pow(10, -sonucPOH);
+          document.getElementById('phDeger').value = sonucPH;
+          document.getElementById('pohDeger').value = sonucPOH;
+          document.getElementById('phOH').value = sonucOH;
+          sonucGoster(`pH = <strong>${formatSayi(sonucPH)}</strong><br>pOH = <strong>${formatSayi(sonucPOH)}</strong><br>[OH⁻] = <strong>${formatSayi(sonucOH)} mol/L</strong>`);
+        } else if (OH !== null) {
+          if (OH <= 0) {
+            sonucGoster('⚠️ [OH⁻] sıfırdan büyük olmalı.', true);
+            return;
+          }
+          const sonucPOH = -Math.log10(OH);
+          const sonucPH = 14 - sonucPOH;
+          const sonucH = Math.pow(10, -sonucPH);
+          document.getElementById('pohDeger').value = sonucPOH;
+          document.getElementById('phDeger').value = sonucPH;
+          document.getElementById('phH').value = sonucH;
+          sonucGoster(`pOH = <strong>${formatSayi(sonucPOH)}</strong><br>pH = <strong>${formatSayi(sonucPH)}</strong><br>[H⁺] = <strong>${formatSayi(sonucH)} mol/L</strong>`);
+        } else if (pH !== null) {
+          const sonucH = Math.pow(10, -pH);
+          const sonucPOH = 14 - pH;
+          const sonucOH = Math.pow(10, -sonucPOH);
+          document.getElementById('phH').value = sonucH;
+          document.getElementById('pohDeger').value = sonucPOH;
+          document.getElementById('phOH').value = sonucOH;
+          sonucGoster(`[H⁺] = <strong>${formatSayi(sonucH)} mol/L</strong><br>pOH = <strong>${formatSayi(sonucPOH)}</strong><br>[OH⁻] = <strong>${formatSayi(sonucOH)} mol/L</strong>`);
+        } else {
+          const sonucPH = 14 - pOH;
+          const sonucH = Math.pow(10, -sonucPH);
+          const sonucOH = Math.pow(10, -pOH);
+          document.getElementById('phDeger').value = sonucPH;
+          document.getElementById('phH').value = sonucH;
+          document.getElementById('phOH').value = sonucOH;
+          sonucGoster(`pH = <strong>${formatSayi(sonucPH)}</strong><br>[H⁺] = <strong>${formatSayi(sonucH)} mol/L</strong><br>[OH⁻] = <strong>${formatSayi(sonucOH)} mol/L</strong>`);
+        }
+        return;
+      }
+
+      if (aktifHesaplayici === 'dilusyon') {
+        const C1 = num('dC1');
+        const V1 = num('dV1');
+        const C2 = num('dC2');
+        const V2 = num('dV2');
+        const values = [C1, V1, C2, V2];
+        const eksik = values.filter(v => v === null).length;
+
+        if (eksik !== 1) {
+          sonucGoster('⚠️ Lütfen üç değeri gir ve yalnızca bir değeri boş bırak.', true);
+          return;
+        }
+
+        if (values.some(v => v !== null && v <= 0)) {
+          sonucGoster('⚠️ Değerler sıfırdan büyük olmalı.', true);
+          return;
+        }
+
+        if (C1 === null) {
+          const sonuc = (C2 * V2) / V1;
+          document.getElementById('dC1').value = sonuc;
+          sonucGoster(`C₁ = <strong>${formatSayi(sonuc)}</strong><br>Formül: C₁ = (C₂ × V₂) / V₁`);
+        } else if (V1 === null) {
+          const sonuc = (C2 * V2) / C1;
+          document.getElementById('dV1').value = sonuc;
+          sonucGoster(`V₁ = <strong>${formatSayi(sonuc)} L</strong><br>Formül: V₁ = (C₂ × V₂) / C₁`);
+        } else if (C2 === null) {
+          const sonuc = (C1 * V1) / V2;
+          document.getElementById('dC2').value = sonuc;
+          sonucGoster(`C₂ = <strong>${formatSayi(sonuc)}</strong><br>Formül: C₂ = (C₁ × V₁) / V₂`);
+        } else {
+          const sonuc = (C1 * V1) / C2;
+          document.getElementById('dV2').value = sonuc;
+          sonucGoster(`V₂ = <strong>${formatSayi(sonuc)} L</strong><br>Formül: V₂ = (C₁ × V₁) / C₂`);
+        }
+      }
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && document.getElementById('calcOverlay').classList.contains('open')) {
+        hesaplayiciKapat();
+      }
+    });
 
     async function pdfIndir() {
       if (!sonVeri) return;

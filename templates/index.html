@@ -8,55 +8,71 @@
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
+   
     /* GÖRSELDEKİ MODERN RENK PALETİ - AÇIK TEMA */
     :root {
       --bg: #f1f5f9;
       --surface: #ffffff;
       --border: #cbd5e1;
-      
+     
       --text-main: #0f172a;
       --text-muted: #475569;
-      
+     
       --primary: #4f46e5;
       --primary-hover: #4338ca;
       --secondary: #0284c7;
-      --danger: #dc2626; 
-      --success: #059669; 
-      
+      --danger: #dc2626;
+      --success: #059669;
+     
       --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
       --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07);
       --shadow-lg: 0 10px 25px rgba(79, 70, 229, 0.12);
 
       --radius-lg: 20px;
       --radius-md: 12px;
-      
+     
       --font-main: 'Plus Jakarta Sans', sans-serif;
       --font-mono: 'Space Mono', monospace;
     }
-    
+   
     /* KARANLIK TEMA PALETİ */
     [data-theme="dark"] {
       --surface: #1e293b;
       --border: #334155;
       --bg: #0f172a;
-      
+     
       --text-muted: #94a3b8;
       --text-main: #f8fafc;
-  
+ 
       --primary-hover: #6366f1;
       --primary: #818cf8;
-      
+     
       --secondary: #38bdf8;
       --shadow-md: 0 10px 30px rgba(0,0,0,0.5);
       --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
       --shadow-lg: 0 20px 40px rgba(99,102,241,0.2);
     }
 
+    /* HTML5 Canvas İnteraktif Molekül Ağı Stilleri */
+    #chem-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.65;
+      transition: opacity 0.3s ease;
+    }
+    [data-theme="dark"] #chem-canvas {
+      opacity: 0.45;
+    }
+
     [data-theme="dark"] .top-navbar { background: rgba(30, 41, 59, 0.95); }
-    [data-theme="dark"] .search-inner, 
-    [data-theme="dark"] .gun-card, 
-    [data-theme="dark"] .sub-card, 
+    [data-theme="dark"] .search-inner,
+    [data-theme="dark"] .gun-card,
+    [data-theme="dark"] .sub-card,
     [data-theme="dark"] .quick-btn { background: rgba(30, 41, 59, 0.85); color: var(--text-main); }
     [data-theme="dark"] .search-inner input { color: var(--text-main); }
     [data-theme="dark"] .hero-badge { background: #1e293b; border-color: #334155; color: var(--secondary); }
@@ -170,18 +186,63 @@
     .logo-icon { font-size: 1.8rem; display: flex; align-items: center; }
     .nav-logo-text { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
     .nav-logo-text span { color: var(--primary); }
-    
+   
     .nav-links { display: flex; gap: 2rem; height: 100%; align-items: center; }
     .nav-btn {
-      background: none; border: none; color: var(--text-muted);
-      font-family: var(--font-main); font-weight: 600; font-size: 0.95rem;
-      height: 100%; cursor: pointer; transition: 0.3s; position: relative;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-main);
+      font-weight: 600;
+      font-size: 0.95rem;
+      height: 100%;
+      cursor: pointer;
+      position: relative;
+      padding: 0 0.5rem;
+      transition: color 0.25s ease, transform 0.2s ease;
     }
-    .nav-btn:hover { color: var(--primary); }
-    .nav-btn.active { color: var(--primary); }
+
+    /* Alt çizgi taban yapısı */
+    .nav-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px 3px 0 0;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.25s ease;
+      opacity: 0;
+    }
+
+    /* İmleç butonun üzerine geldiğinde efekt yumuşakça oraya yayılsın */
+    .nav-btn:hover {
+      color: var(--primary);
+    }
+
+    .nav-btn:hover::after {
+      width: 100%;
+      left: 0;
+      opacity: 0.6; /* Üzerine gelinen buton hafif belirgin olsun */
+    }
+
+    /* Aktif olan sekmenin çizgisi tam belirgin kalsın */
+    .nav-btn.active {
+      color: var(--primary);
+    }
+
     .nav-btn.active::after {
-      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
-      height: 3px; background: var(--primary); border-radius: 3px 3px 0 0;
+      width: 100%;
+      left: 0;
+      opacity: 1; /* Seçili sekme tam opak kalsın */
+    }
+
+    /* Bir butonun üzerindeyken o butonun alt çizgisi öncelik kazansın */
+    .nav-btn.active:not(:hover)::after {
+      opacity: 1;
     }
 
     .nav-actions { display: flex; gap: 1rem; align-items: center; }
@@ -192,59 +253,10 @@
     .btn-solid:hover { background: var(--primary-hover); transform: translateY(-1px); }
 
     /* ANA KONTEYNER VE SEKMELER */
-    .dashboard-container { max-width: 1600px; margin: 100px auto 0; padding: 0 2rem 4rem; width: 100%; position: relative; }
+    .dashboard-container { max-width: 1600px; margin: 100px auto 0; padding: 0 2rem 4rem; width: 100%; position: relative; z-index: 2; }
     .tab-content { display: none; animation: fadeUp 0.4s ease; }
     .tab-content.active-tab { display: block; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* 3D CSS MOLEKÜL SANATI */
-    .hero-bg-art {
-      position: absolute;
-      top: 2%; left: 44%;
-      transform: translateX(-50%);
-      width: 450px; height: 450px;
-      z-index: 0; 
-      pointer-events: none; 
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0% { transform: translate(-50%, 0px); }
-      50% { transform: translate(-50%, -15px); }
-      100% { transform: translate(-50%, 0px); }
-    }
-
-    .bubble-glass {
-      position: absolute; inset: 0;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.1) 40%, transparent 80%);
-      box-shadow: 
-        inset 0 0 20px rgba(168, 85, 247, 0.1),
-        inset 0 0 50px rgba(14, 165, 233, 0.1),
-        0 20px 40px rgba(0,0,0,0.02);
-      border: 1px solid rgba(255,255,255,0.6);
-      backdrop-filter: blur(1px);
-    }
-
-    .molecule-bonds { position: absolute; inset: 0; width: 100%; height: 100%; }
-    .bond-line { stroke: rgba(255,255,255,0.9); stroke-width: 8; stroke-linecap: round; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
-
-    .sphere {
-      position: absolute; border-radius: 50%;
-      box-shadow: 0 10px 15px rgba(0,0,0,0.1), inset -5px -5px 15px rgba(0,0,0,0.2);
-      transform: translate(-50%, -50%);
-    }
-    .sp-purple { background: radial-gradient(circle at 30% 30%, #f4c2f3 0%, #d946ef 40%, #86198f 100%); }
-    .sp-blue { background: radial-gradient(circle at 30% 30%, #bae6fd 0%, #3b82f6 40%, #1e3a8a 100%); }
-    .sp-pink { background: radial-gradient(circle at 30% 30%, #fbcfe8 0%, #ec4899 40%, #831843 100%); }
-    .sp-white { background: radial-gradient(circle at 30% 30%, #ffffff 0%, #e2e8f0 40%, #94a3b8 100%); }
-    .sp-light-blue { background: radial-gradient(circle at 30% 30%, #e0f2fe 0%, #38bdf8 40%, #0369a1 100%); }
-
-    .sparkle { position: absolute; color: #fbbf24; font-size: 1.2rem; filter: drop-shadow(0 0 5px rgba(251,191,36,0.8)); animation: twinkle 3s infinite alternate; }
-    .s1 { top: -20px; left: 100px; }
-    .s2 { top: 20px; right: 50px; color: #38bdf8; font-size: 1.5rem; }
-    .s3 { bottom: 60px; right: 20px; color: #a855f7; font-size: 1rem; }
-    @keyframes twinkle { 0% { opacity: 0.3; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
 
     /* HERO BÖLÜMÜ */
     .hero {
@@ -300,7 +312,7 @@
     /* HERO SAĞ (Günün Kimyasalı) */
     .hero-right { width: 450px; display: flex; flex-direction: column; gap: 1rem; }
     .gun-card {
-      background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); 
+      background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
       border: 1.5px solid var(--border); border-radius: var(--radius-lg);
       padding: 2rem; box-shadow: var(--shadow-md); position: relative; overflow: hidden;
     }
@@ -312,7 +324,7 @@
     .gun-card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem; }
     .gun-card-btn { background: var(--primary); color: #fff; border: none; font-weight: 600; font-size: 0.9rem; padding: 0.8rem 1.5rem; border-radius: var(--radius-md); cursor: pointer; transition: 0.2s; }
     .gun-card-btn:hover { background: var(--primary-hover); }
-    
+   
     .hero-sub-cards { display: flex; gap: 1rem; }
     .sub-card { flex: 1; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 1.2rem; display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm); }
     .sub-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
@@ -335,7 +347,7 @@
     .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
     #hata { display: none; background: #fee2e2; border: 1.5px solid #fecaca; border-radius: 10px; padding: 1rem 1.5rem; color: var(--danger); font-family: var(--font-mono); font-size: 0.85rem; margin-bottom: 1.5rem; }
-    
+   
     .mol-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 16px; padding: 2rem 2.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; box-shadow: var(--shadow-md); }
     .mol-name { font-size: 2.2rem; font-weight: 800; color: var(--primary); }
     .mol-meta { display: flex; gap: 2rem; flex-wrap: wrap; }
@@ -376,12 +388,12 @@
     .box-link { font-size: 0.85rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; margin-top: auto; padding-top: 1rem; }
 
     .box-aranan { grid-column: span 4; background: var(--surface); border-color: var(--border); box-shadow: var(--shadow-sm); }
-    .box-rastgele { grid-column: span 4; background: #f0fdf4; border-color: #bbf7d0; align-items: center; text-align: center; } 
-    .box-guvenlik { grid-column: span 4; background: #fef2f2; border-color: #fecaca; } 
-    .box-trend { grid-column: span 3; background: #fdf4ff; border-color: #f5d0fe; } 
-    .box-soneklenen { grid-column: span 3; background: #fffbeb; border-color: #fde68a; } 
-    .box-biliyor { grid-column: span 3; background: #f0f9ff; border-color: #bae6fd; } 
-    .box-karisim { grid-column: span 3; background: #eef2ff; border-color: #c7d2fe; } 
+    .box-rastgele { grid-column: span 4; background: #f0fdf4; border-color: #bbf7d0; align-items: center; text-align: center; }
+    .box-guvenlik { grid-column: span 4; background: #fef2f2; border-color: #fecaca; }
+    .box-trend { grid-column: span 3; background: #fdf4ff; border-color: #f5d0fe; }
+    .box-soneklenen { grid-column: span 3; background: #fffbeb; border-color: #fde68a; }
+    .box-biliyor { grid-column: span 3; background: #f0f9ff; border-color: #bae6fd; }
+    .box-karisim { grid-column: span 3; background: #eef2ff; border-color: #c7d2fe; }
 
     .trend-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
     .trend-list li { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; padding-bottom: 0.6rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -419,21 +431,58 @@
     /* ARAÇLAR */
     .tools-container { display: flex; gap: 2rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm); min-height: 500px; position:relative; z-index:2;}
     .tools-sidebar { display: flex; flex-direction: column; gap: 0.5rem; min-width: 250px; border-right: 1.5px solid var(--border); padding-right: 2rem; }
-    .tool-tab-btn { background: transparent; border: none; text-align: left; padding: 1rem 1.25rem; font-size: 0.95rem; font-weight: 700; color: var(--text-muted); border-radius: 10px; cursor: pointer; transition: all 0.2s; }
-    .tool-tab-btn:hover { background: var(--bg); color: var(--text-main); border: 1.5px solid var(--border); }
-    .tool-tab-btn.active { background: var(--primary); color: white; border: 1.5px solid var(--primary); box-shadow: 0 4px 15px rgba(99,102,241,0.2); }
-    
+    .tool-tab-btn {
+      background: transparent;
+      /* Başlangıçta şeffaf border koyuyoruz ki hover anında boyut zıplaması/titreme olmasın */
+      border: 1.5px solid transparent;
+      text-align: left;
+      padding: 1rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      /* Geçişlerin anlık değil akıcı ve pürüzsüz olması için */
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* İmleç butonun üzerinde kaldığı sürece kenarlık ve hafif parlama kalsın */
+    .tool-tab-btn:hover {
+      background: var(--surface);
+      color: var(--primary);
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.22), 0 2px 6px rgba(0, 0, 0, 0.04);
+      transform: translateX(4px); /* Hafifçe sağa kayarak canlılık hissi verir */
+    }
+
+    /* Aktif (seçili) olan buton */
+    .tool-tab-btn.active {
+      background: var(--primary) !important;
+      color: #ffffff !important;
+      border-color: var(--primary) !important;
+      box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35) !important;
+      transform: none;
+    }
+
+    /* Karanlık modda butonun hover parlaması */
+    [data-theme="dark"] .tool-tab-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary) !important;
+      box-shadow: 0 0 14px rgba(129, 140, 248, 0.3);
+    }
+
     .tools-content { flex: 1; padding: 1rem 0; }
     .tool-panel { display: none; animation: fadeUp 0.3s ease; }
     .tool-panel.active-tool { display: block; }
     .tool-header { color: var(--text-main); font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
     .tool-desc { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; margin-bottom: 2rem; }
-    
+   
     .form-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; max-width: 500px; }
     .form-group label { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
     .tool-input { background: var(--bg); border: 1.5px solid var(--border); color: var(--text-main); padding: 0.9rem 1rem; border-radius: 8px; font-size: 1rem; outline: none; transition: 0.2s; font-family: var(--font-main); font-weight: 500; }
     .tool-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-    .tool-result { margin-top: 1.5rem; background: #dcfce7; border: 1.5px solid #bbf7d0; color: #166534; padding: 1rem; border-radius: 8px; font-weight: 800; font-size: 1.1rem; max-width: 500px; }
+    .tool-result { display: none;margin-top: 1.5rem; background: #dcfce7; border: 1.5px solid #bbf7d0; color: #166534; padding: 1rem; border-radius: 8px; font-weight: 800; font-size: 1.1rem; max-width: 500px; }
     .dil-row { display: flex; gap: 1rem; max-width: 500px; }
 
     /* AI SOHBET */
@@ -459,15 +508,13 @@
     .ai-quick-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
     .ai-quick { background: var(--surface); border: 1.5px solid var(--border); color: var(--primary); font-size: 0.85rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; transition: 0.2s; }
     .ai-quick:hover { border-color: var(--primary); background: #eef2ff; }
-    
+   
     .ai-typing { color: var(--text-muted); font-weight: 700; }
     .ai-typing span { animation: blink 1s infinite; }
     .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
     .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
 
-    /* ======================================================== */
-    /* YENİ: BLOG SEKMESİ VE OKUMA MODALİ STİLLERİ              */
-    /* ======================================================== */
+    /* BLOG SEKMESİ VE AÇILIR MENÜ */
     .blog-container {
       max-width: 1200px;
       margin: 0 auto;
@@ -510,6 +557,7 @@
       flex-direction: column;
       cursor: pointer;
       transition: all 0.2s ease;
+      position: relative;
     }
     .blog-card-item:hover {
       transform: translateY(-3px);
@@ -554,7 +602,74 @@
       margin-top: auto;
     }
 
-    /* Modal (Yazı Okuma Penceresi) */
+    .blog-card-actions {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      z-index: 10;
+    }
+    .blog-dots-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      font-weight: 800;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      transition: 0.2s;
+      line-height: 1;
+    }
+    .blog-dots-btn:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--text-main);
+    }
+    [data-theme="dark"] .blog-dots-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .blog-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      min-width: 130px;
+      overflow: hidden;
+      z-index: 20;
+    }
+    .blog-dropdown-menu.show {
+      display: flex;
+      flex-direction: column;
+    }
+    .blog-dropdown-item {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: 0.15s;
+    }
+    .blog-dropdown-item:hover {
+      background: rgba(0, 0, 0, 0.04);
+    }
+    [data-theme="dark"] .blog-dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .blog-dropdown-item.delete {
+      color: var(--danger);
+      border-top: 1px solid var(--border);
+    }
+
+    /* Okuma Modali */
     .blog-modal {
       position: fixed;
       inset: 0;
@@ -597,9 +712,91 @@
     .partner-logos { display: flex; justify-content: center; gap: 3rem; margin: 3rem 0; opacity: 0.5; filter: grayscale(100%); }
     .footer-bottom { text-align: right; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; border-top: 1.5px solid var(--border); padding-top: 2rem; }
     .placeholder-content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 50vh; color: var(--text-muted); font-weight: 700; text-align: center; gap: 1rem; position:relative; z-index:2;}
+ 
+    /* Hakkımızda Bölümü Tasarımı */
+    .about-card {
+      max-width: 720px;
+      margin: 3rem auto;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 3rem 2.5rem;
+      box-shadow: var(--shadow-md);
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      backdrop-filter: blur(8px);
+    }
+
+    .about-logo-badge {
+      width: 75px;
+      height: 75px;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(135deg, var(--secondary), var(--primary));
+      color: #fff;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35);
+    }
+
+    .about-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    .about-sub {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    .about-divider {
+      width: 60px;
+      height: 3px;
+      background: var(--primary);
+      margin: 0 auto 2rem;
+      border-radius: 3px;
+    }
+
+    .about-profile {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.8rem;
+      display: inline-block;
+      min-width: 320px;
+    }
+
+    .about-name {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.3rem;
+    }
+
+    .about-role {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: 1.5px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+    }
+ 
   </style>
 </head>
 <body>
+
+  <!-- HTML5 İNTERAKTİF ATOMİK AĞ CANVAS'I -->
+  <canvas id="chem-canvas"></canvas>
 
   <!-- NAVBAR -->
   <nav class="top-navbar">
@@ -607,14 +804,13 @@
       <div class="logo-icon">⚛️</div>
       <div class="nav-logo-text">Kimya<span>Sal</span></div>
     </div>
-    
+   
     <div class="nav-links">
       <button class="nav-btn active" onclick="openTab(event, 'ana-sayfa')">Ana Sayfa</button>
       <button class="nav-btn">Kimyasallar</button>
-      <button class="nav-btn" onclick="openTab(event, 'araclar-sekmesi')">Araçlar ⌄</button>
+      <button class="nav-btn" onclick="openTab(event, 'araclar-sekmesi')">Araçlar</button>
       <button class="nav-btn" onclick="openTab(event, 'gpt-sekmesi')">KimyaGPT</button>
       <button class="nav-btn">Reaksiyonlar</button>
-      <!-- BLOG BUTONU BAĞLANDI -->
       <button class="nav-btn" onclick="openTab(event, 'blog-sekmesi')">Blog</button>
       <button class="nav-btn" onclick="openTab(event, 'hakkimizda-sekmesi')">Hakkımızda</button>
     </div>
@@ -629,31 +825,7 @@
   <!-- ANA KAPSAYICI -->
   <main class="dashboard-container">
 
-    <!-- 3D MOLEKÜL SANATI -->
-    <div class="hero-bg-art">
-      <div class="bubble-glass"></div>
-      <svg class="molecule-bonds" viewBox="0 0 450 450">
-        <line x1="330" y1="120" x2="225" y2="225" class="bond-line" />
-        <line x1="160" y1="130" x2="225" y2="225" class="bond-line" />
-        <line x1="225" y1="225" x2="260" y2="330" class="bond-line" />
-        <line x1="260" y1="330" x2="160" y2="380" class="bond-line" />
-        <line x1="160" y1="380" x2="110" y2="300" class="bond-line" />
-        <line x1="110" y1="300" x2="225" y2="225" class="bond-line" />
-      </svg>
-      <div class="sphere sp-pink" style="width:50px; height:50px; top:120px; left:330px;"></div>
-      <div class="sphere sp-white" style="width:45px; height:45px; top:130px; left:160px;"></div>
-      <div class="sphere sp-blue" style="width:75px; height:75px; top:225px; left:225px;"></div>
-      <div class="sphere sp-blue" style="width:60px; height:60px; top:330px; left:260px;"></div>
-      <div class="sphere sp-light-blue" style="width:55px; height:55px; top:380px; left:160px;"></div>
-      <div class="sphere sp-purple" style="width:65px; height:65px; top:300px; left:110px;"></div>
-      <div class="sparkle s1">✦</div>
-      <div class="sparkle s2">✦</div>
-      <div class="sparkle s3">✦</div>
-    </div>
-
-    <!-- ========================================= -->
-    <!-- 1. ANA SAYFA SEKMESİ                      -->
-    <!-- ========================================= -->
+    <!-- 1. ANA SAYFA SEKMESİ -->
     <section id="ana-sayfa" class="tab-content active-tab">
       <div class="hero">
         <div class="hero-left">
@@ -737,7 +909,7 @@
 
       <div id="yukleniyor"><div class="spinner"></div> PubChem'den veri alınıyor...</div>
       <div id="hata"></div>
-      
+     
       <div id="sonuc-container">
         <div class="mol-card" id="molCard"></div>
 
@@ -898,9 +1070,7 @@
       </div>
     </section>
 
-    <!-- ========================================= -->
-    <!-- 2. ARAÇLAR SEKMESİ                        -->
-    <!-- ========================================= -->
+    <!-- 2. ARAÇLAR SEKMESİ -->
     <section id="araclar-sekmesi" class="tab-content">
       <div class="tools-container">
         <div class="tools-sidebar">
@@ -917,7 +1087,7 @@
             <div class="form-group"><label>Kütle (m) - Gram:</label><input type="number" id="mol_m" class="tool-input" placeholder="Örn: 50"></div>
             <div class="form-group"><label>Mol Kütlesi (Mw) - g/mol:</label><input type="number" id="mol_mw" class="tool-input" placeholder="Örn: 18.015"></div>
             <div style="max-width: 500px;"><button class="btn-solid" onclick="hesaplaMol()">Hesapla</button></div>
-            <div class="tool-result" id="sonuc_mol">Sonuç burada görünecek...</div>
+            <div class="tool-result" id="sonuc_mol</div>
           </div>
           <div id="molarite-tool" class="tool-panel">
             <h2 class="tool-header">🧪 Molarite Hesaplama (M = n / V)</h2>
@@ -925,14 +1095,14 @@
             <div class="form-group"><label>Madde Miktarı (n) - Mol:</label><input type="number" id="mol_n" class="tool-input" placeholder="Örn: 2.5"></div>
             <div class="form-group"><label>Hacim (V) - Litre:</label><input type="number" id="mol_v" class="tool-input" placeholder="Örn: 1.5"></div>
             <div style="max-width: 500px;"><button class="btn-solid" onclick="hesaplaMolarite()">Hesapla</button></div>
-            <div class="tool-result" id="sonuc_molarite">Sonuç burada görünecek...</div>
+            <div class="tool-result" id="sonuc_molarite"></div>
           </div>
           <div id="ph-tool" class="tool-panel">
             <h2 class="tool-header">📈 pH Hesaplama (pH = -log[H+])</h2>
             <p class="tool-desc">Hidrojen iyonu derişimini girerek çözeltinin pH değerini hesaplayın.</p>
             <div class="form-group"><label>[H+] Derişimi (Molar):</label><input type="number" id="ph_h" class="tool-input" placeholder="Örn: 0.001 Veya 1e-3"></div>
             <div style="max-width: 500px;"><button class="btn-solid" onclick="hesaplaPH()">Hesapla</button></div>
-            <div class="tool-result" id="sonuc_ph">Sonuç burada görünecek...</div>
+            <div class="tool-result" id="sonuc_ph"></div>
           </div>
           <div id="dilusyon-tool" class="tool-panel">
             <h2 class="tool-header">💧 Dilüsyon Hesaplama (C1·V1 = C2·V2)</h2>
@@ -946,7 +1116,7 @@
               <div class="form-group" style="flex:1"><label>Son Hacim (V2):</label><input type="number" id="dil_v2" class="tool-input"></div>
             </div>
             <div style="max-width: 500px;"><button class="btn-solid" onclick="hesaplaDilusyon()">Bilinmeyeni Bul</button></div>
-            <div class="tool-result" id="sonuc_dil">Sonuç burada görünecek...</div>
+            <div class="tool-result" id="sonuc_dil"></div>
           </div>
           <div id="birim-tool" class="tool-panel">
             <h2 class="tool-header">📊 Birim Dönüştürücü (Yüzde ↔ ppm)</h2>
@@ -954,15 +1124,13 @@
             <div class="form-group"><label>Değer:</label><input type="number" id="birim_val" class="tool-input" placeholder="Örn: 1.5"></div>
             <div class="form-group"><label>Dönüşüm Yönü:</label><select id="birim_tip" class="tool-input"><option value="per2ppm">Yüzde (%) ➔ ppm</option><option value="ppm2per">ppm ➔ Yüzde (%)</option></select></div>
             <div style="max-width: 500px;"><button class="btn-solid" onclick="hesaplaBirim()">Dönüştür</button></div>
-            <div class="tool-result" id="sonuc_birim">Sonuç burada görünecek...</div>
+            <div class="tool-result" id="sonuc_birim"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ========================================= -->
-    <!-- 3. KİMYAGPT SEKMESİ                       -->
-    <!-- ========================================= -->
+    <!-- 3. KİMYAGPT SEKMESİ -->
     <section id="gpt-sekmesi" class="tab-content">
       <div class="ai-wrapper">
         <div class="ai-header">
@@ -991,9 +1159,7 @@
       </div>
     </section>
 
-    <!-- ========================================= -->
-    <!-- YENİ: 4. BLOG SEKMESİ                     -->
-    <!-- ========================================= -->
+    <!-- 4. BLOG SEKMESİ -->
     <section id="blog-sekmesi" class="tab-content">
       <div class="blog-container">
         <div class="blog-header">
@@ -1004,10 +1170,9 @@
           <button class="btn-solid" onclick="blogFormToggle()">+ Yeni Yazı Paylaş</button>
         </div>
 
-        <!-- Yazı Ekleme Formu -->
         <div class="blog-form-panel" id="blogFormPanel" style="display: none;">
-          <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);">✍️ Yeni Blog Yazısı Oluştur</h3>
-          
+          <h3 id="blogFormBaslik" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);">✍️ Yeni Blog Yazısı Oluştur</h3>
+         
           <div class="form-group" style="max-width: 100%;">
             <label>Yazı Başlığı:</label>
             <input type="text" id="blogBaslik" class="tool-input" placeholder="Örn: Asitlerle Çalışırken Dikkat Edilmesi Gereken 5 Kural">
@@ -1024,15 +1189,12 @@
           </div>
 
           <div style="display: flex; gap: 1rem;">
-            <button class="btn-solid" onclick="blogYaziKaydet()">Yayınla 🚀</button>
+            <button class="btn-solid" onclick="blogYaziKaydet()">Kaydet / Yayınla 🚀</button>
             <button class="btn-outline" onclick="blogFormToggle()">Vazgeç</button>
           </div>
         </div>
 
-        <!-- Yayınlanan Yazılar Listesi -->
-        <div class="blog-grid" id="blogListesi">
-          <!-- Dinamik olarak JS ile dolar -->
-        </div>
+        <div class="blog-grid" id="blogListesi"></div>
       </div>
     </section>
 
@@ -1047,14 +1209,19 @@
       </div>
     </div>
 
-    <!-- ========================================= -->
-    <!-- 5. HAKKIMIZDA SEKMESİ                     -->
-    <!-- ========================================= -->
+<!-- 5. HAKKIMIZDA SEKMESİ -->
     <section id="hakkimizda-sekmesi" class="tab-content">
-      <div class="placeholder-content">
-        <span style="font-size:4rem;">🏢</span>
-        <h2>KimyaSal Platformu</h2>
-        <p>Türkiye'nin En Kapsamlı Kimyasal Güvenlik ve Analiz Aracı</p>
+      <div class="about-card">
+        <div class="about-logo-badge">⚛️</div>
+        <h2 class="about-title">KimyaSal Platformu</h2>
+        <p class="about-sub">Türkiye'nin En Kapsamlı Kimyasal Güvenlik ve Analiz Aracı</p>
+       
+        <div class="about-divider"></div>
+
+        <div class="about-profile">
+          <div class="about-name">TUĞÇE SAYIN</div>
+          <div class="about-role">İNTERAKTİF KİMYAGER</div>
+        </div>
       </div>
     </section>
 
@@ -1073,6 +1240,117 @@
   </main>
 
   <script>
+    // ========================================================
+    // HTML5 CANVAS: İNTERAKTİF ATOMİK PARÇACIK AĞI
+    // ========================================================
+    const canvas = document.getElementById('chem-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let w, h;
+    function resizeCanvas() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const mouse = { x: null, y: null, radius: 170 };
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    // Kimyasal elementleri temsil eden palet (C, H, O, N, S vb.)
+    const atomRenkleri = ['#6366f1', '#0ea5e9', '#ec4899', '#10b981', '#a855f7'];
+
+    class Atom {
+      constructor() {
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.size = Math.random() * 2.8 + 1.8;
+        this.baseX = this.x;
+        this.baseY = this.y;
+        this.vx = (Math.random() - 0.5) * 0.9;
+        this.vy = (Math.random() - 0.5) * 0.9;
+        this.color = atomRenkleri[Math.floor(Math.random() * atomRenkleri.length)];
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+
+        if (this.x < 0 || this.x > w) this.vx *= -1;
+        if (this.y < 0 || this.y > h) this.vy *= -1;
+
+        // Fare etkileşimi (farenin etrafında esneme hareketi)
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - this.x;
+          const dy = mouse.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < mouse.radius) {
+            const force = (mouse.radius - dist) / mouse.radius;
+            const fx = (dx / dist) * force * 3;
+            const fy = (dy / dist) * force * 3;
+            this.x -= fx;
+            this.y -= fy;
+          }
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+    const atomSayisi = Math.min(Math.floor((window.innerWidth * window.innerHeight) / 14000), 85);
+    const atomlar = [];
+    for (let i = 0; i < atomSayisi; i++) {
+      atomlar.push(new Atom());
+    }
+
+    function baglariCiz() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const maxMesafe = 140;
+
+      for (let i = 0; i < atomlar.length; i++) {
+        for (let j = i + 1; j < atomlar.length; j++) {
+          const dx = atomlar[i].x - atomlar[j].x;
+          const dy = atomlar[i].y - atomlar[j].y;
+          const dist = Math.hypot(dx, dy);
+
+          if (dist < maxMesafe) {
+            const alpha = (1 - dist / maxMesafe) * (isDark ? 0.35 : 0.25);
+            ctx.strokeStyle = isDark
+              ? `rgba(148, 163, 184, ${alpha})`
+              : `rgba(99, 102, 241, ${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(atomlar[i].x, atomlar[i].y);
+            ctx.lineTo(atomlar[j].x, atomlar[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function canvasAnimasyon() {
+      ctx.clearRect(0, 0, w, h);
+      baglariCiz();
+      atomlar.forEach(a => {
+        a.update();
+        a.draw();
+      });
+      requestAnimationFrame(canvasAnimasyon);
+    }
+    canvasAnimasyon();
+
     // --- SEKME SİSTEMİ MANTIĞI ---
     function openTab(event, tabId) {
       document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active-tab'));
@@ -1088,6 +1366,8 @@
     }
 
     // --- BLOG MANTIĞI ---
+    let duzenlenenBlogId = null;
+
     const VARSAYILAN_YAZILAR = [
       {
         id: 1,
@@ -1117,20 +1397,75 @@
     function blogListesiniYenile() {
       const bloglar = bloglariGetir();
       const listeDiv = document.getElementById('blogListesi');
-      
+     
       listeDiv.innerHTML = bloglar.map(b => `
         <div class="blog-card-item" onclick="blogOku(${b.id})">
+          <div class="blog-card-actions" onclick="event.stopPropagation()">
+            <button class="blog-dots-btn" onclick="blogMenuAc(event, ${b.id})">⋮</button>
+            <div class="blog-dropdown-menu" id="menu-${b.id}">
+              <button class="blog-dropdown-item" onclick="blogDuzenleBaslat(${b.id})">✏️ Düzenle</button>
+              <button class="blog-dropdown-item delete" onclick="blogSil(${b.id})">🗑️ Sil</button>
+            </div>
+          </div>
           <span class="blog-tag">${b.etiket || 'Genel Kimya'}</span>
-          <div class="blog-title-text">${b.baslik}</div>
+          <div class="blog-title-text" style="padding-right: 1.5rem;">${b.baslik}</div>
           <div class="blog-snippet">${b.icerik}</div>
           <div class="blog-date">📅 ${b.tarih}</div>
         </div>
       `).join('');
     }
 
+    function blogMenuAc(e, id) {
+      e.stopPropagation();
+      const tumMenuler = document.querySelectorAll('.blog-dropdown-menu');
+      tumMenuler.forEach(m => {
+        if (m.id !== `menu-${id}`) m.classList.remove('show');
+      });
+      const hedefMenu = document.getElementById(`menu-${id}`);
+      if (hedefMenu) hedefMenu.classList.toggle('show');
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.blog-dropdown-menu').forEach(m => m.classList.remove('show'));
+    });
+
+    function blogSil(id) {
+      if (!confirm('Bu blog yazısını silmek istediğinize emin misiniz?')) return;
+      let bloglar = bloglariGetir();
+      bloglar = bloglar.filter(b => b.id !== id);
+      localStorage.setItem('kimyasal_bloglar', JSON.stringify(bloglar));
+      blogListesiniYenile();
+    }
+
+    function blogDuzenleBaslat(id) {
+      const bloglar = bloglariGetir();
+      const yazi = bloglar.find(b => b.id === id);
+      if (!yazi) return;
+
+      duzenlenenBlogId = id;
+      document.getElementById('blogBaslik').value = yazi.baslik;
+      document.getElementById('blogEtiket').value = yazi.etiket;
+      document.getElementById('blogIcerik').value = yazi.icerik;
+      document.getElementById('blogFormBaslik').textContent = '✏️ Blog Yazısını Düzenle';
+
+      const form = document.getElementById('blogFormPanel');
+      form.style.display = 'block';
+      form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
     function blogFormToggle() {
       const form = document.getElementById('blogFormPanel');
-      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      if (form.style.display === 'block') {
+        form.style.display = 'none';
+        duzenlenenBlogId = null;
+        document.getElementById('blogBaslik').value = '';
+        document.getElementById('blogEtiket').value = '';
+        document.getElementById('blogIcerik').value = '';
+        document.getElementById('blogFormBaslik').textContent = '✍️ Yeni Blog Yazısı Oluştur';
+      } else {
+        document.getElementById('blogFormBaslik').textContent = '✍️ Yeni Blog Yazısı Oluştur';
+        form.style.display = 'block';
+      }
     }
 
     function blogYaziKaydet() {
@@ -1143,18 +1478,28 @@
         return;
       }
 
-      const yeniYazi = {
-        id: Date.now(),
-        baslik: baslik,
-        etiket: etiket || 'Kimya',
-        tarih: new Date().toLocaleDateString('tr-TR'),
-        icerik: icerik
-      };
+      let bloglar = bloglariGetir();
 
-      const bloglar = bloglariGetir();
-      bloglar.unshift(yeniYazi);
+      if (duzenlenenBlogId) {
+        const index = bloglar.findIndex(b => b.id === duzenlenenBlogId);
+        if (index !== -1) {
+          bloglar[index].baslik = baslik;
+          bloglar[index].etiket = etiket || 'Kimya';
+          bloglar[index].icerik = icerik;
+        }
+        duzenlenenBlogId = null;
+      } else {
+        const yeniYazi = {
+          id: Date.now(),
+          baslik: baslik,
+          etiket: etiket || 'Kimya',
+          tarih: new Date().toLocaleDateString('tr-TR'),
+          icerik: icerik
+        };
+        bloglar.unshift(yeniYazi);
+      }
+
       localStorage.setItem('kimyasal_bloglar', JSON.stringify(bloglar));
-
       document.getElementById('blogBaslik').value = '';
       document.getElementById('blogEtiket').value = '';
       document.getElementById('blogIcerik').value = '';
@@ -1181,7 +1526,6 @@
       }
     }
 
-    // Sayfa ilk yüklendiğinde blogları hazırla
     blogListesiniYenile();
 
     // --- ARAÇLAR SEKMESİ MANTIĞI ---
@@ -1206,7 +1550,7 @@
     }
     function hesaplaBirim() { const v=parseFloat(document.getElementById('birim_val').value), t=document.getElementById('birim_tip').value, res=document.getElementById('sonuc_birim'); if(isNaN(v)){res.innerHTML="Değer girin.";res.style.color="var(--danger)";return;} res.style.color="var(--success)"; if(t==="per2ppm") res.innerHTML=`${v}% = ${(v*10000).toLocaleString()} ppm`; else res.innerHTML=`${v} ppm = ${(v/10000).toFixed(4)}%`; }
 
-    // --- ORİJİNAL ARAMA VE PUBCHEM MANTIĞI ---
+    // --- PUBCHEM VE ARAMA MANTIĞI ---
     const GUNUN = [
       { ad:"Su", formul:"H₂O", aciklama:"Tüm canlılar için temel madde.", arama:"water" },
       { ad:"Etanol", formul:"C₂H₅OH", aciklama:"Güçlü dezenfektan ve çözücü.", arama:"ethanol" },
@@ -1227,10 +1571,10 @@
     function gunuAra() { document.getElementById('kimyasalInput').value = gun.arama; araButonuTetikle(); }
     function rastgeleAra() { document.getElementById('kimyasalInput').value = RASTGELE[Math.floor(Math.random()*RASTGELE.length)]; araButonuTetikle(); }
     function hizliAra(v) { document.getElementById('kimyasalInput').value = v; araButonuTetikle(); }
-    
+   
     function araButonuTetikle() {
-      openTab(null, 'ana-sayfa'); 
-      ara(); 
+      openTab(null, 'ana-sayfa');
+      ara();
       setTimeout(() => { const y = document.getElementById('yukleniyor'); if(y) y.scrollIntoView({ behavior:'smooth', block:'center' }); }, 100);
     }
 
@@ -1268,16 +1612,16 @@
       document.getElementById('autocompleteList').style.display='none';
       document.getElementById('sonuc-container').style.display='none';
       document.getElementById('hata').style.display='none';
-      
+     
       document.getElementById('yukleniyor').style.display='flex';
       document.getElementById('araBtn').disabled=true;
-      
+     
       try {
         const res = await fetch('/ara', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kimyasal}) });
         const data = await res.json();
         document.getElementById('yukleniyor').style.display='none';
         document.getElementById('araBtn').disabled=false;
-        
+       
         if (data.hata) { const h=document.getElementById('hata'); h.textContent='⚠ '+data.hata; h.style.display='block'; return; }
 
         document.getElementById('molCard').innerHTML = `<div class="mol-name">${data.isim}</div><div class="mol-meta"><div class="meta-item"><span class="meta-key">Formül</span><span class="meta-val">${data.formul}</span></div><div class="meta-item"><span class="meta-key">Mol Ağırlığı</span><span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span></div></div>`;
@@ -1296,11 +1640,11 @@
         document.getElementById('pubchemLink').href=`https://pubchem.ncbi.nlm.nih.gov/compound/${data.cid}`;
         document.getElementById('sonuc-container').style.display='block';
         document.getElementById('sonuc-container').scrollIntoView({ behavior:'smooth', block:'start' });
-        
-      } catch(err) { 
-        document.getElementById('yukleniyor').style.display='none'; 
-        document.getElementById('araBtn').disabled=false; 
-        const h=document.getElementById('hata'); h.textContent='⚠ '+err.message; h.style.display='block'; 
+       
+      } catch(err) {
+        document.getElementById('yukleniyor').style.display='none';
+        document.getElementById('araBtn').disabled=false;
+        const h=document.getElementById('hata'); h.textContent='⚠ '+err.message; h.style.display='block';
       }
     }
 
@@ -1332,7 +1676,7 @@
       try {
         const res = await fetch('/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mesajlar: aiMesajlar }) });
         const data = await res.json(); document.getElementById(typingId).remove();
-        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${data.hata}</div></div>`; } 
+        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${data.hata}</div></div>`; }
         else {
           aiMesajlar.push({ rol: 'assistant', icerik: data.cevap });
           msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${data.cevap.replace(/\n/g, '<br>')}</div></div>`;
@@ -1362,7 +1706,7 @@
 
     temaBtn.addEventListener('click', () => {
       let tema = document.documentElement.getAttribute('data-theme');
-      
+     
       if (tema === 'dark') {
         document.documentElement.removeAttribute('data-theme');
         localStorage.setItem('tema', 'light');

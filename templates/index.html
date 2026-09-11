@@ -862,9 +862,24 @@
         
         <div class="reaksiyon-box">
           <div class="reaksiyon-inputs-wrapper">
-            <input type="text" class="reaksiyon-input" placeholder="1. Kimyasal (Örn: Çamaşır Suyu)">
-            <span class="reaksiyon-plus">+</span>
-            <input type="text" class="reaksiyon-input" placeholder="2. Kimyasal (Örn: Tuz Ruhu)">
+            <input type="text" id="kimyasal1" class="reaksiyon-input"
+       placeholder="1. Kimyasal (Örn: Çamaşır Suyu)">
+
+<span class="reaksiyon-plus">+</span>
+
+<input type="text" id="kimyasal2" class="reaksiyon-input"
+       placeholder="2. Kimyasal (Örn: Tuz Ruhu)">
+</div>
+<button class="btn-reaksiyon"
+        id="uyumlulukBtn"
+        onclick="uyumlulukKontrolEt()">
+    Uyumluluğu Kontrol Et
+</button>
+
+<div id="uyumlulukSonuc"
+     style="display:none; margin-top:20px; padding:20px;
+            border-radius:12px; text-align:left; font-weight:600;">
+</div>
           </div>
           <button class="btn-reaksiyon" onclick="alert('Karışım kontrol modülü yakında eklenecektir! (Örn: Zehirli Klor Gazı açığa çıkar)')">Uyumluluğu Kontrol Et</button>
         </div>
@@ -1677,6 +1692,64 @@
         temaBtn.textContent = '🌙';
       }
     });
+    async function uyumlulukKontrolEt() {
+    const kimyasal1 = document.getElementById("kimyasal1").value.trim();
+    const kimyasal2 = document.getElementById("kimyasal2").value.trim();
+
+    const sonuc = document.getElementById("uyumlulukSonuc");
+    const buton = document.getElementById("uyumlulukBtn");
+
+    if (!kimyasal1 || !kimyasal2) {
+        sonuc.style.display = "block";
+        sonuc.style.background = "#fef3c7";
+        sonuc.style.color = "#92400e";
+        sonuc.innerHTML = "⚠️ Lütfen iki kimyasal adı da girin.";
+        return;
+    }
+
+    buton.disabled = true;
+    buton.innerText = "Kontrol Ediliyor...";
+
+    sonuc.style.display = "block";
+    sonuc.innerHTML = "⏳ Kontrol ediliyor...";
+
+    try {
+        const response = await fetch("/uyumluluk", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                kimyasal1: kimyasal1,
+                kimyasal2: kimyasal2
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.durum === "tehlikeli") {
+            sonuc.style.background = "#fee2e2";
+            sonuc.style.color = "#991b1b";
+            sonuc.innerHTML =
+                "🚫 <strong>" + data.baslik + "</strong><br><br>" +
+                data.mesaj;
+        } else {
+            sonuc.style.background = "#fef3c7";
+            sonuc.style.color = "#92400e";
+            sonuc.innerHTML =
+                "⚠️ <strong>" + data.baslik + "</strong><br><br>" +
+                data.mesaj;
+        }
+
+    } catch (error) {
+        sonuc.style.background = "#fee2e2";
+        sonuc.style.color = "#991b1b";
+        sonuc.innerHTML = "❌ Sunucu ile bağlantı kurulamadı.";
+    }
+
+    buton.disabled = false;
+    buton.innerText = "Uyumluluğu Kontrol Et";
+}
   </script>
 </body>
 </html>

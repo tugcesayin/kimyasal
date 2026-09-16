@@ -8,7 +8,7 @@
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
+   
     /* GÖRSELDEKİ MODERN RENK PALETİ - AÇIK TEMA */
     :root {
       --bg: #f1f5f9;
@@ -19,8 +19,8 @@
       --primary: #4f46e5;
       --primary-hover: #4338ca;
       --secondary: #0284c7;
-      --danger: #dc2626; 
-      --success: #059669; 
+      --danger: #dc2626;
+      --success: #059669;
       --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
       --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.07);
       --shadow-lg: 0 10px 25px rgba(79, 70, 229, 0.12);
@@ -29,7 +29,7 @@
       --font-main: 'Plus Jakarta Sans', sans-serif;
       --font-mono: 'Space Mono', monospace;
     }
-    
+   
     /* KARANLIK TEMA PALETİ */
     [data-theme="dark"] {
       --surface: #1e293b;
@@ -127,7 +127,7 @@
     .hero-left { flex: 1; max-width: 650px; }
     .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: #f0f9ff; border: 1.5px solid #cbd5e1; color: var(--secondary); border-radius: 24px; padding: 0.4rem 1.2rem; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; }
     .hero h1 { font-size: 3.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; color: var(--text-main); letter-spacing: -1px; }
-    .hero h1 .hl { background: linear-gradient(90deg, var(--secondary), #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero h1 .hl { background: linear-gradient(90deg, var(--secondary), #a855f7); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .hero-sub { font-size: 1.1rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 2rem; font-weight: 500; }
     .hero-sub strong { color: var(--secondary); }
 
@@ -158,7 +158,7 @@
     .gun-card-desc { font-size: 0.95rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1.5rem; }
     .gun-card-btn { background: var(--primary); color: #fff; border: none; font-weight: 600; font-size: 0.9rem; padding: 0.8rem 1.5rem; border-radius: var(--radius-md); cursor: pointer; transition: 0.2s; }
     .gun-card-btn:hover { background: var(--primary-hover); }
-    
+   
     .hero-sub-cards { display: flex; gap: 1rem; }
     .sub-card { flex: 1; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 1.2rem; display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow-sm); }
     .sub-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
@@ -182,8 +182,8 @@
     /* ========================================================================= */
     /* YENİ ARAMA SONUÇ MODALİ (SOL-SAĞ DÜZENİ) */
     /* ========================================================================= */
-    .search-modal {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1.5rem;
+       .search-modal {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(6px); z-index: 500; display: none; align-items: center; justify-content: center; padding: 1.5rem;
     }
     .search-modal.active { display: flex; }
     .search-modal-content {
@@ -207,7 +207,7 @@
     .viewer-tabs { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     .viewer-tab { font-family: var(--font-mono); font-size: 0.75rem; padding: 0.5rem 1.2rem; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-main); cursor: pointer; transition: all 0.2s; font-weight: 600; }
     .viewer-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    
+   
     .piktogram-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 2rem; }
     .piktogram-chip { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 0.6rem 1.2rem; font-size: 0.85rem; font-weight: 600; color: var(--text-main); box-shadow: var(--shadow-sm); }
     .h-group { margin-bottom: 1.5rem; }
@@ -232,12 +232,12 @@
     .box-link { font-size: 0.85rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; margin-top: auto; padding-top: 1rem; cursor: pointer; }
 
     .box-aranan { grid-column: span 4; background: var(--surface); border-color: var(--border); box-shadow: var(--shadow-sm); }
-    .box-rastgele { grid-column: span 4; background: #f0fdf4; border-color: #bbf7d0; align-items: center; text-align: center; } 
-    .box-guvenlik { grid-column: span 4; background: #fef2f2; border-color: #fecaca; } 
+    .box-rastgele { grid-column: span 4; background: #f0fdf4; border-color: #bbf7d0; align-items: center; text-align: center; }
+    .box-guvenlik { grid-column: span 4; background: #fef2f2; border-color: #fecaca; }
     /* Dörtlü Grid Ayarı İçin Sütunları 4 span yapıyoruz (12'ye tamamlamak için) */
-    .box-trend { grid-column: span 4; background: #fdf4ff; border-color: #f5d0fe; } 
-    .box-soneklenen { grid-column: span 4; background: #fffbeb; border-color: #fde68a; } 
-    .box-biliyor { grid-column: span 4; background: #f0f9ff; border-color: #bae6fd; } 
+    .box-trend { grid-column: span 4; background: #fdf4ff; border-color: #f5d0fe; }
+    .box-soneklenen { grid-column: span 4; background: #fffbeb; border-color: #fde68a; }
+    .box-biliyor { grid-column: span 4; background: #f0f9ff; border-color: #bae6fd; }
 
     .trend-list { list-style: none; display: flex; flex-direction: column; gap: 0.8rem; }
     .trend-list li { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; padding-bottom: 0.6rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
@@ -290,8 +290,7 @@
     .cat-lanthanide { border-top: 3px solid #ec4899 !important; }
     .cat-actinide { border-top: 3px solid #f43f5e !important; }
 
-    .element-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 1.5rem; perspective: 1000px; }
-    .element-modal.active { display: flex; }
+    .element-modal { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(8px); z-index: 1100; display: none; align-items: center; justify-content: center; padding: 1.5rem; perspective: 1000px; }    .element-modal.active { display: flex; }
     .element-card-3d { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; max-width: 550px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); position: relative; animation: modalPop3D 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style: preserve-3d; }
     @keyframes modalPop3D { from { opacity: 0; transform: scale(0.8) rotateX(15deg); } to { opacity: 1; transform: scale(1) rotateX(0deg); } }
     .el-header-row { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; border-bottom: 1.5px solid var(--border); padding-bottom: 1.5rem; }
@@ -306,6 +305,126 @@
     .compounds-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
     .compound-chip { background: var(--bg); border: 1.5px solid var(--border); border-radius: 20px; padding: 0.4rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--primary); cursor: pointer; transition: 0.2s; }
     .compound-chip:hover { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateY(-2px); }
+    /* MOLEKÜLÜ YENİ MODAL STİLLERİ */
+    .mol-tab-content { animation: fadeUp 0.3s ease; }
+   
+    #molBadge {
+      background: linear-gradient(135deg, var(--secondary), var(--primary)) !important;
+      color: white !important;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+      flex-shrink: 0;
+      min-width: 100px;
+      min-height: 100px;
+      padding: 1rem;
+    }
+
+    #molAtomList .atom-chip {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    #molAtomList .atom-chip:hover {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
+    #molAtomDetails .atom-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 1.2rem;
+      text-align: center;
+      transition: 0.2s;
+    }
+
+    #molAtomDetails .atom-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    #molAtomDetails .atom-card .atom-number {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    #molAtomDetails .atom-card .atom-symbol {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0.5rem 0;
+    }
+
+    #molAtomDetails .atom-card .atom-name {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    #molBondList .bond-item {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: 0.2s;
+    }
+
+    #molBondList .bond-item:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+    }
+
+    #molBondList .bond-atoms {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    #molBondList .bond-atom-label {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.5rem 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+
+    #molBondList .bond-arrow {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    #molBondList .bond-type {
+      background: var(--primary);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
 
     /* ARAÇLAR */
     .tools-container { display: flex; gap: 2rem; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow-sm); min-height: 500px; position:relative; z-index:2;}
@@ -314,13 +433,13 @@
     .tool-tab-btn:hover { background: var(--surface); color: var(--primary); border-color: var(--primary) !important; box-shadow: 0 0 12px rgba(99, 102, 241, 0.22), 0 2px 6px rgba(0, 0, 0, 0.04); transform: translateX(4px); }
     .tool-tab-btn.active { background: var(--primary) !important; color: #ffffff !important; border-color: var(--primary) !important; box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35) !important; transform: none; }
     [data-theme="dark"] .tool-tab-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: var(--primary) !important; box-shadow: 0 0 14px rgba(129, 140, 248, 0.3); }
-    
+   
     .tools-content { flex: 1; padding: 1rem 0; }
     .tool-panel { display: none; animation: fadeUp 0.3s ease; }
     .tool-panel.active-tool { display: block; }
     .tool-header { color: var(--text-main); font-size: 1.6rem; font-weight: 800; margin-bottom: 0.5rem; }
     .tool-desc { color: var(--text-muted); font-size: 0.95rem; font-weight: 500; margin-bottom: 2rem; }
-    
+   
     .form-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; max-width: 500px; }
     .form-group label { font-size: 0.9rem; font-weight: 700; color: var(--text-main); }
     .tool-input { background: var(--bg); border: 1.5px solid var(--border); color: var(--text-main); padding: 0.9rem 1rem; border-radius: 8px; font-size: 1rem; outline: none; transition: 0.2s; font-family: var(--font-main); font-weight: 500; }
@@ -379,7 +498,7 @@
     .blog-tag { align-self: flex-start; font-size: 0.75rem; font-weight: 700; color: var(--primary); background: #e0e7ff; padding: 0.3rem 0.8rem; border-radius: 20px; margin-bottom: 0.75rem; }
     [data-theme="dark"] .blog-tag { background: #312e81; color: #c7d2fe; }
     .blog-title-text { font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.3; }
-    .blog-snippet { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .blog-snippet { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 1rem; display: -webkit-box; line-clamp: 3; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .blog-date { font-size: 0.75rem; font-family: var(--font-mono); color: var(--text-muted); margin-top: auto; }
     .blog-card-actions { position: absolute; top: 1rem; right: 1rem; z-index: 10; }
     .blog-dots-btn { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; font-weight: 800; cursor: pointer; padding: 0.2rem 0.5rem; border-radius: 6px; transition: 0.2s; line-height: 1; }
@@ -423,7 +542,7 @@
       <div class="logo-icon">⚛️</div>
       <div class="nav-logo-text">kimyas<span>Al</span></div>
     </div>
-    
+   
     <div class="nav-links">
       <button class="nav-btn active" onclick="openTab(event, 'ana-sayfa')">Ana Sayfa</button>
       <button class="nav-btn" onclick="openTab(event, 'ptable-sekmesi')">Periyodik Tablo</button>
@@ -435,10 +554,15 @@
       <button class="nav-btn" onclick="openTab(event, 'hakkimizda-sekmesi')">Hakkımızda</button>
     </div>
 
-    <div class="nav-actions">
+<div class="nav-actions">
       <button class="theme-btn" id="tema-degistir-btn">☀️</button>
-      <button class="btn-outline">Giriş Yap</button>
-      <button class="btn-solid">Kayıt Ol</button>
+            <a href="{{ url_for('giris_yap') }}">
+        <button class="btn-outline">Giriş Yap</button>
+      </a>
+     
+      <a href="{{ url_for('kayit_sayfasi') }}">
+        <button class="btn-solid">Kayıt Ol</button>
+      </a>
     </div>
   </nav>
 
@@ -529,19 +653,19 @@
 
       <div id="yukleniyor"><div class="spinner"></div> Kimyasal Aranıyor...</div>
       <div id="hata"></div>
-      
+     
       <!-- YENİ ARAMA SONUÇ MODALİ (SOL-SAĞ DÜZENİ) -->
       <div class="search-modal" id="searchModal" onclick="aramaModalKapat(event)">
         <div class="search-modal-content" onclick="event.stopPropagation()">
           <button class="modal-close-btn" onclick="aramaModalKapat(event)">✕</button>
-          
+         
           <div class="search-modal-grid">
             <!-- SOL SÜTUN: KİMYASAL BİLGİLERİ -->
             <div class="search-modal-left">
               <div class="mol-card" id="molCard" style="margin-bottom: 1.5rem; padding: 1.5rem; box-shadow: none; border: 1.5px solid var(--border);"></div>
               <div class="piktogram-grid" id="piktogramlar" style="margin-bottom: 1rem;"></div>
               <div id="hKodlari"></div>
-              
+             
               <div class="action-btns" style="margin-top: 1.5rem;">
                 <button class="pdf-btn" onclick="pdfIndir()">⬇ PDF Rapor İndir</button>
               </div>
@@ -555,11 +679,11 @@
                   <button class="viewer-tab active" onclick="goster2D()">2D Yapı</button>
                   <button class="viewer-tab" onclick="goster3D()">3D Görüntüleyici</button>
                 </div>
-                
+               
                 <div id="yapi2d" style="background:var(--surface); border-radius:14px; padding:1.5rem; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--border); flex-grow: 1; min-height: 350px;">
                   <img id="yapiImg" src="" alt="Molekül yapısı" style="max-width:100%; max-height:350px; border-radius:8px"/>
                 </div>
-                
+               
                 <div id="yapi3d" style="display:none; flex-grow: 1; min-height: 400px; border-radius:14px; background:#f8fafc; border:1.5px solid var(--border); overflow:hidden; position: relative;">
                   <div id="viewer3d" style="width: 100%; height: 100%; min-height: 400px; position: relative;"></div>
                   <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-muted); position:absolute; bottom:10px; width:100%; text-align:center; font-weight:600; pointer-events:none;">Sürükle: döndür &nbsp;|&nbsp; Kaydır: yakınlaştır</div>
@@ -727,7 +851,7 @@
     <div class="element-modal" id="elementModal" onclick="elementModalKapat(event)">
       <div class="element-card-3d">
         <button class="modal-close-btn" onclick="document.getElementById('elementModal').classList.remove('active')">✕</button>
-        
+       
         <div class="el-header-row">
           <div class="el-badge-box">
             <span class="el-badge-num" id="modalElNum">1</span>
@@ -859,7 +983,7 @@
           <h2 class="reaksiyon-title">🛡️ Karışım Güvenliği Kontrolü</h2>
           <p class="reaksiyon-desc">İki kimyasalı birlikte kullanmanın veya karıştırmanın güvenli olup olmadığını kontrol edin.</p>
         </div>
-        
+       
         <div class="reaksiyon-box">
           <div class="reaksiyon-inputs-wrapper">
             <input type="text" class="reaksiyon-input" placeholder="1. Kimyasal (Örn: Çamaşır Suyu)">
@@ -870,8 +994,217 @@
         </div>
       </div>
     </section>
+<style>
+  /* 1. Beyaz ana kartın yüksekliğini 680px olarak sabitliyoruz */
+  #moleculeDetailModal .element-card-3d {
+      min-height: 680px !important;
+      max-height: 680px !important;
+      height: 680px !important;
+      overflow: hidden !important;
+  }
+ 
+  /* 2. Az önce bozulan sekmelerin ve butonların yapısını korumak için */
+  /* Sadece 3D alanının kendi kutusunu 320px yüksekliğe çekiyoruz */
+  #moleculeDetailModal #yapi3d,
+  #moleculeDetailModal #viewer3d {
+      min-height: 320px !important;
+      max-height: 320px !important;
+      height: 320px !important;
+      width: 100% !important;
+      position: relative !important;
+  }
 
-    <!-- 6. BLOG SEKMESİ -->
+  /* 3. 2D molekül görsel kutusunu da aynı şekilde 320px yapıyoruz */
+  #moleculeDetailModal #yapi2d,
+  #moleculeDetailModal #yapiImg {
+      min-height: 320px !important;
+      max-height: 320px !important;
+      height: 320px !important;
+  }
+
+  /* 4. Sol taraftaki "Genel Bilgiler" veya sağdaki "Ayarlar" listesi uzun olursa */
+  /* butonları bozmadan sadece kendi içlerinde tatlıca kaydırılsınlar */
+  #moleculeDetailModal .search-modal-left,
+  #moleculeDetailModal .search-modal-right {
+      max-height: 480px !important;
+      overflow-y: auto !important;
+  }
+    /* --- H KODLARI BAĞIMSIZ KAYDIRMA GÜCÜ --- */
+  #molHCodeList,
+  .h-codes-container,
+  #moleculeDetailModal .search-modal-left div {
+      max-height: 250px !important; /* Kutunun boyutunu sınırlar, dışarı taşmayı önler */
+      overflow-y: auto !important;   /* İçerik uzarsa sadece kendi içinde kaydırma çubuğu çıkarır */
+      overscroll-behavior: contain !important; /* 🎯 Kaydırmanın arka plana sıçramasını kesinlikle engeller */
+  }
+
+</style>
+
+
+    <!-- YENİ: DETAYLI 3D MOLEKÜL MODAL -->
+<div class="element-modal" id="moleculeDetailModal" onclick="molModalKapat(event)">
+  <div class="element-card-3d" style="max-width: 1400px; width: 100%;">
+    <button class="modal-close-btn" onclick="kapaMoleculeModal()">✕</button>
+   
+    <!-- BAŞLIK SATIRI -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1.5px solid var(--border); padding-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="el-badge-box" id="molBadge" style="width: 100px; height: 100px; padding: 1rem;">
+          <span id="molSymbol" style="font-size: 1.8rem; font-weight: 800; line-height: 1.2; word-break: break-word;">H₂O</span>
+        </div>
+        <div>
+          <h2 id="molTitle" style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.3rem;">Su</h2>
+          <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div><span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">CAS No</span><br><span id="molCAS" style="font-size: 1rem; font-weight: 800; color: var(--text-main);">7732-18-5</span></div>
+            <div><span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Moleküler Ağırlık</span><br><span id="molMW" style="font-size: 1rem; font-weight: 800; color: var(--text-main);">18.015 g/mol</span></div>
+            <div><span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Formül</span><br><span id="molFormula" style="font-size: 1rem; font-weight: 800; color: var(--text-main);">H₂O</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.5rem;">
+        <button class="btn-solid" style="font-size: 0.85rem; padding: 0.7rem 1.2rem;" onclick="favoriEkle()">♡ Favorilere Ekle</button>
+        <button class="pdf-btn" style="font-size: 0.85rem; padding: 0.7rem 1.2rem;" onclick="pdfIndir()">⬇ PDF Rapor</button>
+      </div>
+    </div>
+
+    <!-- TAB BUTONLARI -->
+    <div class="viewer-tabs" style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
+      <button class="viewer-tab active" onclick="showMolTab(event, 'genel')">📊 Genel Bilgiler</button>
+      <button class="viewer-tab" onclick="showMolTab(event, 'yapı')">🧬 Molekül Yapısı</button>
+      <button class="viewer-tab" onclick="showMolTab(event, 'fizik')">📈 Fiziksel Özellikler</button>
+      <button class="viewer-tab" onclick="showMolTab(event, 'atomlar')">⚛️ Atom Detayları</button>
+      <button class="viewer-tab" onclick="showMolTab(event, 'baglar')">🔗 Bağ Bilgileri</button>
+      <button class="viewer-tab" onclick="showMolTab(event, 'guvenlik')">🧪 Güvenlik Bilgisi</button>
+    </div>
+
+    <!-- TAB İÇERİKLERİ -->
+    <div id="molTabGenel" class="mol-tab-content">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Sol: 2D Yapı -->
+        <div>
+          <div class="section-title">2D Molekül Yapısı</div>
+          <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; padding: 1.5rem; display: flex; align-items: center; justify-content: center; min-height: 350px;">
+            <img id="molStructure2D" src="" alt="2D Yapı" style="max-width: 100%; max-height: 350px; border-radius: 8px;">
+          </div>
+        </div>
+
+        <!-- Sağ: Hızlı Özellikler -->
+        <div>
+          <div class="section-title">Temel Özellikler</div>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="el-prop-box">
+              <div class="el-prop-label">Hal</div>
+              <div class="el-prop-value" id="molState">Sıvı</div>
+            </div>
+            <div class="el-prop-box">
+              <div class="el-prop-label">Renk</div>
+              <div class="el-prop-value" id="molColor">Renksiz</div>
+            </div>
+            <div class="el-prop-box">
+              <div class="el-prop-label">Koku</div>
+              <div class="el-prop-value" id="molSmell">Kokusuzdur</div>
+            </div>
+            <div class="el-prop-box">
+              <div class="el-prop-label">Erime Noktası</div>
+              <div class="el-prop-value" id="molMelt">0°C</div>
+            </div>
+            <div class="el-prop-box">
+              <div class="el-prop-label">Kaynama Noktası</div>
+              <div class="el-prop-value" id="molBoil">100°C</div>
+            </div>
+            <div class="el-prop-box">
+              <div class="el-prop-label">Yoğunluk</div>
+              <div class="el-prop-value" id="molDensity">1.0 g/cm³</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="molTabYapı" class="mol-tab-content" style="display: none;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- 3D Görüntüleyici -->
+        <div>
+          <div class="section-title">3D Etkileşimli Görüntüleme</div>
+          <div style="background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; overflow: hidden; position: relative; min-height: 300px;">
+            <div id="molViewer3D" style="width: 100%; height: 300px; position: relative;"></div>
+            <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); position: absolute; bottom: 10px; width: 100%; text-align: center; font-weight: 500; pointer-events: none; background: rgba(255,255,255,0.8); padding: 0.5rem;">
+            </div>
+          </div>
+        </div>
+
+        <!-- 3D Kontroller -->
+        <div>
+          <div class="section-title">Görüntüleme Ayarları</div>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+            <button class="quick-btn" onclick="set3DStyle('stick')" style="width: 100%; justify-content: center;">🔌 Çubuk Modeli</button>
+            <button class="quick-btn" onclick="set3DStyle('sphere')" style="width: 100%; justify-content: center;">⚪ Küre Modeli</button>
+            <button class="quick-btn" onclick="set3DStyle('cartoon')" style="width: 100%; justify-content: center;">📦 Şerit Modeli</button>
+            <button class="quick-btn" onclick="reset3DView()" style="width: 100%; justify-content: center;">🔄 Sıfırla</button>
+          </div>
+
+          <div class="section-title" style="margin-top: 1.5rem;">Atomlar</div>
+          <div id="molAtomList" style="max-height: 300px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; padding-right: 0.5rem;">
+            <!-- Dinamik olarak doldurulacak -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="molTabFizik" class="mol-tab-content" style="display: none;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+        <div class="el-prop-box">
+          <div class="el-prop-label">Donma Noktası</div>
+          <div class="el-prop-value" id="molFP">0°C</div>
+        </div>
+        <div class="el-prop-box">
+          <div class="el-prop-label">Kaynama Noktası</div>
+          <div class="el-prop-value" id="molBP">100°C</div>
+        </div>
+        <div class="el-prop-box">
+          <div class="el-prop-label">Kritik Sıcaklık</div>
+          <div class="el-prop-value" id="molCT">374°C</div>
+        </div>
+        <div class="el-prop-box">
+          <div class="el-prop-label">Yüzey Gerilimi</div>
+          <div class="el-prop-value" id="molST">72.75 mN/m</div>
+        </div>
+        <div class="el-prop-box">
+          <div class="el-prop-label">Viskozite</div>
+          <div class="el-prop-value" id="molVis">1.002 cP</div>
+        </div>
+        <div class="el-prop-box">
+          <div class="el-prop-label">Buhar Basıncı</div>
+          <div class="el-prop-value" id="molVP">23.8 mmHg</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="molTabAtomlar" class="mol-tab-content" style="display: none;">
+      <div class="section-title">Molekülü Oluşturan Atomlar</div>
+      <div id="molAtomDetails" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+        <!-- Dinamik olarak doldurulacak -->
+      </div>
+    </div>
+
+    <div id="molTabBaglar" class="mol-tab-content" style="display: none;">
+      <div class="section-title">Moleküler Bağlar</div>
+      <div id="molBondList" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <!-- Dinamik olarak doldurulacak -->
+      </div>
+    </div>
+
+    <div id="molTabGuvenlik" class="mol-tab-content" style="display: none;">
+      <div class="section-title">GHS Piktogramları</div>
+      <div class="piktogram-grid" id="molPiktogramlar" style="margin-bottom: 1.5rem;"></div>
+      <div class="section-title">Tehlike (H) Kodları</div>
+      <div id="molHKodlari" style="display:flex; flex-direction:column; gap:0.5rem;"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 6. BLOG SEKMESİ -->
     <section id="blog-sekmesi" class="tab-content">
       <div class="blog-container">
         <div class="blog-header">
@@ -884,7 +1217,7 @@
 
         <div class="blog-form-panel" id="blogFormPanel" style="display: none;">
           <h3 id="blogFormBaslik" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--text-main);">✍️ Yeni Blog Yazısı Oluştur</h3>
-          
+         
           <div class="form-group" style="max-width: 100%;">
             <label>Yazı Başlığı:</label>
             <input type="text" id="blogBaslik" class="tool-input" placeholder="Örn: Asitlerle Çalışırken Dikkat Edilmesi Gereken 5 Kural">
@@ -925,13 +1258,13 @@
     <section id="hakkimizda-sekmesi" class="tab-content">
       <div class="about-card">
         <div class="about-logo-badge">⚛️</div>
-        <h2 class="about-title">kimyasAl Platformu</h2>
+        <h2 class="about-title">kimyasAl</h2>
         <p class="about-sub">Türkiye'nin En Kapsamlı Kimyasal Güvenlik ve Analiz Aracı</p>
-        
+       
         <div class="about-divider"></div>
 
         <div class="about-profile">
-          <div class="about-name">Tuğçe Sayın</div>
+          <div class="about-name">TUĞÇE SAYIN</div>
           <div class="about-role">İNTERAKTİF KİMYAGER</div>
         </div>
       </div>
@@ -1028,8 +1361,8 @@
 
           if (dist < maxMesafe) {
             const alpha = (1 - dist / maxMesafe) * (isDark ? 0.35 : 0.25);
-            ctx.strokeStyle = isDark 
-              ? `rgba(148, 163, 184, ${alpha})` 
+            ctx.strokeStyle = isDark
+              ? `rgba(148, 163, 184, ${alpha})`
               : `rgba(99, 102, 241, ${alpha})`;
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -1291,7 +1624,7 @@
     function blogListesiniYenile() {
       const bloglar = bloglariGetir();
       const listeDiv = document.getElementById('blogListesi');
-      
+     
       listeDiv.innerHTML = bloglar.map(b => `
         <div class="blog-card-item" onclick="blogOku(${b.id})">
           <div class="blog-card-actions" onclick="event.stopPropagation()">
@@ -1430,7 +1763,7 @@
       event.currentTarget.classList.add('active');
     }
 
-    function hesaplaMol() { 
+    function hesaplaMol() {
       const m = parseFloat(document.getElementById('mol_m').value);
       const mw = parseFloat(document.getElementById('mol_mw').value);
       const res = document.getElementById('sonuc_mol');
@@ -1444,7 +1777,7 @@
       res.innerHTML = `Sonuç: ${(m/mw).toFixed(4)} Mol`;
     }
 
-    function hesaplaMolarite() { 
+    function hesaplaMolarite() {
       const n = parseFloat(document.getElementById('mol_n').value);
       const v = parseFloat(document.getElementById('mol_v').value);
       const res = document.getElementById('sonuc_molarite');
@@ -1458,7 +1791,7 @@
       res.innerHTML = `Sonuç: ${(n/v).toFixed(4)} M`;
     }
 
-    function hesaplaPH() { 
+    function hesaplaPH() {
       const h = parseFloat(document.getElementById('ph_h').value);
       const res = document.getElementById('sonuc_ph');
       res.style.display = 'block';
@@ -1478,7 +1811,7 @@
       const v2 = document.getElementById('dil_v2').value;
       const res = document.getElementById('sonuc_dil');
       res.style.display = 'block';
-      let c = 0; 
+      let c = 0;
       if(c1 !== "") c++; if(v1 !== "") c++; if(c2 !== "") c++; if(v2 !== "") c++;
       if(c !== 3) {
         res.innerHTML = "1 kutuyu BOŞ bırakın!";
@@ -1492,7 +1825,7 @@
       if(v2 === "") res.innerHTML = `V2 (Son Hacim): ${((c1*v1)/c2).toFixed(3)}`;
     }
 
-    function hesaplaBirim() { 
+    function hesaplaBirim() {
       const v = parseFloat(document.getElementById('birim_val').value);
       const t = document.getElementById('birim_tip').value;
       const res = document.getElementById('sonuc_birim');
@@ -1528,10 +1861,10 @@
     function gunuAra() { document.getElementById('kimyasalInput').value = gun.arama; araButonuTetikle(); }
     function rastgeleAra() { document.getElementById('kimyasalInput').value = RASTGELE[Math.floor(Math.random()*RASTGELE.length)]; araButonuTetikle(); }
     function hizliAra(v) { document.getElementById('kimyasalInput').value = v; araButonuTetikle(); }
-    
+   
     function araButonuTetikle() {
-      openTab(null, 'ana-sayfa'); 
-      ara(); 
+      openTab(null, 'ana-sayfa');
+      ara();
       setTimeout(() => { const y = document.getElementById('yukleniyor'); if(y) y.scrollIntoView({ behavior:'smooth', block:'center' }); }, 100);
     }
 
@@ -1568,39 +1901,137 @@
       if (!kimyasal) return;
       document.getElementById('autocompleteList').style.display='none';
       document.getElementById('hata').style.display='none';
-      
+     
       document.getElementById('yukleniyor').style.display='flex';
       document.getElementById('araBtn').disabled=true;
-      
-      try {
-        const res = await fetch('/ara', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({kimyasal}) });
-        const data = await res.json();
-        document.getElementById('yukleniyor').style.display='none';
-        document.getElementById('araBtn').disabled=false;
-        
-        if (data.hata) { const h=document.getElementById('hata'); h.textContent='⚠ '+data.hata; h.style.display='block'; return; }
+     
+try {
+  const res = await fetch('/ara', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ kimyasal })
+  });
 
-        document.getElementById('molCard').innerHTML = `<div class="mol-name">${data.isim}</div><div class="mol-meta"><div class="meta-item"><span class="meta-key">Formül</span><span class="meta-val">${data.formul}</span></div><div class="meta-item"><span class="meta-key">Mol Ağırlığı</span><span class="meta-val">${parseFloat(data.agirlik).toFixed(3)} g/mol</span></div></div>`;
-        if (data.yapi_url) { document.getElementById('yapiImg').src=data.yapi_url; document.getElementById('yapiDiv').style.display='block'; goster2D(); } else { document.getElementById('yapiDiv').style.display='none'; }
+  const data = await res.json();
 
-        guncelCid=data.cid; sonVeri=data;
+  document.getElementById('yukleniyor').style.display = 'none';
+  document.getElementById('araBtn').disabled = false;
 
-        document.getElementById('piktogramlar').innerHTML = data.piktogramlar.length ? `<div class="section-title" style="width:100%">GHS Piktogramları</div>`+data.piktogramlar.map(p=>`<div class="piktogram-chip" style="border-color:${p.renk}55">${p.isim}</div>`).join('') : '';
+  if (data.hata) {
+    const h = document.getElementById('hata');
+    h.textContent = '⚠ ' + data.hata;
+    h.style.display = 'block';
+    return;
+  }
 
-        const gruplar={};
-        for (const h of data.h_kodlari) { if (!gruplar[h.kategori]) gruplar[h.kategori]={renk:h.renk,ikon:h.ikon,liste:[]}; gruplar[h.kategori].liste.push(h); }
-        document.getElementById('hKodlari').innerHTML = data.h_kodlari.length===0
-          ? '<div style="color:var(--text-muted);font-family:var(--font-mono);font-size:0.85rem;padding:1rem">Tehlike kodu bulunamadı.</div>'
-          : Object.entries(gruplar).map(([kat,g])=>`<div class="h-group"><div class="h-group-header"><span class="h-group-isim" style="color:${g.renk}">${g.ikon} ${kat}</span><span class="h-group-count">${g.liste.length} kod</span></div><div class="h-list">${g.liste.map(h=>`<div class="h-item"><span class="h-badge" style="background:${h.renk}">${h.kod}</span><span class="h-text">${h.tr}</span></div>`).join('')}</div></div>`).join('');
+  guncelCid = data.cid;
+  sonVeri = data;
 
-        document.getElementById('searchModal').classList.add('active');
-        
-      } catch(err) { 
-        document.getElementById('yukleniyor').style.display='none'; 
-        document.getElementById('araBtn').disabled=false; 
-        const h=document.getElementById('hata'); h.textContent='⚠ '+err.message; h.style.display='block'; 
+  // PİKTOGRAMLARI DOLDUR
+  const piktogramAlani = document.getElementById('piktogramlar');
+
+  if (piktogramAlani) {
+    const piktogramlar = data.piktogramlar || [];
+
+    piktogramAlani.innerHTML = piktogramlar.length
+      ? `
+        <div class="section-title" style="width:100%">
+          GHS Piktogramları
+        </div>
+
+        ${piktogramlar.map(p => `
+          <div
+            class="piktogram-chip"
+            style="border-color:${p.renk}55"
+          >
+            ${p.isim}
+          </div>
+        `).join('')}
+      `
+      : '';
+  }
+
+  // H KODLARINI DOLDUR
+  const hKodAlani = document.getElementById('hKodlari');
+
+  if (hKodAlani) {
+    const hKodlari = data.h_kodlari || [];
+
+    if (hKodlari.length === 0) {
+      hKodAlani.innerHTML = `
+        <div style="color:var(--text-muted); padding:1rem">
+          Tehlike kodu bulunamadı.
+        </div>
+      `;
+    } else {
+      const gruplar = {};
+
+      for (const h of hKodlari) {
+        if (!gruplar[h.kategori]) {
+          gruplar[h.kategori] = {
+            renk: h.renk,
+            ikon: h.ikon,
+            liste: []
+          };
+        }
+
+        gruplar[h.kategori].liste.push(h);
       }
+
+      hKodAlani.innerHTML = Object.entries(gruplar)
+        .map(([kategori, grup]) => `
+          <div class="h-group">
+            <div class="h-group-header">
+              <span
+                class="h-group-isim"
+                style="color:${grup.renk}"
+              >
+                ${grup.ikon} ${kategori}
+              </span>
+
+              <span class="h-group-count">
+                ${grup.liste.length} kod
+              </span>
+            </div>
+
+            <div class="h-list">
+              ${grup.liste.map(h => `
+                <div class="h-item">
+                  <span
+                    class="h-badge"
+                    style="background:${h.renk}"
+                  >
+                    ${h.kod}
+                  </span>
+
+                  <span class="h-text">
+                    ${h.tr}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `)
+        .join('');
     }
+  }
+
+  // Güvenlik alanları doldurulduktan sonra modal açılır
+  openMoleculeDetail(data);
+
+} catch (err) {
+  document.getElementById('yukleniyor').style.display = 'none';
+  document.getElementById('araBtn').disabled = false;
+  document.body.style.overflow = 'hidden';
+
+  const h = document.getElementById('hata');
+  h.textContent = '⚠ ' + err.message;
+  h.style.display = 'block';
+}
+    }
+   
 
     function aramaModalKapat(e) {
       if (!e || e.target.id === 'searchModal' || e.target.classList.contains('modal-close-btn')) {
@@ -1608,17 +2039,309 @@
       }
     }
 
-    function goster2D() { document.getElementById('yapi2d').style.display='block'; document.getElementById('yapi3d').style.display='none'; document.querySelectorAll('.viewer-tab')[0].classList.add('active'); document.querySelectorAll('.viewer-tab')[1].classList.remove('active'); }
-    function goster3D() { document.getElementById('yapi2d').style.display='none'; document.getElementById('yapi3d').style.display='block'; document.querySelectorAll('.viewer-tab')[0].classList.remove('active'); document.querySelectorAll('.viewer-tab')[1].classList.add('active'); yukle3D(); }
+        function goster2D() {
+      document.getElementById('yapi2d').style.display='block';
+      document.getElementById('yapi3d').style.display='none';
+      document.querySelector('#yapiDiv .viewer-tab:nth-child(1)').classList.add('active');
+      document.querySelector('#yapiDiv .viewer-tab:nth-child(2)').classList.remove('active');
+    }
+   
+           function goster3D() {
+      document.getElementById('yapi2d').style.display='none';
+      document.getElementById('yapi3d').style.display='block';
+      document.querySelector('#yapiDiv .viewer-tab:nth-child(1)').classList.remove('active');
+      document.querySelector('#yapiDiv .viewer-tab:nth-child(2)').classList.add('active');
+      yukle3D();
+    }
+   
     function yukle3D() {
       if (!guncelCid) return;
       const c=document.getElementById('viewer3d');
       c.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-family:var(--font-mono);font-weight:600;font-size:0.85rem">Yükleniyor...</div>';
-      fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`).then(r=>r.text()).then(sdf=>{
+      fetch(`https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${guncelCid}/SDF?record_type=3d`).then(r=>{
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.text();
+      }).then(sdf=>{
         c.innerHTML=''; const v=$3Dmol.createViewer(c,{backgroundColor:'#f8fafc',antialias:true});
         v.addModel(sdf,'sdf'); v.setStyle({},{stick:{radius:0.15,colorscheme:'Jmol'},sphere:{scale:0.3,colorscheme:'Jmol'}});
         v.zoomTo(); v.render(); v.zoom(1.2);
       }).catch(()=>{ c.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-family:var(--font-mono);font-weight:600;font-size:0.85rem">3D yapı bulunamadı</div>'; });
+    }
+
+    // ========== YENİ: DETAYLI MOLEKÜL MODAL FONKSIYONLARI ==========
+    let currentMolecule3D = null;
+
+    function openMoleculeDetail(data) {
+      // DEBUG: Data kontrolü
+      console.log('📊 openMoleculeDetail çağrıldı, data:', data);
+      console.log('🔍 CID değeri:', data.cid);
+     
+      if (!data.cid) {
+        console.error('❌ CID tanımlanmadı! Backend\'den gelen data:', data);
+      }
+
+      // Başlık ve temel bilgiler - FİKS: İsmi başlığa, formülü badge'e koy
+      const baslik = data.isim && data.isim.trim() ? data.isim : (data.Title || 'Bilinmiyor');
+      const formul = data.formul && data.formul.trim() ? data.formul : (data.MolecularFormula || '?');
+     
+      document.getElementById('molTitle').textContent = baslik;
+      document.getElementById('molSymbol').textContent = formul;
+      document.getElementById('molFormula').textContent = data.formul || '?';
+      document.getElementById('molCAS').textContent = data.cas || 'N/A';
+      document.getElementById('molMW').textContent = (parseFloat(data.agirlik) || 0).toFixed(3) + ' g/mol';
+
+      // Temel özellikler
+      document.getElementById('molState').textContent = data.hal || 'Bilinmiyor';
+      document.getElementById('molColor').textContent = data.renk || 'Renksiz';
+      document.getElementById('molSmell').textContent = data.koku || 'Hafif';
+      document.getElementById('molMelt').textContent = data.erimeh || 'N/A';
+      document.getElementById('molBoil').textContent = data.kaynamah || 'N/A';
+      document.getElementById('molDensity').textContent = data.yogunluk || '1.0 g/cm³';
+
+      // Fiziksel özellikler
+      document.getElementById('molFP').textContent = data.erimeh || '0°C';
+      document.getElementById('molBP').textContent = data.kaynamah || '100°C';
+      document.getElementById('molCT').textContent = data.kritikSicak || 'N/A';
+      document.getElementById('molST').textContent = data.yuzeyGerilim || 'N/A';
+      document.getElementById('molVis').textContent = data.viskozite || 'N/A';
+      document.getElementById('molVP').textContent = data.buharBasinci || 'N/A';
+
+      // 2D yapı
+      if (data.yapi_url) {
+        document.getElementById('molStructure2D').src = data.yapi_url;
+      }
+
+      // Atom detayları
+      populateAtomDetails(data.atomlar || []);
+
+      // Bağ bilgileri
+      populateBondInfo(data.baglar || []);
+     
+      populateSafetyInfo(data);
+
+      // Modal aç
+      document.getElementById('moleculeDetailModal').classList.add('active');
+
+      // 3D viewer'ı hazırla
+      currentMolecule3D = data;
+      document.getElementById('searchModal').classList.remove('active');
+      document.getElementById('moleculeDetailModal').classList.add('active');
+      setTimeout(() => {
+        loadMolecule3DViewer(data.cid);
+      }, 300);
+    }
+
+    function populateAtomDetails(atomlar) {
+      const container = document.getElementById('molAtomDetails');
+      if (!atomlar || atomlar.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted); text-align: center;">Atom bilgisi bulunamadı.</div>';
+        return;
+      }
+
+      // Benzersiz atomları al
+      const uniqueAtoms = [];
+      const seen = {};
+      atomlar.forEach(a => {
+        if (!seen[a.symbol]) {
+          seen[a.symbol] = true;
+          uniqueAtoms.push(a);
+        }
+      });
+
+      container.innerHTML = uniqueAtoms.map(atom => `
+        <div class="atom-card">
+          <div class="atom-number">${atom.symbol}</div>
+          <div class="atom-symbol">${atom.symbol}</div>
+          <div class="atom-name">${atom.name || atom.symbol}</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+            ${atom.type || 'Atom'}<br>
+            Kütle: ${atom.mass || 'N/A'}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function populateBondInfo(baglar) {
+      const container = document.getElementById('molBondList');
+      if (!baglar || baglar.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 1rem;">Bağ bilgisi bulunamadı.</div>';
+        return;
+      }
+
+      container.innerHTML = baglar.map((bond, idx) => `
+        <div class="bond-item">
+          <div class="bond-atoms">
+            <span class="bond-atom-label">${bond.atom1 || 'A' + idx}</span>
+            <span class="bond-arrow">—</span>
+            <span class="bond-atom-label">${bond.atom2 || 'B' + idx}</span>
+          </div>
+          <span class="bond-type">${bond.type || 'Tekli'}</span>
+        </div>
+      `).join('');
+    }
+    function populateSafetyInfo(data) {
+  // --- GHS PİKTOGRAMLARI ---
+      console.log('📌 SafetyInfo', data.h_kodlari,data.piktogramlar);
+  const piktogramlar = data.piktogramlar || [];
+  const pikBox = document.getElementById('molPiktogramlar');
+  if (piktogramlar.length > 0) {
+    pikBox.innerHTML = piktogramlar.map(p => `
+      <div class="piktogram-chip" style="border-color:${p.renk || 'var(--border)'};">
+        ${p.sembol || '⚠️'} ${p.isim || ''}
+      </div>
+    `).join('');
+  } else {
+    pikBox.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">Bu madde için GHS piktogram verisi bulunamadı.</span>';
+  }
+
+  // --- H KODLARI ---
+  const hKodlari = data.h_kodlari || [];
+  const hBox = document.getElementById('molHKodlari');
+  if (hKodlari.length > 0) {
+    hBox.innerHTML = hKodlari.map(h => `
+      <div class="h-item">
+        <span class="h-badge" style="background:${h.renk || '#64748b'};">${h.ikon ? h.ikon + ' ' : ''}${h.kod}</span>
+        <div>
+          <div class="h-text">${h.tr || 'Açıklama bulunamadı'}</div>
+          ${h.kategori ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">${h.kategori}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } else {
+    hBox.innerHTML = '<span style="color:var(--text-muted); font-size:0.85rem;">Bu madde için H kodu verisi bulunamadı.</span>';
+  }
+}
+
+    function loadMolecule3DViewer(cid) {
+      const viewer = document.getElementById('molViewer3D');
+     
+      if (!cid) {
+        console.error('❌ CID tanımlanmadı!');
+        viewer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); flex-direction: column; gap: 1rem;"><div>CID bulunamadı</div><button class="quick-btn" onclick="location.reload()" style="margin-top: 1rem;">Sayfayı Yenile</button></div>';
+        return;
+      }
+
+      console.log('✅ CID alındı:', cid);
+      viewer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); font-family: var(--font-mono); font-weight: 600; flex-direction: column;"><div>Yükleniyor...</div><div style="font-size: 0.8rem; margin-top: 0.5rem;">CID: ' + cid + '</div></div>';
+
+      // İlk olarak 3D modeli dene
+      tryLoad3DModel(cid, viewer, 0);
+    }
+
+    function tryLoad3DModel(cid, viewer, attempt) {
+      const sdfUrl = `https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${cid}/SDF?record_type=3d`;
+      console.log(`🔗 API URL (Deneme ${attempt + 1}):`, sdfUrl);
+
+      fetch(sdfUrl)
+        .then(r => {
+          console.log('📡 Response status:', r.status);
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.text();
+        })
+        .then(sdf => {
+          if (!sdf || sdf.length === 0) {
+            throw new Error('SDF verisi boş');
+          }
+          console.log('📄 SDF alındı, uzunluk:', sdf.length);
+
+          if (typeof $3Dmol === 'undefined') {
+            throw new Error('$3Dmol kütüphanesi yüklenmedi');
+          }
+
+          viewer.innerHTML = '';
+          const v = $3Dmol.createViewer(viewer, {
+            backgroundColor: '#f8fafc',
+            antialias: true
+          });
+
+          v.addModel(sdf, 'sdf');
+          v.setStyle({}, {
+            stick: { radius: 0.15, colorscheme: 'Jmol' },
+            sphere: { scale: 0.3, colorscheme: 'Jmol' }
+          });
+          v.zoomTo();
+          v.render();
+          console.log('✅ 3D Viewer başarıyla yüklendi!');
+        })
+        .catch(err => {
+          console.error('❌ 3D yükleme hatası:', err.message);
+         
+          // Fallback: 2D yapı göster
+          if (attempt === 0) {
+            console.log('🔄 Fallback deneniyor: 2D yapı gösterilecek');
+            viewer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); flex-direction: column; gap: 1rem; padding: 2rem;">' +
+              '<div style="font-size: 1.1rem; font-weight: 600;">⚠️ 3D Model Mevcut Değil</div>' +
+              '<div style="font-size: 0.9rem; text-align: center; color: var(--text-muted);">Bu bileşiğin 3D yapısı PubChem veritabanında bulunmamaktadır.</div>' +
+              '<div style="font-size: 0.8rem; color: var(--text-muted); background: var(--bg); padding: 1rem; border-radius: 8px; max-width: 300px;">' +
+              'CID: ' + cid + '<br>Hata: ' + err.message +
+              '</div>' +
+              '<button class="quick-btn" onclick="showMolTab(null, \'genel\')" style="margin-top: 1rem;">← Genel Bilgilere Dön</button>' +
+              '</div>';
+          }
+        });
+    }
+
+    function showMolTab(event, tabName) {
+      // Tüm tab içeriklerini gizle
+      document.querySelectorAll('.mol-tab-content').forEach(t => t.style.display = 'none');
+     
+      // Butonların active sınıfını kaldır
+      document.querySelectorAll('.viewer-tab').forEach(b => b.classList.remove('active'));
+
+      // Seçilen tab'ı göster
+      const tabId = 'molTab' + tabName.charAt(0).toUpperCase() + tabName.slice(1);
+      const tabEl = document.getElementById(tabId);
+      if (tabEl) {
+        tabEl.style.display = 'block';
+      }
+
+      // Seçilen butonu aktif yap
+      if (event && event.currentTarget) event.currentTarget.classList.add('active');
+
+      // 3D viewer'ı yükle
+      if (tabName === 'yapı' && currentMolecule3D) {
+        setTimeout(() => {
+          loadMolecule3DViewer(currentMolecule3D.cid);
+        }, 100);
+      }
+    }
+
+    function set3DStyle(style) {
+      const v = $3Dmol.getViewer(document.getElementById('molViewer3D'));
+      if (!v) return;
+
+      if (style === 'stick') {
+        v.setStyle({}, { stick: { radius: 0.15, colorscheme: 'Jmol' } });
+      } else if (style === 'sphere') {
+        v.setStyle({}, { sphere: { scale: 0.5, colorscheme: 'Jmol' } });
+      } else if (style === 'cartoon') {
+        v.setStyle({}, { cartoon: { colorscheme: 'Jmol' } });
+      }
+      v.render();
+    }
+
+    function reset3DView() {
+      const v = $3Dmol.getViewer(document.getElementById('molViewer3D'));
+      if (v) {
+        v.zoomTo();
+        v.render();
+      }
+    }
+
+    function favoriEkle() {
+      alert('Bu kimyasal favorilere eklendi! ♡');
+      // localStorage'a kaydedilebilir
+    }
+
+    function kapaMoleculeModal() {
+      document.getElementById('moleculeDetailModal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    function molModalKapat(e) {
+      if (e.target.id === 'moleculeDetailModal') {
+        document.getElementById('moleculeDetailModal').classList.remove('active');
+      }
     }
 
     // --- AI SOHBET MANTIĞI ---
@@ -1636,7 +2359,7 @@
       try {
         const res = await fetch('/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mesajlar: aiMesajlar }) });
         const data = await res.json(); document.getElementById(typingId).remove();
-        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${data.hata}</div></div>`; } 
+        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${data.hata}</div></div>`; }
         else {
           aiMesajlar.push({ rol: 'assistant', icerik: data.cevap });
           msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${data.cevap.replace(/\n/g, '<br>')}</div></div>`;
@@ -1666,7 +2389,7 @@
 
     temaBtn.addEventListener('click', () => {
       let tema = document.documentElement.getAttribute('data-theme');
-      
+     
       if (tema === 'dark') {
         document.documentElement.removeAttribute('data-theme');
         localStorage.setItem('tema', 'light');

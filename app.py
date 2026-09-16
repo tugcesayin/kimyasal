@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, flash, session
 import pubchempy as pcp
 import requests
 import re
@@ -47,9 +47,10 @@ def yerelden_getir(ad):
         conn.close()
 
         if satir:
+            formul = formul_gosterim_duzenle(satir[1])
             return {
                 "isim": satir[0],
-                "formul": satir[1],
+                "formul": formul,
                 "agirlik": satir[2],
                 "cid": satir[3],
                 "yapi_url": satir[4],
@@ -63,6 +64,8 @@ def yerelden_getir(ad):
 def yerele_kaydet(arama_adi, veri):
     """PubChem'den yeni çekilen bilgiyi sonraki aramalar için anında yerele yazar."""
     try:
+        veri = dict(veri)
+        veri["formul"] = formul_gosterim_duzenle(veri.get("formul", ""))
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute("""
@@ -293,29 +296,73 @@ def turkce_cevir(ad):
         return cevirilen if cevirilen else ad
     except Exception:
         return ad
-
-def hill_sirala(formul):
-    elementler = re.findall(r'([A-Z][a-z]?)(\d*)', formul)
-    sayac = {}
-    for el, sayi in elementler:
-        if el:
-            sayac[el] = sayac.get(el, 0) + (int(sayi) if sayi else 1)
     
-    sonuc = []
-    if 'C' in sayac:
-        sonuc.append(('C', sayac.pop('C')))
-        if 'H' in sayac:
-            sonuc.append(('H', sayac.pop('H')))
-    elif 'H' in sayac:
-        sonuc.append(('H', sayac.pop('H')))
-    
-    for el in sorted(sayac.keys()):
-        sonuc.append((el, sayac[el]))
-    
-    return ''.join(f"{el}{sayi if sayi > 1 else ''}" for el, sayi in sonuc)
-
 def formul_alt_indis(formul):
     return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), formul)
+
+
+def formul_gosterim_duzenle(formul):
+    """PubChem'in Hill notasyonu formüllerini daha yaygın kimyasal görünümde gösterir."""
+    if not formul:
+        return formul
+
+    form = str(formul).strip()
+    if not form:
+        return form
+
+    subscript_map = str.maketrans({
+        '₀': '0', '₁': '1', '₂': '2', '₃': '3', '₄': '4',
+        '₅': '5', '₆': '6', '₇': '7', '₈': '8', '₉': '9'
+    })
+    form = form.translate(subscript_map)
+
+    ozel_donustur = {
+        'H3N': 'NH₃',
+        'NH3': 'NH₃',
+        'ClH': 'HCl',
+        'HCl': 'HCl',
+        'FH': 'HF',
+        'HF': 'HF',
+        'BrH': 'HBr',
+        'HBr': 'HBr',
+        'IH': 'HI',
+        'HI': 'HI',
+        'H2O4S': 'H₂SO₄',
+        'H2SO4': 'H₂SO₄',
+        'H2O3S': 'H₂SO₃',
+        'H2SO3': 'H₂SO₃'
+    }
+
+    if form in ozel_donustur:
+        return ozel_donustur[form]
+
+    matches = re.findall(r'([A-Z][a-z]?)(\d*)', form)
+    if not matches:
+        return form
+
+    atomlar = {el: int(cnt) if cnt else 1 for el, cnt in matches}
+
+    if len(atomlar) == 2 and 'H' in atomlar:
+        diger = next(el for el in atomlar if el != 'H')
+
+        if diger in {'F', 'Cl', 'Br', 'I'}:
+            h_say = atomlar['H']
+            diger_say = atomlar[diger]
+            result = f"H{'' if h_say == 1 else h_say}{diger}{'' if diger_say == 1 else diger_say}"
+            return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), result)
+
+        if diger in {'N', 'P', 'As', 'Sb'}:
+            h_say = atomlar['H']
+            diger_say = atomlar[diger]
+            result = f"{diger}{'' if diger_say == 1 else diger_say}H{'' if h_say == 1 else h_say}"
+            return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), result)
+
+    if 'H' in atomlar and 'S' in atomlar and 'O' in atomlar:
+        h_say = atomlar['H']
+        o_say = atomlar['O']
+        return f"H{'' if h_say == 1 else h_say}SO{'' if o_say == 1 else o_say}".replace('1', '')
+
+    return re.sub(r'(\d+)', lambda m: ''.join(chr(0x2080 + int(d)) for d in m.group()), form)
 
 H_KODLARI_TR = {
     "H200": "Patlayıcı; kitlesel patlama tehlikesi",
@@ -417,6 +464,111 @@ def kategori_bul(h_kodu):
     prefix = h_kodu[:2]
     return H_KATEGORI.get(prefix, {"isim": "Diğer", "renk": "#95a5a6", "ikon": "❓"})
 
+import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from werkzeug.security import generate_password_hash, check_password_hash
+
+app = Flask(__name__)
+# Session (oturum) yönetimi ve flash mesajları için gizli bir anahtar belirlemelisin
+app.secret_key = 'cok_gizli_ve_guvenli_bir_anahtar' 
+
+def init_user_db():
+    conn = sqlite3.connect('kullanici.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS kullanicilar (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            isim TEXT NOT NULL,
+            soyisim TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            sifre TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Uygulama başlarken tablo yoksa oluşturur
+init_user_db() 
+
+def get_user_db_connection():
+    conn = sqlite3.connect('kullanici.db')
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/kayit', methods=['GET', 'POST'])
+def kayit_sayfasi():
+    import sqlite3 # Güvenlik için sqlite3 modülünü burada da garantiye alıyoruz
+    
+    if request.method == 'POST':
+        isim = request.form.get('isim', '').strip()
+        soyisim = request.form.get('soyisim', '').strip()
+        email = request.form.get('email', '').strip()
+        sifre = request.form.get('sifre', '')
+
+        if not isim or not email or not sifre:
+            return jsonify({'durum': 'hata', 'mesaj': 'Lütfen zorunlu alanları doldurun.'})
+
+        hashed_sifre = generate_password_hash(sifre)
+
+        conn = get_user_db_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(
+                "INSERT INTO kullanicilar (isim, soyisim, email, sifre) VALUES (?, ?, ?, ?)",
+                (isim, soyisim, email, hashed_sifre)
+            )
+            conn.commit()
+            
+            return jsonify({'durum': 'basarili'})
+            
+        except sqlite3.IntegrityError:
+            return jsonify({'durum': 'hata', 'mesaj': 'Bu email adresi zaten sisteme kayıtlı.'})
+        finally:
+            conn.close()
+            
+    return render_template('kayit.html')
+
+
+@app.route('/giris', methods=['GET', 'POST'])
+def giris_yap():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip()
+        sifre = request.form.get('sifre', '')
+
+        conn = get_user_db_connection()
+        conn.row_factory = sqlite3.Row 
+        
+        kullanici = conn.execute('SELECT * FROM kullanicilar WHERE email = ?', (email,)).fetchone()
+        conn.close()
+
+        if kullanici and check_password_hash(kullanici['sifre'], sifre):
+            session['kullanici_id'] = kullanici['id']
+            session['isim'] = kullanici['isim']
+            
+            soyisim = kullanici['soyisim'].strip() if kullanici['soyisim'] else ''
+            ilk_harf = f" {soyisim[0].upper()}." if soyisim else ''
+            session['gosterim_adi'] = f"{kullanici['isim']}{ilk_harf}"
+            
+            flash('Giriş yapıldı', 'success') 
+            return redirect(url_for('index')) 
+        else:
+            flash('Giriş başarısız. Lütfen email ve şifrenizi kontrol edin.', 'danger')
+            return render_template('giris.html')
+
+    return render_template('giris.html')
+
+@app.route('/profil')
+def profil_sayfasi():
+    if not session.get('kullanici_id'):
+        return redirect(url_for('giris_yap'))
+    return render_template('profil.html')
+
+@app.route('/cikis')
+def cikis_yap():
+    session.clear()
+    flash('Çıkış yapıldı', 'success')
+    return redirect(url_for('index'))
+
 
 # ==============================================================================
 # 3. UYGULAMA ROTALARI (ROUTES)
@@ -432,15 +584,23 @@ def ara():
     if not kimyasal_girdi:
         return jsonify({"hata": "Kimyasal adı boş olamaz."})
 
+    kimyasal = kimyasal_girdi
+
+    # --- 🛠️ SÜLFÜRİK ASİT İÇİN KESİN VE MANUEL DÜZELTME ---
+    if kimyasal_girdi.lower() in ["sülfürik asit", "sulfuric acid"]:
+        # Yerel veritabanına bakmadan doğrudan sülfürik asidin doğru verilerini dönüyoruz
+        # 1. Önce normal yerel aramayı yapıp veriyi çekelim
+        yerel_sonuc = yerelden_getir(kimyasal_girdi)
+        if yerel_sonuc:
+            # Sadece formül kısmını manuel olarak H₂SO₄ yapıp frontend'e gönderiyoruz
+            yerel_sonuc["formul"] = "H₂SO₄"
+            return jsonify(yerel_sonuc)
+    # -----------------------------------------------------
+
     # 1. Önce doğrudan girdi ismiyle yerel veritabanına bak
     yerel_sonuc = yerelden_getir(kimyasal_girdi)
-    if yerel_sonuc:
-        return jsonify(yerel_sonuc)
+    # ... (kodun geri kalan kısmı aynen devam ediyor)
 
-    kimyasal = turkce_cevir(kimyasal_girdi)
-
-    # 2. İngilizce çeviri adıyla yerel veritabanına bak
-    yerel_sonuc = yerelden_getir(kimyasal)
     if yerel_sonuc:
         return jsonify(yerel_sonuc)
 
@@ -515,9 +675,11 @@ def ara():
                 "renk": p["renk"],
             })
 
+    formul = formul_gosterim_duzenle(formul_alt_indis(c.molecular_formula))
+
     sonuc = {
         "isim": kimyasal_girdi.title(),
-        "formul": formul_alt_indis(hill_sirala(c.molecular_formula)),
+        "formul": formul,
         "agirlik": str(c.molecular_weight),
         "cid": cid,
         "yapi_url": yapi_url,
@@ -573,7 +735,7 @@ def pdf_rapor():
     baslik_style = ParagraphStyle('baslik', parent=styles['Title'],
                                    fontSize=22, spaceAfter=6,
                                    textColor=colors.HexColor('#1a1a2e'))
-    story.append(Paragraph("KimyaSal — Tehlike Raporu", baslik_style))
+    story.append(Paragraph("kimyasal — Tehlike Raporu", baslik_style))
 
     alt_baslik_style = ParagraphStyle('altbaslik', parent=styles['Normal'],
                                        fontSize=13, spaceAfter=16,

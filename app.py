@@ -864,7 +864,8 @@ GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-lite-latest")
 
 @app.route("/ai", methods=["POST"])
 def ai_sohbet():
-    api_key = os.environ.get("GEMINI_API_KEY", "")
+    # Render gibi panellere yapıştırırken anahtarın sonuna eklenen boşluk/Enter'ı temizle
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip().strip('"').strip("'")
     if not api_key:
         return jsonify({"hata": "Yapay zeka anahtarı ayarlanmamış (GEMINI_API_KEY)."})
 
@@ -904,7 +905,9 @@ def ai_sohbet():
     except requests.Timeout:
         return jsonify({"hata": "Yapay zekaya bağlanılamadı, lütfen tekrar deneyin."})
     except Exception as e:
-        return jsonify({"hata": str(e)})
+        # Hata metninde API anahtarı geçebilir; kullanıcıya gösterme, sadece sunucu loguna yaz
+        app.logger.error("Gemini isteği başarısız: %s", str(e).replace(api_key, "***"))
+        return jsonify({"hata": "Yapay zekaya bağlanırken bir sorun oluştu, lütfen tekrar deneyin."})
 
     if res.status_code != 200:
         try:

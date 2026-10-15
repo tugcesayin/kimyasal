@@ -2415,8 +2415,31 @@ try {
       return String(metin).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     // Yapay zeka cevabını güvenli şekilde gösterir; **kalın** ve * madde işaretlerini biçimlendirir
+    // LaTeX biçimindeki formülleri ($H_2SO_4$, \(Fe^{3+}\), \ce{CO2}) okunur hale getirir
+    function latexFormulCevir(ifade) {
+      return ifade
+        .replace(/\\ce\s*\{([^{}]*)\}/g, (_, f) => f.replace(/([A-Za-z)\]])(\d+)/g, '$1_{$2}'))
+        .replace(/\\(?:text|mathrm|mathbf|rm)\s*\{([^{}]*)\}/g, '$1')
+        .replace(/\\(?:rightarrow|longrightarrow|to)\b/g, '→')
+        .replace(/\\(?:leftrightarrow|rightleftharpoons|rightleftarrows)\b/g, '⇌')
+        .replace(/\\leftarrow\b/g, '←')
+        .replace(/\\(?:cdot|times)\b/g, '·')
+        .replace(/\\degree\b|\^\{?\\circ\}?/g, '°')
+        .replace(/\\Delta\s*/g, 'Δ')
+        .replace(/&lt;=+&gt;/g, '⇌').replace(/-+&gt;/g, '→')
+        .replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>')
+        .replace(/_([A-Za-z0-9+\-])/g, '<sub>$1</sub>')
+        .replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>')
+        .replace(/\^([A-Za-z0-9+\-])/g, '<sup>$1</sup>')
+        .replace(/\\[,;! ]/g, ' ')
+        .replace(/[{}]/g, '');
+    }
     function aiMetinBicimle(metin) {
       return htmlKacis(metin)
+        .replace(/\$\$([^$]+?)\$\$/g, (_, f) => latexFormulCevir(f))
+        .replace(/\$([^$\n]+?)\$/g, (_, f) => latexFormulCevir(f))
+        .replace(/\\\(([\s\S]+?)\\\)/g, (_, f) => latexFormulCevir(f))
+        .replace(/\\ce\s*\{[^{}]*\}/g, f => latexFormulCevir(f))
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/^\s*[\*\-] /gm, '• ')
         .replace(/\n/g, '<br>');

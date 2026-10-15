@@ -878,7 +878,9 @@ def ai_sohbet():
         "Kimya, kimyasal guvenlik, GHS tehlike bilgileri, laboratuvar guvenligi, "
         "molekuler yapilar ve kimyasal reaksiyonlar hakkinda uzman bilgiye sahipsin. "
         "Turkce konus. Kisa ve net cevaplar ver. Tehlikeli kullanimlara yonlendirme. "
-        "Guvenlik konularinda her zaman dikkatli ol ve uyari ver."
+        "Guvenlik konularinda her zaman dikkatli ol ve uyari ver. "
+        "Kimyasal formulleri LaTeX ($...$) KULLANMADAN, Unicode alt/ust simgelerle yaz: "
+        "ornegin H₂SO₄, CO₂, Fe³⁺, SO₄²⁻, 2H₂ + O₂ → 2H₂O."
     )
 
     icerik = [

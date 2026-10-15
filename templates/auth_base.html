@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block baslik %}{% endblock %} — kimyasAl</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <script>
+    // Ana sayfada seçilen temayı (açık/koyu) burada da uygula
+    try { if (localStorage.getItem('tema') === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
+  </script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f1f5f9;
+      --surface: #ffffff;
+      --border: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --secondary: #0284c7;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --shadow-lg: 0 10px 25px rgba(79, 70, 229, 0.12);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #818cf8;
+      --primary-hover: #6366f1;
+      --secondary: #38bdf8;
+      --danger: #f87171;
+      --danger-bg: #450a0a;
+      --success: #34d399;
+      --success-bg: #064e3b;
+      --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+    body {
+      font-family: var(--font-main); background: var(--bg); color: var(--text-main);
+      min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;
+    }
+    .kart {
+      width: 100%; max-width: 440px; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 2.2rem 2rem; box-shadow: var(--shadow-lg);
+    }
+    .logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--text-main); margin-bottom: 1.6rem; }
+    .logo-ikon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, var(--secondary), var(--primary)); font-size: 1.3rem; }
+    .logo-yazi { font-size: 1.3rem; font-weight: 800; }
+    .logo-yazi span { color: var(--primary); }
+    h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: .3rem; }
+    .alt-baslik { color: var(--text-muted); margin-bottom: 1.6rem; font-size: .95rem; }
+    .alan { margin-bottom: 1rem; }
+    .alan-satir { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .35rem; }
+    input {
+      width: 100%; padding: .75rem .9rem; border: 1.5px solid var(--border); border-radius: var(--radius-md);
+      background: var(--bg); color: var(--text-main); font-family: inherit; font-size: .95rem;
+    }
+    input:focus { outline: none; border-color: var(--primary); }
+    .btn {
+      width: 100%; padding: .85rem; border: none; border-radius: var(--radius-md); cursor: pointer;
+      background: var(--primary); color: #fff; font-family: inherit; font-size: 1rem; font-weight: 700; margin-top: .4rem;
+      text-decoration: none; display: inline-block; text-align: center;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn:disabled { opacity: .6; cursor: wait; }
+    .btn-ikincil { background: transparent; color: var(--danger); border: 1.5px solid var(--danger); }
+    .btn-ikincil:hover { background: var(--danger-bg); }
+    .mesaj { padding: .75rem .9rem; border-radius: var(--radius-md); font-size: .9rem; margin-bottom: 1rem; }
+    .mesaj-success { background: var(--success-bg); color: var(--success); }
+    .mesaj-danger { background: var(--danger-bg); color: var(--danger); }
+    .alt-link { margin-top: 1.3rem; text-align: center; color: var(--text-muted); font-size: .9rem; }
+    .alt-link a { color: var(--primary); font-weight: 700; text-decoration: none; }
+    @media (max-width: 420px) { .alan-satir { grid-template-columns: 1fr; gap: 0; } .kart { padding: 1.6rem 1.2rem; } }
+  </style>
+</head>
+<body>
+  <main class="kart">
+    <a class="logo" href="{{ url_for('index') }}">
+      <div class="logo-ikon">⚛️</div>
+      <div class="logo-yazi">kimyas<span>Al</span></div>
+    </a>
+    {% with mesajlar = get_flashed_messages(with_categories=true) %}
+      {% for kategori, mesaj in mesajlar %}
+        <div class="mesaj mesaj-{{ kategori }}">{{ mesaj }}</div>
+      {% endfor %}
+    {% endwith %}
+    <div id="js-mesaj"></div>
+    {% block icerik %}{% endblock %}
+  </main>
+</body>
+</html>

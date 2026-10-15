@@ -6,6 +6,8 @@ import os
 import json
 import sqlite3
 import io
+import secrets
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -464,16 +466,29 @@ def kategori_bul(h_kodu):
     prefix = h_kodu[:2]
     return H_KATEGORI.get(prefix, {"isim": "Diğer", "renk": "#95a5a6", "ikon": "❓"})
 
-import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.security import generate_password_hash, check_password_hash
+# ==============================================================================
+# 3. KULLANICI SİSTEMİ (KAYIT / GİRİŞ / PROFİL)
+# ==============================================================================
+USER_DB_PATH = os.path.join(BASE_DIR, "kullanici.db")
+SECRET_KEY_PATH = os.path.join(BASE_DIR, ".secret_key")
 
-app = Flask(__name__)
-# Session (oturum) yönetimi ve flash mesajları için gizli bir anahtar belirlemelisin
-app.secret_key = 'cok_gizli_ve_guvenli_bir_anahtar' 
+def gizli_anahtar_al():
+    """Oturum anahtarını ortam değişkeninden, yoksa yerel dosyadan alır (yoksa üretir)."""
+    anahtar = os.environ.get("SECRET_KEY")
+    if anahtar:
+        return anahtar
+    if os.path.exists(SECRET_KEY_PATH):
+        with open(SECRET_KEY_PATH) as f:
+            return f.read().strip()
+    anahtar = secrets.token_hex(32)
+    with open(SECRET_KEY_PATH, "w") as f:
+        f.write(anahtar)
+    return anahtar
+
+app.secret_key = gizli_anahtar_al()
 
 def init_user_db():
-    conn = sqlite3.connect('kullanici.db')
+    conn = sqlite3.connect(USER_DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS kullanicilar (
@@ -491,22 +506,27 @@ def init_user_db():
 init_user_db() 
 
 def get_user_db_connection():
-    conn = sqlite3.connect('kullanici.db')
+    conn = sqlite3.connect(USER_DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 @app.route('/kayit', methods=['GET', 'POST'])
 def kayit_sayfasi():
-    import sqlite3 # Güvenlik için sqlite3 modülünü burada da garantiye alıyoruz
-    
+    if session.get('kullanici_id'):
+        return redirect(url_for('profil_sayfasi'))
+
     if request.method == 'POST':
         isim = request.form.get('isim', '').strip()
         soyisim = request.form.get('soyisim', '').strip()
-        email = request.form.get('email', '').strip()
+        email = request.form.get('email', '').strip().lower()
         sifre = request.form.get('sifre', '')
 
         if not isim or not email or not sifre:
             return jsonify({'durum': 'hata', 'mesaj': 'Lütfen zorunlu alanları doldurun.'})
+        if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+            return jsonify({'durum': 'hata', 'mesaj': 'Geçerli bir email adresi girin.'})
+        if len(sifre) < 6:
+            return jsonify({'durum': 'hata', 'mesaj': 'Şifre en az 6 karakter olmalı.'})
 
         hashed_sifre = generate_password_hash(sifre)
 
@@ -518,8 +538,8 @@ def kayit_sayfasi():
                 (isim, soyisim, email, hashed_sifre)
             )
             conn.commit()
-            
-            return jsonify({'durum': 'basarili'})
+            flash('Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success')
+            return jsonify({'durum': 'basarili', 'yonlendir': url_for('giris_yap')})
             
         except sqlite3.IntegrityError:
             return jsonify({'durum': 'hata', 'mesaj': 'Bu email adresi zaten sisteme kayıtlı.'})
@@ -531,17 +551,20 @@ def kayit_sayfasi():
 
 @app.route('/giris', methods=['GET', 'POST'])
 def giris_yap():
+    if session.get('kullanici_id'):
+        return redirect(url_for('profil_sayfasi'))
+
     if request.method == 'POST':
-        email = request.form.get('email', '').strip()
+        email = request.form.get('email', '').strip().lower()
         sifre = request.form.get('sifre', '')
 
         conn = get_user_db_connection()
-        conn.row_factory = sqlite3.Row 
-        
+
         kullanici = conn.execute('SELECT * FROM kullanicilar WHERE email = ?', (email,)).fetchone()
         conn.close()
 
         if kullanici and check_password_hash(kullanici['sifre'], sifre):
+            session.clear()
             session['kullanici_id'] = kullanici['id']
             session['isim'] = kullanici['isim']
             
@@ -553,7 +576,7 @@ def giris_yap():
             return redirect(url_for('index')) 
         else:
             flash('Giriş başarısız. Lütfen email ve şifrenizi kontrol edin.', 'danger')
-            return render_template('giris.html')
+            return render_template('giris.html', email=email)
 
     return render_template('giris.html')
 
@@ -561,7 +584,15 @@ def giris_yap():
 def profil_sayfasi():
     if not session.get('kullanici_id'):
         return redirect(url_for('giris_yap'))
-    return render_template('profil.html')
+    conn = get_user_db_connection()
+    kullanici = conn.execute(
+        'SELECT isim, soyisim, email FROM kullanicilar WHERE id = ?', (session['kullanici_id'],)
+    ).fetchone()
+    conn.close()
+    if not kullanici:
+        session.clear()
+        return redirect(url_for('giris_yap'))
+    return render_template('profil.html', kullanici=kullanici)
 
 @app.route('/cikis')
 def cikis_yap():
@@ -571,7 +602,7 @@ def cikis_yap():
 
 
 # ==============================================================================
-# 3. UYGULAMA ROTALARI (ROUTES)
+# 4. UYGULAMA ROTALARI (ROUTES)
 # ==============================================================================
 @app.route("/")
 def index():
@@ -811,14 +842,20 @@ def pdf_rapor():
                      download_name=f"{isim.replace(' ', '_')}_tehlike_raporu.pdf")
 
 
+# "gemini-flash-latest" Google'ın güncel Flash modelini gösteren takma addır;
+# eski deneme sürümleri gibi kullanımdan kalkmaz. İstenirse GEMINI_MODEL ile değiştirilebilir.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+
 @app.route("/ai", methods=["POST"])
 def ai_sohbet():
     api_key = os.environ.get("GEMINI_API_KEY", "")
     if not api_key:
-        return jsonify({"hata": "API key bulunamadi."})
+        return jsonify({"hata": "Yapay zeka anahtarı ayarlanmamış (GEMINI_API_KEY)."})
 
-    veri = request.json
-    mesajlar = veri.get("mesajlar", [])
+    veri = request.get_json(silent=True) or {}
+    mesajlar = veri.get("mesajlar", [])[-20:]
+    if not mesajlar:
+        return jsonify({"hata": "Mesaj boş olamaz."})
 
     sistem = (
         "Sen KimyaSal platformunun kimya asistanisin. Adin KimyaBot. "
@@ -837,22 +874,25 @@ def ai_sohbet():
 
     try:
         res = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key={api_key}",
-            headers={"Content-Type": "application/json"},
+            f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+            headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
             json={
                 "system_instruction": {"parts": [{"text": sistem}]},
                 "contents": gecmis + [{"role": "user", "parts": [{"text": son_mesaj}]}],
                 "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.7}
             },
-            timeout=15
+            timeout=30
         )
         data = res.json()
         if "error" in data:
             return jsonify({"hata": data["error"].get("message", "Bilinmeyen hata")})
-        if "candidates" not in data:
-            return jsonify({"hata": str(data)})
-        cevap = data["candidates"][0]["content"]["parts"][0]["text"]
+        parcalar = (data.get("candidates") or [{}])[0].get("content", {}).get("parts", [])
+        cevap = "".join(p.get("text", "") for p in parcalar).strip()
+        if not cevap:
+            return jsonify({"hata": "Yapay zekadan cevap alınamadı, lütfen tekrar deneyin."})
         return jsonify({"cevap": cevap})
+    except requests.Timeout:
+        return jsonify({"hata": "Yapay zeka çok geç cevap verdi, lütfen tekrar deneyin."})
     except Exception as e:
         return jsonify({"hata": str(e)})
 

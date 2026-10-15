@@ -45,6 +45,12 @@
       --shadow-lg: 0 20px 40px rgba(99,102,241,0.2);
     }
 
+    /* Giriş / çıkış bildirimleri */
+    .flash-alan { position: fixed; top: 84px; right: 1rem; z-index: 1000; display: flex; flex-direction: column; gap: .5rem; }
+    .flash-mesaj { padding: .75rem 1.1rem; border-radius: var(--radius-md); background: var(--surface); color: var(--text-main);
+      border: 1.5px solid var(--border); border-left: 5px solid var(--success); box-shadow: var(--shadow-md); font-weight: 600; }
+    .flash-danger { border-left-color: var(--danger); }
+
     /* HTML5 Canvas İnteraktif Atomik Parçacık Ağı */
     #chem-canvas {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -556,15 +562,34 @@
 
 <div class="nav-actions">
       <button class="theme-btn" id="tema-degistir-btn">☀️</button>
-            <a href="{{ url_for('giris_yap') }}">
+      {% if session.get('kullanici_id') %}
+      <a href="{{ url_for('profil_sayfasi') }}">
+        <button class="btn-outline">👤 {{ session.get('gosterim_adi') }}</button>
+      </a>
+      <a href="{{ url_for('cikis_yap') }}">
+        <button class="btn-solid">Çıkış</button>
+      </a>
+      {% else %}
+      <a href="{{ url_for('giris_yap') }}">
         <button class="btn-outline">Giriş Yap</button>
       </a>
-     
       <a href="{{ url_for('kayit_sayfasi') }}">
         <button class="btn-solid">Kayıt Ol</button>
       </a>
+      {% endif %}
     </div>
   </nav>
+
+  {% with mesajlar = get_flashed_messages(with_categories=true) %}
+    {% if mesajlar %}
+    <div class="flash-alan" id="flash-alan">
+      {% for kategori, mesaj in mesajlar %}
+        <div class="flash-mesaj flash-{{ kategori }}">{{ mesaj }}</div>
+      {% endfor %}
+    </div>
+    <script>setTimeout(() => document.getElementById('flash-alan')?.remove(), 4000);</script>
+    {% endif %}
+  {% endwith %}
 
   <!-- ANA KAPSAYICI -->
   <main class="dashboard-container">
@@ -2350,7 +2375,7 @@ try {
       const input = document.getElementById('aiInput'); const soru = input.value.trim(); if (!soru) return;
       input.value = ''; document.getElementById('aiBtn').disabled = true;
       const msgs = document.getElementById('aiMessages');
-      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${soru}</div></div>`;
+      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${htmlKacis(soru)}</div></div>`;
       aiMesajlar.push({ rol: 'user', icerik: soru });
       const typingId = 'typing-' + Date.now();
       msgs.innerHTML += `<div class="ai-msg bot" id="${typingId}"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text ai-typing"><span>●</span><span>●</span><span>●</span></div></div>`;
@@ -2359,16 +2384,27 @@ try {
       try {
         const res = await fetch('/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mesajlar: aiMesajlar }) });
         const data = await res.json(); document.getElementById(typingId).remove();
-        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${data.hata}</div></div>`; }
+        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${htmlKacis(data.hata)}</div></div>`; }
         else {
           aiMesajlar.push({ rol: 'assistant', icerik: data.cevap });
-          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${data.cevap.replace(/\n/g, '<br>')}</div></div>`;
+          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${aiMetinBicimle(data.cevap)}</div></div>`;
         }
       } catch(e) {
         document.getElementById(typingId)?.remove();
         msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Bağlantı hatası. Backend'in Python ile çalıştığından emin ol.</div></div>`;
       }
       msgs.scrollTop = msgs.scrollHeight; document.getElementById('aiBtn').disabled = false; input.focus();
+    }
+
+    function htmlKacis(metin) {
+      return String(metin).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    // Yapay zeka cevabını güvenli şekilde gösterir; **kalın** ve * madde işaretlerini biçimlendirir
+    function aiMetinBicimle(metin) {
+      return htmlKacis(metin)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^\s*[\*\-] /gm, '• ')
+        .replace(/\n/g, '<br>');
     }
 
     async function pdfIndir() {

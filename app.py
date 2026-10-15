@@ -915,8 +915,11 @@ def ai_sohbet():
     def akis():
         bos = True
         try:
-            for satir in res.iter_lines(decode_unicode=True):
-                if not satir or not satir.startswith("data:"):
+            # Satırları ham bayt olarak alıp UTF-8 ile çözüyoruz; aksi halde
+            # requests Türkçe karakterleri yanlış kodlamayla okur (ı -> Ä±)
+            for satir in res.iter_lines():
+                satir = satir.decode("utf-8")
+                if not satir.startswith("data:"):
                     continue
                 parca = json.loads(satir[5:])
                 parcalar = (parca.get("candidates") or [{}])[0].get("content", {}).get("parts", [])

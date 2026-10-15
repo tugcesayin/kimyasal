@@ -619,6 +619,11 @@ def cikis_yap():
 # ==============================================================================
 # 4. UYGULAMA ROTALARI (ROUTES)
 # ==============================================================================
+@app.route("/saglik")
+def saglik():
+    """Uyanık tutma servisleri (ör. UptimeRobot) için hafif kontrol adresi."""
+    return "ok"
+
 @app.route("/")
 def index():
     return render_template("index.html")

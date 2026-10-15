@@ -944,8 +944,10 @@ def ai_sohbet():
         finally:
             res.close()
 
-    return Response(stream_with_context(akis()), content_type="text/plain; charset=utf-8",
-                    headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
+    # "text/event-stream" türü, Render'ın önündeki Cloudflare gibi ara sunucuların
+    # cevabı biriktirmeden (kelime kelime) iletmesini sağlar; "no-transform" sıkıştırmayı kapatır.
+    return Response(stream_with_context(akis()), content_type="text/event-stream; charset=utf-8",
+                    headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache, no-transform"})
 
 if __name__ == "__main__":
     app.run(debug=False)

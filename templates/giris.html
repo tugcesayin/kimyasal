@@ -1,0 +1,18 @@
+{% extends "auth_base.html" %}
+{% block baslik %}Giriş Yap{% endblock %}
+{% block icerik %}
+  <h1>Tekrar hoş geldin 👋</h1>
+  <p class="alt-baslik">Hesabına giriş yap.</p>
+  <form method="POST" action="{{ url_for('giris_yap') }}">
+    <div class="alan">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" value="{{ email or '' }}" autocomplete="email" required autofocus>
+    </div>
+    <div class="alan">
+      <label for="sifre">Şifre</label>
+      <input id="sifre" name="sifre" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn" type="submit">Giriş Yap</button>
+  </form>
+  <p class="alt-link">Hesabın yok mu? <a href="{{ url_for('kayit_sayfasi') }}">Kayıt ol</a></p>
+{% endblock %}

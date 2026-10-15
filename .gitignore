@@ -1,0 +1,15 @@
+# Sanal ortam ve Python önbellekleri
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Gizli bilgiler
+.env
+.secret_key
+
+# Kullanıcı hesapları (şifreler) GitHub'a yüklenmemeli
+kullanici.db
+
+# macOS
+.DS_Store

@@ -1,0 +1,22 @@
+{% extends "auth_base.html" %}
+{% block baslik %}Profilim{% endblock %}
+{% block icerik %}
+  <h1>Merhaba, {{ kullanici['isim'] }}!</h1>
+  <p class="alt-baslik">Hesap bilgilerin</p>
+  <div class="alan-satir">
+    <div class="alan">
+      <label>İsim</label>
+      <input value="{{ kullanici['isim'] }}" readonly>
+    </div>
+    <div class="alan">
+      <label>Soyisim</label>
+      <input value="{{ kullanici['soyisim'] or '' }}" readonly>
+    </div>
+  </div>
+  <div class="alan">
+    <label>Email</label>
+    <input value="{{ kullanici['email'] }}" readonly>
+  </div>
+  <a class="btn" href="{{ url_for('index') }}">Ana Sayfaya Dön</a>
+  <a class="btn btn-ikincil" href="{{ url_for('cikis_yap') }}">Çıkış Yap</a>
+{% endblock %}

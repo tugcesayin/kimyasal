@@ -45,6 +45,12 @@
       --shadow-lg: 0 20px 40px rgba(99,102,241,0.2);
     }
 
+    /* Giriş / çıkış bildirimleri */
+    .flash-alan { position: fixed; top: 84px; right: 1rem; z-index: 1000; display: flex; flex-direction: column; gap: .5rem; }
+    .flash-mesaj { padding: .75rem 1.1rem; border-radius: var(--radius-md); background: var(--surface); color: var(--text-main);
+      border: 1.5px solid var(--border); border-left: 5px solid var(--success); box-shadow: var(--shadow-md); font-weight: 600; }
+    .flash-danger { border-left-color: var(--danger); }
+
     /* HTML5 Canvas İnteraktif Atomik Parçacık Ağı */
     #chem-canvas {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -556,15 +562,34 @@
 
 <div class="nav-actions">
       <button class="theme-btn" id="tema-degistir-btn">☀️</button>
-            <a href="{{ url_for('giris_yap') }}">
+      {% if session.get('kullanici_id') %}
+      <a href="{{ url_for('profil_sayfasi') }}">
+        <button class="btn-outline">👤 {{ session.get('gosterim_adi') }}</button>
+      </a>
+      <a href="{{ url_for('cikis_yap') }}">
+        <button class="btn-solid">Çıkış</button>
+      </a>
+      {% else %}
+      <a href="{{ url_for('giris_yap') }}">
         <button class="btn-outline">Giriş Yap</button>
       </a>
-     
       <a href="{{ url_for('kayit_sayfasi') }}">
         <button class="btn-solid">Kayıt Ol</button>
       </a>
+      {% endif %}
     </div>
   </nav>
+
+  {% with mesajlar = get_flashed_messages(with_categories=true) %}
+    {% if mesajlar %}
+    <div class="flash-alan" id="flash-alan">
+      {% for kategori, mesaj in mesajlar %}
+        <div class="flash-mesaj flash-{{ kategori }}">{{ mesaj }}</div>
+      {% endfor %}
+    </div>
+    <script>setTimeout(() => document.getElementById('flash-alan')?.remove(), 4000);</script>
+    {% endif %}
+  {% endwith %}
 
   <!-- ANA KAPSAYICI -->
   <main class="dashboard-container">
@@ -2350,7 +2375,7 @@ try {
       const input = document.getElementById('aiInput'); const soru = input.value.trim(); if (!soru) return;
       input.value = ''; document.getElementById('aiBtn').disabled = true;
       const msgs = document.getElementById('aiMessages');
-      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${soru}</div></div>`;
+      msgs.innerHTML += `<div class="ai-msg user"><div class="ai-msg-avatar">👤</div><div class="ai-msg-text">${htmlKacis(soru)}</div></div>`;
       aiMesajlar.push({ rol: 'user', icerik: soru });
       const typingId = 'typing-' + Date.now();
       msgs.innerHTML += `<div class="ai-msg bot" id="${typingId}"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text ai-typing"><span>●</span><span>●</span><span>●</span></div></div>`;
@@ -2358,17 +2383,66 @@ try {
 
       try {
         const res = await fetch('/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mesajlar: aiMesajlar }) });
-        const data = await res.json(); document.getElementById(typingId).remove();
-        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${data.hata}</div></div>`; }
-        else {
-          aiMesajlar.push({ rol: 'assistant', icerik: data.cevap });
-          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${data.cevap.replace(/\n/g, '<br>')}</div></div>`;
+        if ((res.headers.get('Content-Type') || '').includes('application/json')) {
+          // Hata durumunda sunucu JSON döner
+          const data = await res.json(); document.getElementById(typingId).remove();
+          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${htmlKacis(data.hata || 'Bilinmeyen hata')}</div></div>`;
+        } else {
+          // Cevap akış halinde gelir; geldikçe ekrana yaz
+          const kutu = document.querySelector(`#${typingId} .ai-msg-text`);
+          const okuyucu = res.body.getReader();
+          const cozucu = new TextDecoder();
+          let cevap = '';
+          while (true) {
+            const { done, value } = await okuyucu.read();
+            if (done) break;
+            cevap += cozucu.decode(value, { stream: true });
+            kutu.classList.remove('ai-typing');
+            kutu.innerHTML = aiMetinBicimle(cevap);
+            msgs.scrollTop = msgs.scrollHeight;
+          }
+          document.getElementById(typingId).removeAttribute('id');
+          aiMesajlar.push({ rol: 'assistant', icerik: cevap });
         }
       } catch(e) {
         document.getElementById(typingId)?.remove();
         msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Bağlantı hatası. Backend'in Python ile çalıştığından emin ol.</div></div>`;
       }
       msgs.scrollTop = msgs.scrollHeight; document.getElementById('aiBtn').disabled = false; input.focus();
+    }
+
+    function htmlKacis(metin) {
+      return String(metin).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    // Yapay zeka cevabını güvenli şekilde gösterir; **kalın** ve * madde işaretlerini biçimlendirir
+    // LaTeX biçimindeki formülleri ($H_2SO_4$, \(Fe^{3+}\), \ce{CO2}) okunur hale getirir
+    function latexFormulCevir(ifade) {
+      return ifade
+        .replace(/\\ce\s*\{([^{}]*)\}/g, (_, f) => f.replace(/([A-Za-z)\]])(\d+)/g, '$1_{$2}'))
+        .replace(/\\(?:text|mathrm|mathbf|rm)\s*\{([^{}]*)\}/g, '$1')
+        .replace(/\\(?:rightarrow|longrightarrow|to)\b/g, '→')
+        .replace(/\\(?:leftrightarrow|rightleftharpoons|rightleftarrows)\b/g, '⇌')
+        .replace(/\\leftarrow\b/g, '←')
+        .replace(/\\(?:cdot|times)\b/g, '·')
+        .replace(/\\degree\b|\^\{?\\circ\}?/g, '°')
+        .replace(/\\Delta\s*/g, 'Δ')
+        .replace(/&lt;=+&gt;/g, '⇌').replace(/-+&gt;/g, '→')
+        .replace(/_\{([^{}]*)\}/g, '<sub>$1</sub>')
+        .replace(/_([A-Za-z0-9+\-])/g, '<sub>$1</sub>')
+        .replace(/\^\{([^{}]*)\}/g, '<sup>$1</sup>')
+        .replace(/\^([A-Za-z0-9+\-])/g, '<sup>$1</sup>')
+        .replace(/\\[,;! ]/g, ' ')
+        .replace(/[{}]/g, '');
+    }
+    function aiMetinBicimle(metin) {
+      return htmlKacis(metin)
+        .replace(/\$\$([^$]+?)\$\$/g, (_, f) => latexFormulCevir(f))
+        .replace(/\$([^$\n]+?)\$/g, (_, f) => latexFormulCevir(f))
+        .replace(/\\\(([\s\S]+?)\\\)/g, (_, f) => latexFormulCevir(f))
+        .replace(/\\ce\s*\{[^{}]*\}/g, f => latexFormulCevir(f))
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/^\s*[\*\-] /gm, '• ')
+        .replace(/\n/g, '<br>');
     }
 
     async function pdfIndir() {

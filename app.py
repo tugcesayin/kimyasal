@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, flash, session
+from flask import Flask, render_template, request, jsonify, send_file, redirect, url_for, flash, session, Response, stream_with_context
 import pubchempy as pcp
 import requests
 import re
@@ -857,9 +857,10 @@ def pdf_rapor():
                      download_name=f"{isim.replace(' ', '_')}_tehlike_raporu.pdf")
 
 
-# "gemini-flash-latest" Google'ın güncel Flash modelini gösteren takma addır;
-# eski deneme sürümleri gibi kullanımdan kalkmaz. İstenirse GEMINI_MODEL ile değiştirilebilir.
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+# "gemini-flash-lite-latest" Google'ın en hızlı güncel Flash modelini gösteren takma addır;
+# varsayılan olarak "düşünme" adımı olmadığı için cevaplar çok daha çabuk gelir.
+# Daha güçlü (ama daha yavaş) cevaplar için .env içinde GEMINI_MODEL=gemini-flash-latest yazılabilir.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-lite-latest")
 
 @app.route("/ai", methods=["POST"])
 def ai_sohbet():
@@ -880,37 +881,58 @@ def ai_sohbet():
         "Guvenlik konularinda her zaman dikkatli ol ve uyari ver."
     )
 
-    gecmis = []
-    for m in mesajlar[:-1]:
-        rol = "user" if m["rol"] == "user" else "model"
-        gecmis.append({"role": rol, "parts": [{"text": m["icerik"]}]})
+    icerik = [
+        {"role": "user" if m["rol"] == "user" else "model", "parts": [{"text": m["icerik"]}]}
+        for m in mesajlar
+    ]
 
-    son_mesaj = mesajlar[-1]["icerik"] if mesajlar else ""
-
+    # Cevabı parça parça (akış halinde) iste; ilk kelimeler hemen ekrana gelsin
     try:
         res = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent",
+            f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:streamGenerateContent?alt=sse",
             headers={"Content-Type": "application/json", "x-goog-api-key": api_key},
             json={
                 "system_instruction": {"parts": [{"text": sistem}]},
-                "contents": gecmis + [{"role": "user", "parts": [{"text": son_mesaj}]}],
+                "contents": icerik,
                 "generationConfig": {"maxOutputTokens": 1024, "temperature": 0.7}
             },
-            timeout=30
+            stream=True,
+            timeout=(10, 60)
         )
-        data = res.json()
-        if "error" in data:
-            return jsonify({"hata": data["error"].get("message", "Bilinmeyen hata")})
-        parcalar = (data.get("candidates") or [{}])[0].get("content", {}).get("parts", [])
-        cevap = "".join(p.get("text", "") for p in parcalar).strip()
-        if not cevap:
-            return jsonify({"hata": "Yapay zekadan cevap alınamadı, lütfen tekrar deneyin."})
-        return jsonify({"cevap": cevap})
     except requests.Timeout:
-        return jsonify({"hata": "Yapay zeka çok geç cevap verdi, lütfen tekrar deneyin."})
+        return jsonify({"hata": "Yapay zekaya bağlanılamadı, lütfen tekrar deneyin."})
     except Exception as e:
         return jsonify({"hata": str(e)})
 
+    if res.status_code != 200:
+        try:
+            mesaj = res.json()["error"].get("message", "Bilinmeyen hata")
+        except Exception:
+            mesaj = f"Yapay zeka hatası (kod {res.status_code})"
+        res.close()
+        return jsonify({"hata": mesaj})
+
+    def akis():
+        bos = True
+        try:
+            for satir in res.iter_lines(decode_unicode=True):
+                if not satir or not satir.startswith("data:"):
+                    continue
+                parca = json.loads(satir[5:])
+                parcalar = (parca.get("candidates") or [{}])[0].get("content", {}).get("parts", [])
+                metin = "".join(p.get("text", "") for p in parcalar)
+                if metin:
+                    bos = False
+                    yield metin
+            if bos:
+                yield "Yapay zekadan cevap alınamadı, lütfen tekrar deneyin."
+        except Exception:
+            yield "\n\n(Bağlantı koptu, cevap yarım kalmış olabilir.)"
+        finally:
+            res.close()
+
+    return Response(stream_with_context(akis()), content_type="text/plain; charset=utf-8",
+                    headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"})
 
 if __name__ == "__main__":
     app.run(debug=False)

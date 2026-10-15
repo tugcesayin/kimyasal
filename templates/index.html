@@ -2383,11 +2383,26 @@ try {
 
       try {
         const res = await fetch('/ai', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mesajlar: aiMesajlar }) });
-        const data = await res.json(); document.getElementById(typingId).remove();
-        if (data.hata) { msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${htmlKacis(data.hata)}</div></div>`; }
-        else {
-          aiMesajlar.push({ rol: 'assistant', icerik: data.cevap });
-          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text">${aiMetinBicimle(data.cevap)}</div></div>`;
+        if ((res.headers.get('Content-Type') || '').includes('application/json')) {
+          // Hata durumunda sunucu JSON döner
+          const data = await res.json(); document.getElementById(typingId).remove();
+          msgs.innerHTML += `<div class="ai-msg bot"><div class="ai-msg-avatar">🤖</div><div class="ai-msg-text" style="color:var(--danger)">Hata: ${htmlKacis(data.hata || 'Bilinmeyen hata')}</div></div>`;
+        } else {
+          // Cevap akış halinde gelir; geldikçe ekrana yaz
+          const kutu = document.querySelector(`#${typingId} .ai-msg-text`);
+          const okuyucu = res.body.getReader();
+          const cozucu = new TextDecoder();
+          let cevap = '';
+          while (true) {
+            const { done, value } = await okuyucu.read();
+            if (done) break;
+            cevap += cozucu.decode(value, { stream: true });
+            kutu.classList.remove('ai-typing');
+            kutu.innerHTML = aiMetinBicimle(cevap);
+            msgs.scrollTop = msgs.scrollHeight;
+          }
+          document.getElementById(typingId).removeAttribute('id');
+          aiMesajlar.push({ rol: 'assistant', icerik: cevap });
         }
       } catch(e) {
         document.getElementById(typingId)?.remove();

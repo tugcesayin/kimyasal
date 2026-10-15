@@ -9,6 +9,21 @@ import io
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 
+def env_dosyasi_yukle():
+    """Proje klasöründeki .env dosyasındaki ayarları (ör. GEMINI_API_KEY) okur."""
+    yol = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    if not os.path.exists(yol):
+        return
+    with open(yol, encoding="utf-8-sig") as f:
+        for satir in f:
+            satir = satir.strip()
+            if not satir or satir.startswith("#") or "=" not in satir:
+                continue
+            anahtar, deger = satir.split("=", 1)
+            os.environ.setdefault(anahtar.strip(), deger.strip().strip('"').strip("'"))
+
+env_dosyasi_yukle()
+
 app = Flask(__name__)
 
 # ==============================================================================

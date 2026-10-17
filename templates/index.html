@@ -4,6 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>kimyasAl — Modern Dashboard</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}"/>
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
@@ -105,7 +107,8 @@
     /* NAVBAR */
     .top-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 200; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border-bottom: 1.5px solid var(--border); padding: 0 4rem; height: 80px; display: flex; align-items: center; justify-content: space-between; }
     .nav-logo { display: flex; align-items: center; gap: 0.5rem; }
-    .logo-icon { font-size: 1.8rem; display: flex; align-items: center; }
+    .logo-icon { width: 42px; height: 42px; display: block; transition: transform .25s ease, filter .25s ease; }
+    .nav-logo:hover .logo-icon { transform: rotate(-8deg) scale(1.06); filter: drop-shadow(0 0 8px rgba(34, 211, 238, .55)) drop-shadow(0 0 14px rgba(232, 121, 249, .35)); }
     .nav-logo-text { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
     .nav-logo-text span { color: var(--primary); }
     .nav-links { display: flex; gap: 2rem; height: 100%; align-items: center; }
@@ -547,7 +550,7 @@
 
     /* HAKKIMIZDA BÖLÜMÜ */
     .about-card { max-width: 720px; margin: 3rem auto; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 3rem 2.5rem; box-shadow: var(--shadow-md); text-align: center; position: relative; z-index: 2; backdrop-filter: blur(8px); }
-    .about-logo-badge { width: 75px; height: 75px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, var(--secondary), var(--primary)); color: #fff; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 10px 25px rgba(99, 102, 241, 0.35); }
+    .about-logo-badge { width: 88px; height: 88px; margin: 0 auto 1.5rem; display: block; border-radius: 22px; box-shadow: 0 10px 30px rgba(34, 211, 238, 0.25), 0 10px 30px rgba(168, 85, 247, 0.25); }
     .about-title { font-size: 2.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; letter-spacing: -0.5px; }
     .about-sub { font-size: 1.05rem; color: var(--text-muted); font-weight: 500; margin-bottom: 2rem; }
     .about-divider { width: 60px; height: 3px; background: var(--primary); margin: 0 auto 2rem; border-radius: 3px; }
@@ -567,7 +570,7 @@
   <!-- NAVBAR -->
   <nav class="top-navbar">
     <div class="nav-logo">
-      <div class="logo-icon">⚛️</div>
+      <img class="logo-icon" src="{{ url_for('static', filename='logo.svg') }}" alt="kimyasAl logosu">
       <div class="nav-logo-text">kimyas<span>Al</span></div>
     </div>
    
@@ -1317,7 +1320,7 @@
     <!-- 7. HAKKIMIZDA SEKMESİ -->
     <section id="hakkimizda-sekmesi" class="tab-content">
       <div class="about-card">
-        <div class="about-logo-badge">⚛️</div>
+        <img class="about-logo-badge" src="{{ url_for('static', filename='logo.svg') }}" alt="kimyasAl logosu">
         <h2 class="about-title">kimyasAl</h2>
         <p class="about-sub">Türkiye'nin En Kapsamlı Kimyasal Güvenlik ve Analiz Aracı</p>
        

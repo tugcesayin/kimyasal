@@ -21,6 +21,19 @@ POSTGRES = DATABASE_URL.startswith(("postgres://", "postgresql://"))
 if POSTGRES:
     import psycopg
     from psycopg.rows import dict_row
+    # Veritabanına ulaşılamıyorsa (silinmiş, adres hatalı vb.) site çökmesin:
+    # uyarı yazıp geçici SQLite dosyasıyla devam et.
+    try:
+        psycopg.connect(DATABASE_URL, connect_timeout=10).close()
+    except psycopg.OperationalError as hata:
+        print(
+            "UYARI: DATABASE_URL veritabanına bağlanılamadı, geçici SQLite kullanılıyor. "
+            f"Kayıtlar kalıcı OLMAYACAK. Sebep: {hata}",
+            flush=True,
+        )
+        POSTGRES = False
+
+if POSTGRES:
     BUTUNLUK_HATASI = psycopg.IntegrityError
     ID_SUTUNU = "SERIAL PRIMARY KEY"
 else:

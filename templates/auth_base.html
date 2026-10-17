@@ -4,6 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>{% block baslik %}{% endblock %} — kimyasAl</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='logo.svg') }}"/>
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='apple-touch-icon.png') }}"/>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <script>
     // Ana sayfada seçilen temayı (açık/koyu) burada da uygula
@@ -53,8 +55,7 @@
       border-radius: var(--radius-lg); padding: 2.2rem 2rem; box-shadow: var(--shadow-lg);
     }
     .logo { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--text-main); margin-bottom: 1.6rem; }
-    .logo-ikon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
-      background: linear-gradient(135deg, var(--secondary), var(--primary)); font-size: 1.3rem; }
+    .logo-ikon { width: 42px; height: 42px; display: block; }
     .logo-yazi { font-size: 1.3rem; font-weight: 800; }
     .logo-yazi span { color: var(--primary); }
     h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: .3rem; }
@@ -97,7 +98,7 @@
 <body>
   <main class="kart">
     <a class="logo" href="{{ url_for('index') }}">
-      <div class="logo-ikon">⚛️</div>
+      <img class="logo-ikon" src="{{ url_for('static', filename='logo.svg') }}" alt="">
       <div class="logo-yazi">kimyas<span>Al</span></div>
     </a>
     {% with mesajlar = get_flashed_messages(with_categories=true) %}

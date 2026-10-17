@@ -9,6 +9,9 @@ import io
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+import time
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 def env_dosyasi_yukle():
     """Proje klasöründeki .env dosyasındaki ayarları (ör. GEMINI_API_KEY) okur."""
@@ -29,6 +32,9 @@ env_dosyasi_yukle()
 import veritabani as db
 
 app = Flask(__name__)
+# Render bir ara sunucu arkasında çalışır; https adresli linkler (ör. şifre sıfırlama)
+# doğru üretilsin diye ara sunucunun gönderdiği başlıklara güvenilir.
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 # ==============================================================================
 # 1. HIZLI YEREL VERİTABANI (SQLITE CACHE) SİSTEMİ
@@ -577,6 +583,97 @@ def giris_yap():
             return render_template('giris.html', email=email)
 
     return render_template('giris.html')
+
+# ---------------- ŞİFREMİ UNUTTUM ----------------
+SIFIRLAMA_SURESI = 60 * 60          # sıfırlama linki 1 saat geçerli
+SIFIRLAMA_BEKLEME = 2 * 60           # aynı email'e en fazla 2 dakikada bir email
+son_sifirlama_istekleri = {}
+
+def sifirlama_imzaci():
+    return URLSafeTimedSerializer(app.secret_key, salt="sifre-sifirlama")
+
+def sifirlama_tokeni_uret(kullanici):
+    # Şifre hash'inin bir parçası tokene eklenir: şifre değişince eski linkler geçersiz olur
+    return sifirlama_imzaci().dumps({"id": kullanici["id"], "h": kullanici["sifre"][-12:]})
+
+def sifirlama_tokeni_coz(token):
+    """Geçerliyse kullanıcıyı, değilse None döndürür."""
+    try:
+        veri = sifirlama_imzaci().loads(token, max_age=SIFIRLAMA_SURESI)
+    except (BadSignature, SignatureExpired):
+        return None
+    kullanici = db.calistir('SELECT * FROM kullanicilar WHERE id = ?', (veri.get("id"),), tek=True)
+    if not kullanici or kullanici["sifre"][-12:] != veri.get("h"):
+        return None
+    return kullanici
+
+def eposta_gonder(alici, alici_adi, konu, html):
+    """Brevo'nun HTTPS API'si ile email gönderir (Render ücretsiz planı SMTP'yi engeller)."""
+    api_key = os.environ.get("BREVO_API_KEY", "").strip()
+    gonderen = os.environ.get("EPOSTA_GONDEREN", "").strip()
+    if not api_key or not gonderen:
+        app.logger.warning("Email ayarları eksik (BREVO_API_KEY / EPOSTA_GONDEREN); email gönderilemedi.")
+        return False
+    try:
+        res = requests.post(
+            "https://api.brevo.com/v3/smtp/email",
+            headers={"api-key": api_key, "Content-Type": "application/json", "Accept": "application/json"},
+            json={
+                "sender": {"email": gonderen, "name": "kimyasAl"},
+                "to": [{"email": alici, "name": alici_adi}],
+                "subject": konu,
+                "htmlContent": html,
+            },
+            timeout=15,
+        )
+    except requests.RequestException as e:
+        app.logger.error("Email gönderilemedi: %s", e)
+        return False
+    if res.status_code >= 300:
+        app.logger.error("Email gönderilemedi (Brevo %s): %s", res.status_code, res.text[:300])
+        return False
+    return True
+
+@app.route('/sifremi-unuttum', methods=['GET', 'POST'])
+def sifremi_unuttum():
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        simdi = time.time()
+        kullanici = db.calistir('SELECT * FROM kullanicilar WHERE email = ?', (email,), tek=True)
+        if kullanici and simdi - son_sifirlama_istekleri.get(email, 0) > SIFIRLAMA_BEKLEME:
+            son_sifirlama_istekleri[email] = simdi
+            link = url_for('sifre_sifirla', token=sifirlama_tokeni_uret(kullanici), _external=True)
+            html = render_template('eposta_sifre_sifirlama.html', isim=kullanici['isim'], link=link)
+            if not eposta_gonder(email, kullanici['isim'], "kimyasAl şifre sıfırlama", html):
+                # Email ayarlanmamışsa (ör. kendi bilgisayarında) linki sunucu kaydına yaz
+                app.logger.warning("Şifre sıfırlama linki (%s): %s", email, link)
+        # Email kayıtlı olsun olmasın aynı mesaj gösterilir; böylece kimin kayıtlı olduğu öğrenilemez
+        flash('Bu email adresi kayıtlıysa, şifre sıfırlama linki gönderildi. '
+              'Gelen kutunu (ve gereksiz/spam klasörünü) kontrol et.', 'success')
+        return redirect(url_for('sifremi_unuttum'))
+    return render_template('sifremi_unuttum.html')
+
+@app.route('/sifre-sifirla/<token>', methods=['GET', 'POST'])
+def sifre_sifirla(token):
+    kullanici = sifirlama_tokeni_coz(token)
+    if not kullanici:
+        flash('Bu şifre sıfırlama linki geçersiz ya da süresi dolmuş. Lütfen yeni bir link iste.', 'danger')
+        return redirect(url_for('sifremi_unuttum'))
+
+    if request.method == 'POST':
+        sifre = request.form.get('sifre', '')
+        if len(sifre) < 6:
+            flash('Şifre en az 6 karakter olmalı.', 'danger')
+        elif sifre != request.form.get('sifre2', ''):
+            flash('Şifreler birbiriyle aynı değil.', 'danger')
+        else:
+            db.calistir('UPDATE kullanicilar SET sifre = ? WHERE id = ?',
+                        (generate_password_hash(sifre), kullanici['id']))
+            session.clear()
+            flash('Şifren değiştirildi! Yeni şifrenle giriş yapabilirsin.', 'success')
+            return redirect(url_for('giris_yap'))
+
+    return render_template('sifre_sifirla.html', email=kullanici['email'])
 
 @app.route('/profil')
 def profil_sayfasi():

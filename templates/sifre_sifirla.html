@@ -1,0 +1,17 @@
+{% extends "auth_base.html" %}
+{% block baslik %}Yeni Şifre{% endblock %}
+{% block icerik %}
+  <h1>Yeni şifreni belirle</h1>
+  <p class="alt-baslik">{{ email }} hesabı için yeni bir şifre yaz.</p>
+  <form method="POST">
+    <div class="alan">
+      <label for="sifre">Yeni şifre</label>
+      <input id="sifre" name="sifre" type="password" minlength="6" autocomplete="new-password" required autofocus>
+    </div>
+    <div class="alan">
+      <label for="sifre2">Yeni şifre (tekrar)</label>
+      <input id="sifre2" name="sifre2" type="password" minlength="6" autocomplete="new-password" required>
+    </div>
+    <button class="btn" type="submit">Şifremi Değiştir</button>
+  </form>
+{% endblock %}

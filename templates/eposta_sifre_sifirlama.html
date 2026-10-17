@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="tr">
+<body style="margin:0;padding:24px;background:#f1f5f9;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+             style="max-width:480px;background:#ffffff;border:1px solid #cbd5e1;border-radius:16px;padding:32px;">
+        <tr><td>
+          <p style="font-size:20px;font-weight:bold;margin:0 0 24px;">⚛️ kimyas<span style="color:#4f46e5;">Al</span></p>
+          <p style="font-size:16px;margin:0 0 12px;">Merhaba {{ isim }},</p>
+          <p style="font-size:15px;line-height:1.6;margin:0 0 24px;color:#475569;">
+            kimyasAl hesabın için şifre sıfırlama isteği aldık. Yeni bir şifre belirlemek için aşağıdaki butona tıkla.
+            Bu link <strong>1 saat</strong> boyunca geçerli.
+          </p>
+          <p style="margin:0 0 24px;">
+            <a href="{{ link }}" style="display:inline-block;background:#4f46e5;color:#ffffff;text-decoration:none;
+               font-weight:bold;padding:12px 24px;border-radius:10px;">Şifremi Sıfırla</a>
+          </p>
+          <p style="font-size:13px;line-height:1.6;margin:0 0 8px;color:#475569;">
+            Buton çalışmazsa bu linki tarayıcına yapıştır:<br>
+            <a href="{{ link }}" style="color:#4f46e5;word-break:break-all;">{{ link }}</a>
+          </p>
+          <p style="font-size:13px;line-height:1.6;margin:16px 0 0;color:#475569;">
+            Bu isteği sen yapmadıysan bu email'i görmezden gelebilirsin, şifren değişmez.
+          </p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

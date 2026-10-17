@@ -1,0 +1,14 @@
+{% extends "auth_base.html" %}
+{% block baslik %}Şifremi Unuttum{% endblock %}
+{% block icerik %}
+  <h1>Şifreni mi unuttun? 🔑</h1>
+  <p class="alt-baslik">Kayıtlı email adresini yaz, sana şifreni yenilemen için bir link gönderelim.</p>
+  <form method="POST" action="{{ url_for('sifremi_unuttum') }}">
+    <div class="alan">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required autofocus>
+    </div>
+    <button class="btn" type="submit">Sıfırlama Linki Gönder</button>
+  </form>
+  <p class="alt-link"><a href="{{ url_for('giris_yap') }}">← Girişe dön</a></p>
+{% endblock %}

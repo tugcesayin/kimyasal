@@ -28,6 +28,7 @@ env_dosyasi_yukle()
 # .env okunduktan sonra yüklenmeli (DATABASE_URL oradan da gelebilir)
 import veritabani as db
 import karisim
+import detaylar
 
 app = Flask(__name__)
 
@@ -836,6 +837,16 @@ def ara():
         yerele_kaydet(kimyasal, sonuc)
 
     return jsonify(sonuc)
+
+
+@app.route("/api/detay/<int:cid>")
+def kimyasal_detay(cid):
+    """Detay penceresi için fiziksel özellikler, CAS, atomlar ve bağlar (PubChem + önbellek)."""
+    try:
+        return jsonify(detaylar.detay_getir(cid, DB_PATH))
+    except requests.RequestException as e:
+        app.logger.warning("Detay alınamadı (CID %s): %s", cid, e)
+        return jsonify({"hata": "Detay bilgileri şu an PubChem'den alınamadı. Lütfen biraz sonra tekrar deneyin."}), 502
 
 
 @app.route("/api/karisim", methods=["POST"])

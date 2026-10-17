@@ -497,6 +497,9 @@
     .btn-reaksiyon { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; padding: 1.2rem 3rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); align-self: center; }
     .btn-reaksiyon:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4); }
     .btn-reaksiyon:disabled { opacity: .6; cursor: wait; transform: none; }
+    .veri-yok { color: var(--text-muted) !important; font-weight: 500 !important; font-size: 0.95rem !important; }
+    .detay-bos { grid-column: 1 / -1; color: var(--text-muted); text-align: center; padding: 1rem; }
+    .detay-kaynak { margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); }
     .karisim-ornekler { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; align-items: center; font-size: .85rem; color: var(--text-muted); font-weight: 600; }
     .karisim-ornekler button { background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); border-radius: 999px; padding: .35rem .8rem; font: inherit; cursor: pointer; }
     .karisim-ornekler button:hover { border-color: var(--primary); color: var(--primary); }
@@ -1157,27 +1160,27 @@
           <div style="display: flex; flex-direction: column; gap: 1rem;">
             <div class="el-prop-box">
               <div class="el-prop-label">Hal</div>
-              <div class="el-prop-value" id="molState">Sıvı</div>
+              <div class="el-prop-value" id="molState" data-detay="hal">—</div>
             </div>
             <div class="el-prop-box">
               <div class="el-prop-label">Renk</div>
-              <div class="el-prop-value" id="molColor">Renksiz</div>
+              <div class="el-prop-value" id="molColor" data-detay="renk">—</div>
             </div>
             <div class="el-prop-box">
               <div class="el-prop-label">Koku</div>
-              <div class="el-prop-value" id="molSmell">Kokusuzdur</div>
+              <div class="el-prop-value" id="molSmell" data-detay="koku">—</div>
             </div>
             <div class="el-prop-box">
               <div class="el-prop-label">Erime Noktası</div>
-              <div class="el-prop-value" id="molMelt">0°C</div>
+              <div class="el-prop-value" id="molMelt" data-detay="erime">—</div>
             </div>
             <div class="el-prop-box">
               <div class="el-prop-label">Kaynama Noktası</div>
-              <div class="el-prop-value" id="molBoil">100°C</div>
+              <div class="el-prop-value" id="molBoil" data-detay="kaynama">—</div>
             </div>
             <div class="el-prop-box">
               <div class="el-prop-label">Yoğunluk</div>
-              <div class="el-prop-value" id="molDensity">1.0 g/cm³</div>
+              <div class="el-prop-value" id="molDensity" data-detay="yogunluk">—</div>
             </div>
           </div>
         </div>
@@ -1215,32 +1218,19 @@
     </div>
 
     <div id="molTabFizik" class="mol-tab-content" style="display: none;">
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-        <div class="el-prop-box">
-          <div class="el-prop-label">Donma Noktası</div>
-          <div class="el-prop-value" id="molFP">0°C</div>
-        </div>
-        <div class="el-prop-box">
-          <div class="el-prop-label">Kaynama Noktası</div>
-          <div class="el-prop-value" id="molBP">100°C</div>
-        </div>
-        <div class="el-prop-box">
-          <div class="el-prop-label">Kritik Sıcaklık</div>
-          <div class="el-prop-value" id="molCT">374°C</div>
-        </div>
-        <div class="el-prop-box">
-          <div class="el-prop-label">Yüzey Gerilimi</div>
-          <div class="el-prop-value" id="molST">72.75 mN/m</div>
-        </div>
-        <div class="el-prop-box">
-          <div class="el-prop-label">Viskozite</div>
-          <div class="el-prop-value" id="molVis">1.002 cP</div>
-        </div>
-        <div class="el-prop-box">
-          <div class="el-prop-label">Buhar Basıncı</div>
-          <div class="el-prop-value" id="molVP">23.8 mmHg</div>
-        </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
+        <div class="el-prop-box"><div class="el-prop-label">Erime Noktası</div><div class="el-prop-value" data-detay="erime">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Kaynama Noktası</div><div class="el-prop-value" data-detay="kaynama">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Yoğunluk</div><div class="el-prop-value" data-detay="yogunluk">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Parlama Noktası</div><div class="el-prop-value" data-detay="parlama">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Kendiliğinden Tutuşma</div><div class="el-prop-value" data-detay="tutusma">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Buhar Basıncı</div><div class="el-prop-value" data-detay="buhar_basinci">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Viskozite</div><div class="el-prop-value" data-detay="viskozite">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">Yüzey Gerilimi</div><div class="el-prop-value" data-detay="yuzey_gerilimi">—</div></div>
+        <div class="el-prop-box"><div class="el-prop-label">LogP (yağda çözünürlük)</div><div class="el-prop-value" data-detay="logp">—</div></div>
+        <div class="el-prop-box" style="grid-column: 1 / -1;"><div class="el-prop-label">Çözünürlük</div><div class="el-prop-value" data-detay="cozunurluk" style="font-size: 1rem;">—</div></div>
       </div>
+      <p class="detay-kaynak">Kaynak: PubChem deneysel verileri. "Veri yok" yazan alanlar için PubChem'de kayıt bulunmuyor.</p>
     </div>
 
     <div id="molTabAtomlar" class="mol-tab-content" style="display: none;">
@@ -2152,36 +2142,17 @@ try {
       document.getElementById('molTitle').textContent = baslik;
       document.getElementById('molSymbol').textContent = formul;
       document.getElementById('molFormula').textContent = data.formul || '?';
-      document.getElementById('molCAS').textContent = data.cas || 'N/A';
+      document.getElementById('molCAS').textContent = '…';
       document.getElementById('molMW').textContent = (parseFloat(data.agirlik) || 0).toFixed(3) + ' g/mol';
 
-      // Temel özellikler
-      document.getElementById('molState').textContent = data.hal || 'Bilinmiyor';
-      document.getElementById('molColor').textContent = data.renk || 'Renksiz';
-      document.getElementById('molSmell').textContent = data.koku || 'Hafif';
-      document.getElementById('molMelt').textContent = data.erimeh || 'N/A';
-      document.getElementById('molBoil').textContent = data.kaynamah || 'N/A';
-      document.getElementById('molDensity').textContent = data.yogunluk || '1.0 g/cm³';
-
-      // Fiziksel özellikler
-      document.getElementById('molFP').textContent = data.erimeh || '0°C';
-      document.getElementById('molBP').textContent = data.kaynamah || '100°C';
-      document.getElementById('molCT').textContent = data.kritikSicak || 'N/A';
-      document.getElementById('molST').textContent = data.yuzeyGerilim || 'N/A';
-      document.getElementById('molVis').textContent = data.viskozite || 'N/A';
-      document.getElementById('molVP').textContent = data.buharBasinci || 'N/A';
+      // Fiziksel özellikler, CAS, atomlar ve bağlar sunucudan (PubChem) ayrıca yüklenir
+      detaylariYukle(data.cid);
 
       // 2D yapı
       if (data.yapi_url) {
         document.getElementById('molStructure2D').src = data.yapi_url;
       }
 
-      // Atom detayları
-      populateAtomDetails(data.atomlar || []);
-
-      // Bağ bilgileri
-      populateBondInfo(data.baglar || []);
-     
       populateSafetyInfo(data);
 
       // Modal aç
@@ -2196,54 +2167,79 @@ try {
       }, 300);
     }
 
-    function populateAtomDetails(atomlar) {
+    async function detaylariYukle(cid) {
+      const alanlar = document.querySelectorAll('#moleculeDetailModal [data-detay]');
+      alanlar.forEach(el => { el.textContent = 'Yükleniyor…'; el.classList.add('veri-yok'); });
+      document.getElementById('molAtomDetails').innerHTML = '<div class="detay-bos">Yükleniyor…</div>';
+      document.getElementById('molBondList').innerHTML = '<div class="detay-bos">Yükleniyor…</div>';
+      if (!cid) { detaylariGoster(null, 'Bu kimyasal için PubChem kaydı bulunamadı.'); return; }
+
+      let veri = null, hata = null;
+      try {
+        const res = await fetch(`/api/detay/${cid}`);
+        veri = await res.json();
+        if (veri.hata) { hata = veri.hata; veri = null; }
+      } catch (e) {
+        hata = 'Sunucuya ulaşılamadı.';
+      }
+      // Bu arada başka bir kimyasal açıldıysa eski sonucu gösterme
+      if (!currentMolecule3D || currentMolecule3D.cid !== cid) return;
+      detaylariGoster(veri, hata);
+    }
+
+    function detaylariGoster(veri, hata) {
+      const ozellikler = (veri && veri.ozellikler) || {};
+      document.querySelectorAll('#moleculeDetailModal [data-detay]').forEach(el => {
+        const deger = ozellikler[el.dataset.detay];
+        el.textContent = deger || (hata ? '—' : 'Veri yok');
+        el.classList.toggle('veri-yok', !deger);
+      });
+      document.getElementById('molCAS').textContent = (veri && veri.cas) || 'Veri yok';
+      populateAtomDetails(veri ? veri.atomlar : [], hata);
+      populateBondInfo(veri ? veri.baglar : [], hata);
+    }
+
+    function populateAtomDetails(atomlar, hata) {
       const container = document.getElementById('molAtomDetails');
       if (!atomlar || atomlar.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted); text-align: center;">Atom bilgisi bulunamadı.</div>';
+        container.innerHTML = `<div class="detay-bos">${htmlKacis(hata || 'Atom bilgisi bulunamadı.')}</div>`;
         return;
       }
-
-      // Benzersiz atomları al
-      const uniqueAtoms = [];
-      const seen = {};
-      atomlar.forEach(a => {
-        if (!seen[a.symbol]) {
-          seen[a.symbol] = true;
-          uniqueAtoms.push(a);
-        }
-      });
-
-      container.innerHTML = uniqueAtoms.map(atom => `
+      container.innerHTML = atomlar.map(a => {
+        const el = ELEMENTLER.find(e => e.sym === a.sembol) || {};
+        return `
         <div class="atom-card">
-          <div class="atom-number">${atom.symbol}</div>
-          <div class="atom-symbol">${atom.symbol}</div>
-          <div class="atom-name">${atom.name || atom.symbol}</div>
-          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
-            ${atom.type || 'Atom'}<br>
-            Kütle: ${atom.mass || 'N/A'}
+          <div class="atom-number">${el.num || '?'}</div>
+          <div class="atom-symbol">${htmlKacis(a.sembol)}</div>
+          <div class="atom-name">${htmlKacis(el.ad || a.sembol)}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.6;">
+            ${htmlKacis(el.katAd || 'Element')}<br>
+            Atom kütlesi: ${htmlKacis(el.kutle || '—')}<br>
+            <strong style="color: var(--text-main);">Molekülde: ${a.adet} adet</strong>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
-    function populateBondInfo(baglar) {
+    function populateBondInfo(baglar, hata) {
       const container = document.getElementById('molBondList');
       if (!baglar || baglar.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); text-align: center; padding: 1rem;">Bağ bilgisi bulunamadı.</div>';
+        container.innerHTML = `<div class="detay-bos">${htmlKacis(hata || 'Bağ bilgisi bulunamadı (tek atomlu madde veya iyonik bileşik olabilir).')}</div>`;
         return;
       }
-
-      container.innerHTML = baglar.map((bond, idx) => `
+      const cizgi = { 'Tekli': '—', 'İkili': '═', 'Üçlü': '≡' };
+      container.innerHTML = baglar.map(b => `
         <div class="bond-item">
           <div class="bond-atoms">
-            <span class="bond-atom-label">${bond.atom1 || 'A' + idx}</span>
-            <span class="bond-arrow">—</span>
-            <span class="bond-atom-label">${bond.atom2 || 'B' + idx}</span>
+            <span class="bond-atom-label">${htmlKacis(b.atom1)}</span>
+            <span class="bond-arrow">${cizgi[b.tur] || '—'}</span>
+            <span class="bond-atom-label">${htmlKacis(b.atom2)}</span>
           </div>
-          <span class="bond-type">${bond.type || 'Tekli'}</span>
+          <span class="bond-type">${htmlKacis(b.tur)} bağ × ${b.adet}</span>
         </div>
       `).join('');
     }
+
     function populateSafetyInfo(data) {
   // --- GHS PİKTOGRAMLARI ---
       console.log('📌 SafetyInfo', data.h_kodlari,data.piktogramlar);

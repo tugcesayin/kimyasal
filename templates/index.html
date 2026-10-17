@@ -493,6 +493,28 @@
     .reaksiyon-plus { font-size: 2rem; font-weight: 800; color: var(--primary); }
     .btn-reaksiyon { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; padding: 1.2rem 3rem; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; transition: 0.3s; box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3); align-self: center; }
     .btn-reaksiyon:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(99, 102, 241, 0.4); }
+    .btn-reaksiyon:disabled { opacity: .6; cursor: wait; transform: none; }
+    .karisim-ornekler { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: center; align-items: center; font-size: .85rem; color: var(--text-muted); font-weight: 600; }
+    .karisim-ornekler button { background: var(--surface); border: 1.5px solid var(--border); color: var(--text-main); border-radius: 999px; padding: .35rem .8rem; font: inherit; cursor: pointer; }
+    .karisim-ornekler button:hover { border-color: var(--primary); color: var(--primary); }
+    .karisim-sonuc { margin-top: 1.5rem; text-align: left; border: 1.5px solid var(--border); border-left-width: 6px; border-radius: var(--radius-md); padding: 1.5rem; background: var(--surface); }
+    .karisim-sonuc.tehlikeli { border-color: #dc2626; background: rgba(220, 38, 38, .06); }
+    .karisim-sonuc.dikkat { border-color: #d97706; background: rgba(217, 119, 6, .07); }
+    .karisim-sonuc.bilgi { border-color: #0284c7; background: rgba(2, 132, 199, .06); }
+    .karisim-sonuc.bulunamadi { border-color: #059669; background: rgba(5, 150, 105, .06); }
+    .karisim-baslik { font-size: 1.3rem; font-weight: 800; margin-bottom: .6rem; color: var(--text-main); }
+    .karisim-kimyasallar { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+    .karisim-etiket { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .35rem .7rem; font-size: .85rem; color: var(--text-main); }
+    .karisim-etiket small { color: var(--text-muted); }
+    .karisim-bulgu { padding: .9rem 0; border-top: 1px solid var(--border); }
+    .karisim-bulgu strong { display: block; color: var(--text-main); margin-bottom: .25rem; }
+    .karisim-bulgu p, .karisim-mesaj { color: var(--text-muted); line-height: 1.6; }
+    .karisim-uyari { margin-top: 1rem; font-size: .8rem; color: var(--text-muted); }
+    @media (max-width: 640px) {
+      .reaksiyon-container { padding: 1.5rem 1rem; }
+      .reaksiyon-box { padding: 1.2rem; }
+      .reaksiyon-input { min-width: 0; width: 100%; }
+    }
 
     /* BLOG SEKMESİ */
     .blog-container { max-width: 1200px; margin: 0 auto; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; box-shadow: var(--shadow-sm); position: relative; z-index: 2; }
@@ -1011,12 +1033,25 @@
        
         <div class="reaksiyon-box">
           <div class="reaksiyon-inputs-wrapper">
-            <input type="text" class="reaksiyon-input" placeholder="1. Kimyasal (Örn: Çamaşır Suyu)">
+            <input type="text" class="reaksiyon-input" id="karisim1" list="karisimOnerileri" autocomplete="off"
+                   placeholder="1. Kimyasal (Örn: Çamaşır Suyu)" onkeydown="if(event.key==='Enter') karisimKontrol()">
             <span class="reaksiyon-plus">+</span>
-            <input type="text" class="reaksiyon-input" placeholder="2. Kimyasal (Örn: Tuz Ruhu)">
+            <input type="text" class="reaksiyon-input" id="karisim2" list="karisimOnerileri" autocomplete="off"
+                   placeholder="2. Kimyasal (Örn: Tuz Ruhu)" onkeydown="if(event.key==='Enter') karisimKontrol()">
           </div>
-          <button class="btn-reaksiyon" onclick="alert('Karışım kontrol modülü yakında eklenecektir! (Örn: Zehirli Klor Gazı açığa çıkar)')">Uyumluluğu Kontrol Et</button>
+          <datalist id="karisimOnerileri">
+            {% for ad in karisim_onerileri %}<option value="{{ ad }}">{% endfor %}
+          </datalist>
+          <button class="btn-reaksiyon" id="karisimBtn" onclick="karisimKontrol()">Uyumluluğu Kontrol Et</button>
+          <div class="karisim-ornekler">
+            <span>Örnekler:</span>
+            <button type="button" onclick="karisimOrnek('çamaşır suyu', 'tuz ruhu')">Çamaşır suyu + Tuz ruhu</button>
+            <button type="button" onclick="karisimOrnek('çamaşır suyu', 'amonyak')">Çamaşır suyu + Amonyak</button>
+            <button type="button" onclick="karisimOrnek('sirke', 'karbonat')">Sirke + Karbonat</button>
+            <button type="button" onclick="karisimOrnek('sülfürik asit', 'su')">Sülfürik asit + Su</button>
+          </div>
         </div>
+        <div id="karisimSonuc" class="karisim-sonuc" hidden></div>
       </div>
     </section>
 <style>
@@ -2472,6 +2507,59 @@ try {
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/^\s*[\*\-] /gm, '• ')
         .replace(/\n/g, '<br>');
+    }
+
+    // --- KARIŞIM GÜVENLİĞİ KONTROLÜ ---
+    function karisimOrnek(a, b) {
+      document.getElementById('karisim1').value = a;
+      document.getElementById('karisim2').value = b;
+      karisimKontrol();
+    }
+
+    async function karisimKontrol() {
+      const k1 = document.getElementById('karisim1').value.trim();
+      const k2 = document.getElementById('karisim2').value.trim();
+      const kutu = document.getElementById('karisimSonuc');
+      if (!k1 || !k2) {
+        kutu.className = 'karisim-sonuc bilgi'; kutu.hidden = false;
+        kutu.innerHTML = '<div class="karisim-baslik">Lütfen iki kimyasalın da adını yazın.</div>';
+        return;
+      }
+      const btn = document.getElementById('karisimBtn');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/api/karisim', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kimyasal1: k1, kimyasal2: k2 })
+        });
+        const d = await res.json();
+        if (d.hata) throw new Error(d.hata);
+
+        const IKONLAR = { tehlikeli: '⛔', dikkat: '⚠️', bilgi: 'ℹ️', bulunamadi: '✅', bilinmiyor: '❔' };
+        const ikon = IKONLAR[d.seviye] || '';
+        const etiketler = d.kimyasallar.map(k => `
+          <span class="karisim-etiket">${htmlKacis(k.ad)}${k.siniflar.length ? ` <small>· ${htmlKacis(k.siniflar.join(', '))}</small>` : ''}${k.tanindi ? '' : ' <small>· tanınmadı</small>'}</span>`).join('');
+        const bulgular = d.bulgular.map(b => `
+          <div class="karisim-bulgu">
+            <strong>${IKONLAR[b.seviye]} ${htmlKacis(b.baslik)}</strong>
+            <p>${htmlKacis(b.aciklama)}</p>
+          </div>`).join('');
+
+        kutu.className = 'karisim-sonuc ' + d.seviye;
+        kutu.innerHTML = `
+          <div class="karisim-baslik">${ikon} ${htmlKacis(d.baslik)}</div>
+          <div class="karisim-kimyasallar">${etiketler}</div>
+          ${d.mesaj ? `<p class="karisim-mesaj">${htmlKacis(d.mesaj)}</p>` : ''}
+          ${bulgular}
+          <p class="karisim-uyari">${htmlKacis(d.uyari)}</p>`;
+      } catch (e) {
+        kutu.className = 'karisim-sonuc bilgi';
+        kutu.innerHTML = `<div class="karisim-baslik">Kontrol yapılamadı</div><p class="karisim-mesaj">${htmlKacis(e.message || 'Sunucuya ulaşılamadı.')}</p>`;
+      } finally {
+        kutu.hidden = false;
+        btn.disabled = false;
+        kutu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
 
     async function pdfIndir() {

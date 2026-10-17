@@ -27,6 +27,7 @@ env_dosyasi_yukle()
 
 # .env okunduktan sonra yüklenmeli (DATABASE_URL oradan da gelebilir)
 import veritabani as db
+import karisim
 
 app = Flask(__name__)
 
@@ -717,7 +718,7 @@ def saglik():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", karisim_onerileri=karisim.oneri_listesi())
 
 
 @app.route("/ara", methods=["POST"])
@@ -835,6 +836,16 @@ def ara():
         yerele_kaydet(kimyasal, sonuc)
 
     return jsonify(sonuc)
+
+
+@app.route("/api/karisim", methods=["POST"])
+def karisim_kontrol():
+    veri = request.get_json(silent=True) or {}
+    k1 = str(veri.get("kimyasal1", "")).strip()[:100]
+    k2 = str(veri.get("kimyasal2", "")).strip()[:100]
+    if not k1 or not k2:
+        return jsonify({"hata": "Lütfen iki kimyasalın da adını yazın."}), 400
+    return jsonify(karisim.kontrol(k1, k2, yerel_getir=yerelden_getir))
 
 
 @app.route("/pdf", methods=["POST"])

@@ -17,6 +17,47 @@
     <label>Email</label>
     <input value="{{ kullanici['email'] }}" readonly>
   </div>
+
+  <h2 class="bolum-baslik">♡ Favori Kimyasallarım</h2>
+  {% if favoriler %}
+    <ul class="favori-listesi" id="favori-listesi">
+      {% for f in favoriler %}
+        <li class="favori">
+          <a href="{{ url_for('index', ara=f['isim']) }}" class="favori-link">
+            <span class="favori-isim">{{ f['isim'] }}</span>
+            {% if f['formul'] %}<span class="favori-formul">{{ f['formul'] }}</span>{% endif %}
+          </a>
+          <button class="favori-sil" type="button" title="Favorilerden çıkar"
+                  data-isim="{{ f['isim'] }}" onclick="favoriSil(this)">✕</button>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+  <p class="bos-mesaj" id="favori-bos" {% if favoriler %}hidden{% endif %}>
+    Henüz favorin yok. Bir kimyasal arayıp detayında <strong>♡ Favorilere Ekle</strong> butonuna bas.
+  </p>
+
   <a class="btn" href="{{ url_for('index') }}">Ana Sayfaya Dön</a>
   <a class="btn btn-ikincil" href="{{ url_for('cikis_yap') }}">Çıkış Yap</a>
+
+  <script>
+    async function favoriSil(btn) {
+      btn.disabled = true;
+      try {
+        const res = await fetch('{{ url_for("favori_sil") }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isim: btn.dataset.isim })
+        });
+        if (!res.ok) throw new Error();
+        btn.closest('li').remove();
+        if (!document.querySelector('#favori-listesi li')) {
+          document.getElementById('favori-bos').hidden = false;
+        }
+      } catch (e) {
+        btn.disabled = false;
+        alert('Silinemedi, lütfen tekrar deneyin.');
+      }
+    }
+  </script>
 {% endblock %}

@@ -1617,54 +1617,50 @@
 
     periyodikTabloOlustur();
 
-    // --- BLOG MANTIĞI ---
+    // --- BLOG MANTIĞI (yazılar sunucudaki veritabanında tutulur, herkes görür) ---
     let duzenlenenBlogId = null;
+    let bloglar = [];
+    let blogGirisYapildi = false;
 
-    const VARSAYILAN_YAZILAR = [
-      {
-        id: 1,
-        baslik: "Altın ve Aqua Regia: Kral Suyu Gerçeği",
-        etiket: "Kimyasal Reaksiyonlar",
-        tarih: "09.09.2026",
-        icerik: "Aqua regia (Kral Suyu), derişik hidroklorik asit ve derişik nitrik asidin genellikle 3:1 hacim oranında karıştırılmasıyla oluşan oldukça aşındırıcı bir çözeltidir.\n\nAltın ve platin gibi soy metalleri çözebilme kapasitesine sahip az sayıdaki karışımdan biridir. Reaksiyon esnasında açığa çıkan serbest klor ve nitrozil klorür (NOCl), altını kloroaurik asit formunda çözeltiye geçirir. Bu çözeltiyle çalışırken çeker ocak kullanılması hayati önem taşır."
-      },
-      {
-        id: 2,
-        baslik: "Laboratuvarda Asit Seyreltme: Asidi Suya Ekle!",
-        etiket: "Laboratuvar Güvenliği",
-        tarih: "08.09.2026",
-        icerik: "Kimya laboratuvarlarının altın kuralı: 'Daima asidi suya ekleyin, asla suyu aside eklemeyin.'\n\nSülfürik asit gibi güçlü asitlerin su ile hidrasyon reaksiyonu aşırı ekzotermiktir (yüksek ısı açığa çıkar). Eğer su derişik asidin üzerine dökülürse, az miktardaki su anında kaynama noktasına ulaşarak buharlaşır ve etrafa asit sıçramasına yol açar. Su kabına yavaşça ve karıştırılarak eklenen asit ise açığa çıkan ısının su tarafından güvenle emilmesini sağlar."
-      }
-    ];
-
-    function bloglariGetir() {
-      const kayitli = localStorage.getItem('kimyasal_bloglar');
-      if (!kayitli) {
-        localStorage.setItem('kimyasal_bloglar', JSON.stringify(VARSAYILAN_YAZILAR));
-        return VARSAYILAN_YAZILAR;
-      }
-      return JSON.parse(kayitli);
-    }
-
-    function blogListesiniYenile() {
-      const bloglar = bloglariGetir();
+    async function blogListesiniYenile() {
       const listeDiv = document.getElementById('blogListesi');
-     
+      try {
+        const res = await fetch('/api/blog');
+        const data = await res.json();
+        bloglar = data.yazilar || [];
+        blogGirisYapildi = data.giris_yapildi;
+      } catch (e) {
+        listeDiv.innerHTML = '<p style="color:var(--danger)">Blog yazıları yüklenemedi.</p>';
+        return;
+      }
+
+      if (!bloglar.length) {
+        listeDiv.innerHTML = '<p style="color:var(--text-muted)">Henüz blog yazısı yok. İlk yazıyı sen paylaş!</p>';
+        return;
+      }
+
       listeDiv.innerHTML = bloglar.map(b => `
         <div class="blog-card-item" onclick="blogOku(${b.id})">
+          ${b.sahibi_mi ? `
           <div class="blog-card-actions" onclick="event.stopPropagation()">
             <button class="blog-dots-btn" onclick="blogMenuAc(event, ${b.id})">⋮</button>
             <div class="blog-dropdown-menu" id="menu-${b.id}">
               <button class="blog-dropdown-item" onclick="blogDuzenleBaslat(${b.id})">✏️ Düzenle</button>
               <button class="blog-dropdown-item delete" onclick="blogSil(${b.id})">🗑️ Sil</button>
             </div>
-          </div>
-          <span class="blog-tag">${b.etiket || 'Genel Kimya'}</span>
-          <div class="blog-title-text" style="padding-right: 1.5rem;">${b.baslik}</div>
-          <div class="blog-snippet">${b.icerik}</div>
-          <div class="blog-date">📅 ${b.tarih}</div>
+          </div>` : ''}
+          <span class="blog-tag">${htmlKacis(b.etiket || 'Genel Kimya')}</span>
+          <div class="blog-title-text" style="padding-right: 1.5rem;">${htmlKacis(b.baslik)}</div>
+          <div class="blog-snippet">${htmlKacis(b.icerik)}</div>
+          <div class="blog-date">✍️ ${htmlKacis(b.yazar)} · 📅 ${tarihGoster(b.tarih)}</div>
         </div>
       `).join('');
+    }
+
+    // "2026-09-09" -> "09.09.2026"
+    function tarihGoster(tarih) {
+      const [y, a, g] = String(tarih).split('-');
+      return g && a && y ? `${g}.${a}.${y}` : tarih;
     }
 
     function blogMenuAc(e, id) {
@@ -1681,16 +1677,35 @@
       document.querySelectorAll('.blog-dropdown-menu').forEach(m => m.classList.remove('show'));
     });
 
-    function blogSil(id) {
+    // Blog API isteklerini gönderir; hata olursa kullanıcıya gösterir ve false döner
+    async function blogIstegi(url, method, govde) {
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: govde ? JSON.stringify(govde) : undefined
+        });
+        const data = await res.json();
+        if (data.giris_gerekli) {
+          if (confirm('Blog yazısı paylaşmak için giriş yapmalısın. Giriş sayfasına gitmek ister misin?')) {
+            window.location.href = '/giris';
+          }
+          return false;
+        }
+        if (data.hata) { alert(data.hata); return false; }
+        return true;
+      } catch (e) {
+        alert('Sunucuya ulaşılamadı. Lütfen tekrar deneyin.');
+        return false;
+      }
+    }
+
+    async function blogSil(id) {
       if (!confirm('Bu blog yazısını silmek istediğinize emin misiniz?')) return;
-      let bloglar = bloglariGetir();
-      bloglar = bloglar.filter(b => b.id !== id);
-      localStorage.setItem('kimyasal_bloglar', JSON.stringify(bloglar));
-      blogListesiniYenile();
+      if (await blogIstegi(`/api/blog/${id}`, 'DELETE')) blogListesiniYenile();
     }
 
     function blogDuzenleBaslat(id) {
-      const bloglar = bloglariGetir();
       const yazi = bloglar.find(b => b.id === id);
       if (!yazi) return;
 
@@ -1715,58 +1730,45 @@
         document.getElementById('blogIcerik').value = '';
         document.getElementById('blogFormBaslik').textContent = '✍️ Yeni Blog Yazısı Oluştur';
       } else {
+        if (!blogGirisYapildi) {
+          if (confirm('Blog yazısı paylaşmak için giriş yapmalısın. Giriş sayfasına gitmek ister misin?')) {
+            window.location.href = '/giris';
+          }
+          return;
+        }
         document.getElementById('blogFormBaslik').textContent = '✍️ Yeni Blog Yazısı Oluştur';
         form.style.display = 'block';
       }
     }
 
-    function blogYaziKaydet() {
-      const baslik = document.getElementById('blogBaslik').value.trim();
-      const etiket = document.getElementById('blogEtiket').value.trim();
-      const icerik = document.getElementById('blogIcerik').value.trim();
+    async function blogYaziKaydet() {
+      const yazi = {
+        baslik: document.getElementById('blogBaslik').value.trim(),
+        etiket: document.getElementById('blogEtiket').value.trim(),
+        icerik: document.getElementById('blogIcerik').value.trim()
+      };
 
-      if (!baslik || !icerik) {
+      if (!yazi.baslik || !yazi.icerik) {
         alert('Lütfen en azından bir başlık ve yazı içeriği girin.');
         return;
       }
 
-      let bloglar = bloglariGetir();
+      const basarili = duzenlenenBlogId
+        ? await blogIstegi(`/api/blog/${duzenlenenBlogId}`, 'PUT', yazi)
+        : await blogIstegi('/api/blog', 'POST', yazi);
+      if (!basarili) return;
 
-      if (duzenlenenBlogId) {
-        const index = bloglar.findIndex(b => b.id === duzenlenenBlogId);
-        if (index !== -1) {
-          bloglar[index].baslik = baslik;
-          bloglar[index].etiket = etiket || 'Kimya';
-          bloglar[index].icerik = icerik;
-        }
-        duzenlenenBlogId = null;
-      } else {
-        const yeniYazi = {
-          id: Date.now(),
-          baslik: baslik,
-          etiket: etiket || 'Kimya',
-          tarih: new Date().toLocaleDateString('tr-TR'),
-          icerik: icerik
-        };
-        bloglar.unshift(yeniYazi);
-      }
-
-      localStorage.setItem('kimyasal_bloglar', JSON.stringify(bloglar));
-      document.getElementById('blogBaslik').value = '';
-      document.getElementById('blogEtiket').value = '';
-      document.getElementById('blogIcerik').value = '';
       blogFormToggle();
       blogListesiniYenile();
     }
 
     function blogOku(id) {
-      const bloglar = bloglariGetir();
       const yazi = bloglar.find(b => b.id === id);
       if (!yazi) return;
 
       document.getElementById('modalBaslik').textContent = yazi.baslik;
       document.getElementById('modalTag').textContent = yazi.etiket;
-      document.getElementById('modalTarih').textContent = 'Yayınlanma Tarihi: ' + yazi.tarih;
+      document.getElementById('modalTarih').textContent = `Yazar: ${yazi.yazar} · Yayınlanma Tarihi: ${tarihGoster(yazi.tarih)}`;
       document.getElementById('modalIcerik').textContent = yazi.icerik;
 
       document.getElementById('blogModal').classList.add('active');
@@ -2353,10 +2355,37 @@ try {
       }
     }
 
-    function favoriEkle() {
-      alert('Bu kimyasal favorilere eklendi! ♡');
-      // localStorage'a kaydedilebilir
+    async function favoriEkle() {
+      const veri = currentMolecule3D || sonVeri;
+      if (!veri || !veri.isim) return;
+      try {
+        const res = await fetch('/api/favoriler', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isim: veri.isim, formul: veri.formul, cid: veri.cid })
+        });
+        const data = await res.json();
+        if (data.giris_gerekli) {
+          if (confirm('Favorilere eklemek için giriş yapmalısın. Giriş sayfasına gitmek ister misin?')) {
+            window.location.href = '/giris';
+          }
+          return;
+        }
+        alert(data.mesaj || data.hata);
+      } catch (e) {
+        alert('Sunucuya ulaşılamadı. Lütfen tekrar deneyin.');
+      }
     }
+
+    // Profil sayfasındaki favorilerden gelinirse (/?ara=Etanol) o kimyasalı otomatik ara
+    window.addEventListener('load', () => {
+      const aranacak = new URLSearchParams(window.location.search).get('ara');
+      if (aranacak) {
+        document.getElementById('kimyasalInput').value = aranacak;
+        araButonuTetikle();
+        history.replaceState(null, '', '/');
+      }
+    });
 
     function kapaMoleculeModal() {
       document.getElementById('moleculeDetailModal').classList.remove('active');

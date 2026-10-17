@@ -8,6 +8,7 @@ import sqlite3
 import io
 import secrets
 from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 def env_dosyasi_yukle():
     """Proje klasöründeki .env dosyasındaki ayarları (ör. GEMINI_API_KEY) okur."""
@@ -23,6 +24,9 @@ def env_dosyasi_yukle():
             os.environ.setdefault(anahtar.strip(), deger.strip().strip('"').strip("'"))
 
 env_dosyasi_yukle()
+
+# .env okunduktan sonra yüklenmeli (DATABASE_URL oradan da gelebilir)
+import veritabani as db
 
 app = Flask(__name__)
 
@@ -484,7 +488,6 @@ def kategori_bul(h_kodu):
 # ==============================================================================
 # 3. KULLANICI SİSTEMİ (KAYIT / GİRİŞ / PROFİL)
 # ==============================================================================
-USER_DB_PATH = os.path.join(BASE_DIR, "kullanici.db")
 SECRET_KEY_PATH = os.path.join(BASE_DIR, ".secret_key")
 
 def gizli_anahtar_al():
@@ -502,28 +505,18 @@ def gizli_anahtar_al():
 
 app.secret_key = gizli_anahtar_al()
 
-def init_user_db():
-    conn = sqlite3.connect(USER_DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS kullanicilar (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            isim TEXT NOT NULL,
-            soyisim TEXT NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            sifre TEXT NOT NULL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+# Uygulama başlarken kullanıcı / favori / blog tabloları yoksa oluşturulur
+# (Render'da DATABASE_URL varsa PostgreSQL, yoksa yerel kullanici.db kullanılır)
+db.tablolari_olustur()
 
-# Uygulama başlarken tablo yoksa oluşturur
-init_user_db() 
-
-def get_user_db_connection():
-    conn = sqlite3.connect(USER_DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+def giris_gerekli(f):
+    """JSON API'leri için: giriş yapılmamışsa 401 döndürür."""
+    @wraps(f)
+    def sarmal(*args, **kwargs):
+        if not session.get('kullanici_id'):
+            return jsonify({'hata': 'Bu işlem için giriş yapmalısınız.', 'giris_gerekli': True}), 401
+        return f(*args, **kwargs)
+    return sarmal
 
 @app.route('/kayit', methods=['GET', 'POST'])
 def kayit_sayfasi():
@@ -543,24 +536,17 @@ def kayit_sayfasi():
         if len(sifre) < 6:
             return jsonify({'durum': 'hata', 'mesaj': 'Şifre en az 6 karakter olmalı.'})
 
-        hashed_sifre = generate_password_hash(sifre)
-
-        conn = get_user_db_connection()
-        cursor = conn.cursor()
         try:
-            cursor.execute(
+            db.calistir(
                 "INSERT INTO kullanicilar (isim, soyisim, email, sifre) VALUES (?, ?, ?, ?)",
-                (isim, soyisim, email, hashed_sifre)
+                (isim, soyisim, email, generate_password_hash(sifre))
             )
-            conn.commit()
-            flash('Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success')
-            return jsonify({'durum': 'basarili', 'yonlendir': url_for('giris_yap')})
-            
-        except sqlite3.IntegrityError:
+        except db.BUTUNLUK_HATASI:
             return jsonify({'durum': 'hata', 'mesaj': 'Bu email adresi zaten sisteme kayıtlı.'})
-        finally:
-            conn.close()
-            
+
+        flash('Kayıt başarılı! Şimdi giriş yapabilirsiniz.', 'success')
+        return jsonify({'durum': 'basarili', 'yonlendir': url_for('giris_yap')})
+
     return render_template('kayit.html')
 
 
@@ -573,10 +559,7 @@ def giris_yap():
         email = request.form.get('email', '').strip().lower()
         sifre = request.form.get('sifre', '')
 
-        conn = get_user_db_connection()
-
-        kullanici = conn.execute('SELECT * FROM kullanicilar WHERE email = ?', (email,)).fetchone()
-        conn.close()
+        kullanici = db.calistir('SELECT * FROM kullanicilar WHERE email = ?', (email,), tek=True)
 
         if kullanici and check_password_hash(kullanici['sifre'], sifre):
             session.clear()
@@ -599,15 +582,123 @@ def giris_yap():
 def profil_sayfasi():
     if not session.get('kullanici_id'):
         return redirect(url_for('giris_yap'))
-    conn = get_user_db_connection()
-    kullanici = conn.execute(
-        'SELECT isim, soyisim, email FROM kullanicilar WHERE id = ?', (session['kullanici_id'],)
-    ).fetchone()
-    conn.close()
+    kullanici = db.calistir(
+        'SELECT isim, soyisim, email FROM kullanicilar WHERE id = ?', (session['kullanici_id'],), tek=True
+    )
     if not kullanici:
         session.clear()
         return redirect(url_for('giris_yap'))
-    return render_template('profil.html', kullanici=kullanici)
+    favoriler = db.calistir(
+        'SELECT isim, formul FROM favoriler WHERE kullanici_id = ? ORDER BY eklenme DESC, id DESC',
+        (session['kullanici_id'],), hepsi=True
+    )
+    return render_template('profil.html', kullanici=kullanici, favoriler=favoriler)
+
+# ---------------- FAVORİLER ----------------
+@app.route('/api/favoriler', methods=['GET'])
+@giris_gerekli
+def favorileri_listele():
+    favoriler = db.calistir(
+        'SELECT isim, formul, cid FROM favoriler WHERE kullanici_id = ? ORDER BY eklenme DESC, id DESC',
+        (session['kullanici_id'],), hepsi=True
+    )
+    return jsonify({'favoriler': favoriler})
+
+@app.route('/api/favoriler', methods=['POST'])
+@giris_gerekli
+def favori_ekle():
+    veri = request.get_json(silent=True) or {}
+    isim = str(veri.get('isim', '')).strip()[:200]
+    if not isim:
+        return jsonify({'hata': 'Kimyasal adı eksik.'}), 400
+    formul = str(veri.get('formul') or '')[:100]
+    try:
+        cid = int(veri['cid']) if veri.get('cid') else None
+    except (TypeError, ValueError):
+        cid = None
+    try:
+        db.calistir(
+            'INSERT INTO favoriler (kullanici_id, isim, formul, cid, eklenme) VALUES (?, ?, ?, ?, ?)',
+            (session['kullanici_id'], isim, formul, cid, db.simdi())
+        )
+    except db.BUTUNLUK_HATASI:
+        return jsonify({'durum': 'zaten_var', 'mesaj': f'{isim} zaten favorilerinde.'})
+    return jsonify({'durum': 'eklendi', 'mesaj': f'{isim} favorilere eklendi! ♡'})
+
+@app.route('/api/favoriler/sil', methods=['POST'])
+@giris_gerekli
+def favori_sil():
+    veri = request.get_json(silent=True) or {}
+    db.calistir(
+        'DELETE FROM favoriler WHERE kullanici_id = ? AND isim = ?',
+        (session['kullanici_id'], str(veri.get('isim', '')).strip())
+    )
+    return jsonify({'durum': 'silindi'})
+
+# ---------------- BLOG ----------------
+def blog_formu_oku():
+    veri = request.get_json(silent=True) or {}
+    baslik = str(veri.get('baslik', '')).strip()[:200]
+    etiket = str(veri.get('etiket', '')).strip()[:60] or 'Kimya'
+    icerik = str(veri.get('icerik', '')).strip()[:20000]
+    return baslik, etiket, icerik
+
+@app.route('/api/blog', methods=['GET'])
+def bloglari_listele():
+    yazilar = db.calistir(
+        'SELECT id, kullanici_id, yazar, baslik, etiket, icerik, tarih FROM blog_yazilari ORDER BY tarih DESC, id DESC',
+        hepsi=True
+    )
+    benim_id = session.get('kullanici_id')
+    for y in yazilar:
+        sahip_id = y.pop('kullanici_id')
+        y['sahibi_mi'] = benim_id is not None and sahip_id == benim_id
+        y['tarih'] = y['tarih'][:10]
+    return jsonify({'yazilar': yazilar, 'giris_yapildi': benim_id is not None})
+
+@app.route('/api/blog', methods=['POST'])
+@giris_gerekli
+def blog_ekle():
+    baslik, etiket, icerik = blog_formu_oku()
+    if not baslik or not icerik:
+        return jsonify({'hata': 'Lütfen en azından bir başlık ve yazı içeriği girin.'}), 400
+    db.calistir(
+        'INSERT INTO blog_yazilari (kullanici_id, yazar, baslik, etiket, icerik, tarih) VALUES (?, ?, ?, ?, ?, ?)',
+        (session['kullanici_id'], session.get('gosterim_adi', 'Anonim'), baslik, etiket, icerik, db.simdi())
+    )
+    return jsonify({'durum': 'eklendi'})
+
+def yazi_sahibi_kontrol(yazi_id):
+    yazi = db.calistir('SELECT kullanici_id FROM blog_yazilari WHERE id = ?', (yazi_id,), tek=True)
+    if not yazi:
+        return jsonify({'hata': 'Yazı bulunamadı.'}), 404
+    if yazi['kullanici_id'] != session['kullanici_id']:
+        return jsonify({'hata': 'Sadece kendi yazılarınızı değiştirebilirsiniz.'}), 403
+    return None
+
+@app.route('/api/blog/<int:yazi_id>', methods=['PUT'])
+@giris_gerekli
+def blog_duzenle(yazi_id):
+    hata = yazi_sahibi_kontrol(yazi_id)
+    if hata:
+        return hata
+    baslik, etiket, icerik = blog_formu_oku()
+    if not baslik or not icerik:
+        return jsonify({'hata': 'Lütfen en azından bir başlık ve yazı içeriği girin.'}), 400
+    db.calistir(
+        'UPDATE blog_yazilari SET baslik = ?, etiket = ?, icerik = ? WHERE id = ?',
+        (baslik, etiket, icerik, yazi_id)
+    )
+    return jsonify({'durum': 'guncellendi'})
+
+@app.route('/api/blog/<int:yazi_id>', methods=['DELETE'])
+@giris_gerekli
+def blog_sil(yazi_id):
+    hata = yazi_sahibi_kontrol(yazi_id)
+    if hata:
+        return hata
+    db.calistir('DELETE FROM blog_yazilari WHERE id = ?', (yazi_id,))
+    return jsonify({'durum': 'silindi'})
 
 @app.route('/cikis')
 def cikis_yap():
